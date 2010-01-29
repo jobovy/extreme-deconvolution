@@ -1,0 +1,31 @@
+######################################
+#
+#   Sample initial conditions file:
+#
+#	K must be set first!
+#
+######################################
+K=2
+maxiter=1000000000
+tol=1e-6
+splitnmerge=0
+fixmean=00
+fixcovar=00
+fixamp=00
+likeonly=0
+w=.1
+
+0.5
+1
+0
+10
+10
+0
+
+0.5
+-1
+0
+10
+20
+0
+
