@@ -1,5 +1,3 @@
-PYTHON_INCLUDE=/usr/local/epd/include/python2.5/
-PYTHON_CONFIG=/usr/local/epd/lib/python2.5/config/
 RM= /bin/rm -vf
 
 proj_gauss_mixtures_objects= src/bovy_isfin.o src/bovy_randvec.o \
@@ -103,18 +101,6 @@ src/proj_gauss_mixtures.o: src/proj_gauss_mixtures.c
 src/proj_gauss_mixtures_IDL.o: src/proj_gauss_mixtures_IDL.c
 	gcc -fpic -Wall -c src/proj_gauss_mixtures_IDL.c -o \
 	src/proj_gauss_mixtures_IDL.o -I src/
-
-
-#
-# Python Wrapper
-#
-py/_projGaussMixtures.so: py/projGaussMixtures.i $(proj_gauss_mixtures_objects) src/proj_gauss_mixtures_IDL.o
-	swig -python py/projGaussMixtures.i
-	gcc -fpic -Wall -c py/projGaussMixtures_wrap.c -DHAVE_CONFIG_H -I$(PYTHON_INCLUDE) \
-	-I$(PYTHON_CONFIG) -o py/projGaussMixtures_wrap.o
-	gcc -shared -o $@ -lm -lgsl -lgslcblas \
-	$(proj_gauss_mixtures_objects) src/proj_gauss_mixtures_IDL.o \
-	py/projGaussMixtures_wrap.o
 
 
 #
