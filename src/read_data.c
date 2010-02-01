@@ -33,7 +33,7 @@ bool read_data(char inputfilename[]){
   while (feof(inputfile) ==0) if (getc(inputfile) == '\n') N++;
   
   printf("%i datapoints found in ",N);
-  printf(inputfilename);
+  printf("%s", inputfilename);
   printf("\n");
   
   //Then read the actual data

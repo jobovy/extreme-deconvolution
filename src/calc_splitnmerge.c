@@ -67,7 +67,7 @@ void calc_splitnmerge(struct datapoint * data,int N,
   gsl_matrix * tempRR,* tempVV;
   gsl_vector * tempSS,* tempwork;
   gsl_vector * expectedww = gsl_vector_alloc(d);
-  gsl_vector_view tempUcol;
+  //gsl_vector_view tempUcol;
   double lambda;
   int di,signum;
   for (ii=0; ii != N; ++ii){

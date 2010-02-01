@@ -123,7 +123,7 @@ value[22]=1
 
 IF ~keyword_set(quiet) THEN splog, "Loading C-implementation to run the projected_gauss_mixtures algorithm..."
 
-result = CALL_EXTERNAL("/home/users/jb2777/streams/pro/rv/proj_gauss_mixtures/proj_gauss_mixtures.so", $
+result = CALL_EXTERNAL("/home/jo/tmp/extreme-deconvolution/proj_gauss_mixtures.so", $
                        "proj_gauss_mixtures_IDL", $
                        ydata, ycovar, projection, ndata, ndimy, $
                        amp, xmean, xcovar, ndimx, ngauss, $
