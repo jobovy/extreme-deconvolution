@@ -40,7 +40,7 @@ template= {version:1.0, datastart: 0, $
            fieldnames: fieldnames, $
            fieldlocations: lonarr(nfield), fieldgroups: lindgen(nfield)}
 tfdata= read_ascii('TF.dat',num_records=nline,template=template)
-splog, 'found '+strtrim(string(n_elements(tfdata.tf01)),2)+$
+print, 'found '+strtrim(string(n_elements(tfdata.tf01)),2)+$
   ' records'
 
 ;;Create the data structure
