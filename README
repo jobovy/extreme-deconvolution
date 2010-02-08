@@ -1,10 +1,10 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-% README for proj_gauss_mixtures implementation:
+% README for extreme-deconvolution implementation:
 %    contains: installation instuctions, usage instructions
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Copyright 2008-2009 Jo Bovy, David W. Hogg, and Sam Roweis.
+Copyright 2008-2010 Jo Bovy, David W. Hogg, and Sam Roweis.
 
 
 INSTALLATION:
@@ -28,33 +28,42 @@ if this library is not found.
 
 Installation:
 make
-make install
+sudo make install
+make idlwrapper
 make test
 make clean
 
-1) make: make will create both the shared objected library as well as the
-"main" program. Run "make proj_gauss_mixtures" to just install the
-main program, "make proj_gauss_mixtures.so" to just install the shared
-object library.
+1) make: make will create both the shared objected library as well as
+the "main" program. Run "make extremedeconvolution" to just compile
+the main program, "make extremedeconvolution.so" to just compile the
+shared object library. These files will be deposited in the 'build/'
+sub-directory.
 
-2) make install: will set the path of the shared object library in the
-IDL wrapper.
+2) sudo make install: will copy the shared object library to
+/usr/local/lib . To install somewhere else run
 
-3) make test: this will run the test program 'fit_tf.pro' from the
+sudo make install INSTALL_DIR=/path/to/install/dir/
+
+make sure to end in '/'.
+
+3) make idlwrapper: will set the path of the shared object library in the
+IDL wrapper. If you installed the library by specifying INSTALL_DIR, also run
+
+make idlwrapper INSTALL_DIR=/path/to/install/dir/
+
+4) make test: this will run the test program 'fit_tf.pro' from the
 examples directory, fitting the Tully-Fisher relation in different
-bandpasses (see the accompanying paper for details). A plot TF.ps and
+bandpasses (see arXiv:0905:2979v1 for details). A plot TF.ps and
 output file TF.tex will be produced in the examples directory. If the
 test succeeds 'Ouput of test agrees with given solution' will be
-printed. If the test (diff of TF.tex and TF.out) fails 
-'Output of test does not agree with given solution
-Manually diff the TF.tex and TF.out (given solution) file'
-will be printed.
+printed. If the test (diff of TF.tex and TF.out) fails 'Output of test
+does not agree with given solution Manually diff the TF.tex and TF.out
+(given solution) file' will be printed.
 
-4) make clean: cleans up intermediate files
+5) make clean: cleans up intermediate files
 
-5) make spotless: deletes all the intermediate files as well as the main
+6*) make spotless: deletes all the intermediate files as well as the main
 program and the shared library.
-
 
 
 
@@ -214,8 +223,24 @@ This code is free software licensed under the GNU GPL, version 2.  See
 the file LICENSE for the full terms of the GNU GPL.
 
 
+ACKNOWLEDGING EXTREME-DECONVOLUTION
+-----------------------------------
+
+The algorithm that the code implements is described in the paper
+"Extreme deconvolution: inferring complete distribution functions from
+noisy, heterogeneous and incomplete observations"; a copy of the
+latest draft of this paper is included in the "doc/" directory of the
+repository or source archive. If you use the code, please cite this
+paper, e.g., 
+
+Extreme deconvolution: inferring complete distribution functions from
+noisy, heterogeneous and incomplete observations Jo Bovy, David
+W. Hogg, & Sam T. Roweis, Submitted to AOAS (2009) [arXiv/0905.2979]
+
 CONTACT
 -------
 
 Questions, comments, extensions? jb2777@nyu.edu
 
+
+END_OF_README
