@@ -6,32 +6,33 @@
 
 For more info, see the README file.
 
-Run:
+Run
 
 make
-
-	to compile the library into build/extremedeconvolution.so
+	
+     to compile the library into build/extremedeconvolution.so
 
 sudo make install
 
-        to copy the library to /usr/local/lib/. Use 'make install
-   	INSTALL_DIR=/path/to/install/dir/' to install in a different directory.
+     to copy the library to /usr/local/lib/. Use 'make install
+     INSTALL_DIR=/path/to/install/dir/' to install in a different
+     directory.
 
 make idlwrapper
 
-        to install the IDL wrapper. Add
-        'INSTALL_DIR=/path/to/install/dir/' if this was used to
-        install the library.
+     to install the IDL wrapper. Add
+     'INSTALL_DIR=/path/to/install/dir/' if this was used to install
+     the library.
 
 make test
 
-       to test the installation. IDL and the IDL wrapper need to be
-       installed for this to run.
+     to test the installation. IDL and the IDL wrapper need to be
+     installed for this to run.
 
 make clean
 
-       to clean up intermediate object (*.o) files.
+     to clean up intermediate object (*.o) files.
 
 make spotless:
      
-       to return the directory to its initial state
+     to return the directory to its initial state
