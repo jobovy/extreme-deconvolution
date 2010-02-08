@@ -1,3 +1,4 @@
+INSTALL_DIR=/usr/local/lib/
 RM= /bin/rm -vf
 
 proj_gauss_mixtures_objects= src/bovy_isfin.o src/bovy_randvec.o \
@@ -11,30 +12,35 @@ proj_gauss_main_objects= src/main.o src/parse_option.o src/read_data.o \
 
 #
 # The next targets are the main make targets: all, 
-# proj_gauss_mixtures (the executable), and 
-# proj_gauss_mixtures.so (the sharable object library)
+# extremedeconvolution (the executable), and 
+# extremedeconvolution.so (the sharable object library)
 #
-all: proj_gauss_mixtures proj_gauss_mixtures.so
+all: build/extremedeconvolution build/extremedeconvolution.so
 
-proj_gauss_mixtures: $(proj_gauss_mixtures_objects) $(proj_gauss_main_objects)
-	gcc -o proj_gauss_mixtures -lm -lgsl -lgslcblas \
-	$(proj_gauss_mixtures_objects) $(proj_gauss_main_objects)
+build:
+	mkdir build
 
-proj_gauss_mixtures.so: $(proj_gauss_mixtures_objects) \
-			src/proj_gauss_mixtures_IDL.o
-	gcc -shared -o proj_gauss_mixtures.so -lm -lgsl -lgslcblas \
-	$(proj_gauss_mixtures_objects) src/proj_gauss_mixtures_IDL.o
+build/extremedeconvolution: $(proj_gauss_mixtures_objects) $(proj_gauss_main_objects) build
+	gcc -o $@ -lm -lgsl -lgslcblas $(proj_gauss_mixtures_objects)\
+	 $(proj_gauss_main_objects)
 
+build/extremedeconvolution.so: $(proj_gauss_mixtures_objects) \
+			src/proj_gauss_mixtures_IDL.o build
+	gcc -shared -o $@ -lm -lgsl -lgslcblas\
+	 $(proj_gauss_mixtures_objects)\
+	 src/proj_gauss_mixtures_IDL.o
 
 %.o: %.c
 	gcc -fpic -Wall -c $< -o $@ -I src/
 
-
 #
 # INSTALL THE IDL WRAPPER
 #
-install:
-	echo 'result = CALL_EXTERNAL("$(PWD)/proj_gauss_mixtures.so", $$' > tmp
+install: build/extremedeconvolution.so
+	cp $< $(INSTALL_DIR)libextremedeconvolution.so
+
+idlwrapper:
+	echo 'result = CALL_EXTERNAL("$(INSTALL_DIR)libextremedeconvolution.so", $$' > tmp
 	cat pro/projected_gauss_mixtures_c.pro_1 tmp pro/projected_gauss_mixtures_c.pro_2 > pro/projected_gauss_mixtures_c.pro
 	$(RM) tmp
 
@@ -56,6 +62,8 @@ clean:
 	$(RM) src/proj_gauss_mixtures_IDL.o
 
 spotless: clean
-	$(RM) proj_gauss_mixtures.so
-	$(RM) proj_gauss_mixtures
 	$(RM) src/*.~
+	$(RM) pro/projected_gauss_mixtures.pro
+	$(RM) build/extremedeconvolution
+	$(RM) build/extremedeconvolution.so
+	rmdir build
