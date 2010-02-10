@@ -30,7 +30,9 @@ Installation:
 make
 sudo make install
 make idlwrapper
-make test
+make pywrapper
+make testidl
+make testpy
 make clean
 
 1) make: make will create both the shared objected library as well as
@@ -51,18 +53,32 @@ IDL wrapper. If you installed the library by specifying INSTALL_DIR, also run
 
 make idlwrapper INSTALL_DIR=/path/to/install/dir/
 
-4) make test: this will run the test program 'fit_tf.pro' from the
+4) make pywrapper: will set the path of the shared object library in
+the Python wrapper (that this works is not critical if the library is
+installed in a standard place). If you installed the library by
+specifying INSTALL_DIR, also run
+
+make pywrapper INSTALL_DIR=/path/to/install/dir/
+
+
+5) make testidl: this will run the test program 'fit_tf.pro' from the
 examples directory, fitting the Tully-Fisher relation in different
 bandpasses (see arXiv:0905:2979v1 for details). A plot TF.ps and
 output file TF.tex will be produced in the examples directory. If the
 test succeeds 'Ouput of test agrees with given solution' will be
 printed. If the test (diff of TF.tex and TF.out) fails 'Output of test
 does not agree with given solution Manually diff the TF.tex and TF.out
-(given solution) file' will be printed.
+(given solution) file' will be printed. IMPORTANT: If your IDL
+installation is not 'idl', pass the variable IDL=/your/idl/bin
 
-5) make clean: cleans up intermediate files
+6) make testpy: Tests whether the python program can access the
+library and gives the expected output for a test run. Uses python's
+doctest module. IMPORTANT: If your Python installation is not
+'python', pass the variable PYTHON=/your/python/bin
 
-6*) make spotless: deletes all the intermediate files as well as the main
+7) make clean: cleans up intermediate files
+
+8*) make spotless: deletes all the intermediate files as well as the main
 program and the shared library.
 
 

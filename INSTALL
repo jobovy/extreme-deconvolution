@@ -24,10 +24,23 @@ make idlwrapper
      'INSTALL_DIR=/path/to/install/dir/' if this was used to install
      the library.
 
-make test
+make pywrapper
 
-     to test the installation. IDL and the IDL wrapper need to be
-     installed for this to run.
+     to install the python wrapper. Add
+     'INSTALL_DIR=/path/to/install/dir/' if this was used to install
+     the library.
+
+make testidl
+
+     to test the installation and IDL wrapper. IDL and the IDL wrapper
+     need to be installed for this to run. If your IDL installation is
+     not 'idl', pass the variable IDL=/your/idl/bin
+
+make testpy
+
+     to test the installation and Python wrapper. Python and the python wrapper
+     need to be installed for this to run. If your Python installation is
+     not 'python', pass the variable PYTHON=/your/python/bin
 
 make clean
 

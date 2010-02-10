@@ -8,12 +8,8 @@ _lib = None
 _libname = ctypes.util.find_library('libextremedeconvolution.so')
 if _libname:
     _lib = ctypes.CDLL(_libname)
-if _lib is None:
-    p = os.path.join(os.path.dirname(__file__), 'libextremedeconvolution.so')
-    if os.path.exists(p):
-        _lib = ctypes.CDLL(p)
 if _lib is None: #Hack
-    p = os.path.join(os.getenv('HOME'),'lib','libextremedeconvolution.so')
+    p = os.path.join(TEMPLATE_LIBRARY_PATH,'libextremedeconvolution.so')
     if os.path.exists(p):
         _lib = ctypes.CDLL(p)
 if _lib is None:
