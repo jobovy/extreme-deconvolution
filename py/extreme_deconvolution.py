@@ -20,6 +20,7 @@ if _lib is None:
         raise IOError('libextremedeconvolution.so library not found')
 
 def _fix2chararray(fix,ngauss):
+    """Internal function to process the fix* inputs"""
     if fix == None:
         fix= [chr(False) for kk in range(ngauss)]
     else: #fix is set
@@ -71,7 +72,31 @@ def extreme_deconvolution(ydata,ycovar,projection,
        +updated xamp, xmean, xcovar
     HISTORY:
        2010-02-10 - Written - Bovy (NYU)
-    """
+    DOCTEST:
+    >>> import numpy as nu
+    >>> nu.random.seed(seed=-1)
+    >>> ndata=200
+    >>> ydata=nu.reshape(nu.random.normal(1,1,ndata),(ndata,1))
+    >>> ycovar= nu.reshape(nu.ones(ndata)*.01,(ndata,1,1))
+    >>> projection= nu.zeros((ndata,1,2))
+    >>> xamp= nu.ones(2)/2.
+    >>> xmean= nu.random.random((2,2))
+    >>> xcovar= nu.random.random((2,2,2))/10.
+    >>> for ii in range(ndata):
+    ...     if (ii % 2) == 0:
+    ...             projection[ii,:,:]= nu.array([1.,0.])
+    ...     else:
+    ...             projection[ii,:,:]= nu.array([0.,1.])
+    ...
+    >>> print xmean
+    [[ 0.6613586   0.75460518]
+     [ 0.59746367  0.17107033]]
+    >>> extreme_deconvolution(ydata,ycovar,projection,xamp,xmean,xcovar)
+    -1.3594338204401231
+    >>> print xmean
+    [[ 0.0975456   0.03640963]
+     [ 1.41598304  1.15101783]]
+     """
     ndata= ydata.shape[0]
     dataDim= ydata.shape[1]
     ngauss= len(xamp)
@@ -150,25 +175,5 @@ def extreme_deconvolution(ydata,ycovar,projection,
     return avgloglikedata.contents.value
 
 if __name__ == '__main__':
-    import scipy as sc
-    ndata= 20
-    ydata= sc.random.random((ndata,3))
-    ycovar= sc.random.random((ndata,3,3))/10.
-    projection= sc.zeros((ndata,3,3))
-    xamp= sc.ones(2)/2.
-    xmean= sc.random.random((2,3))
-    xcovar= sc.random.random((2,3,3))/10.
-
-    for ii in range(ndata):
-        projection[ii,:,:]= sc.eye(3)
-
-    print xmean
-    print xcovar[1,:,:]
-
-
-    extreme_deconvolution(ydata,ycovar,projection,xamp,xmean,xcovar,
-                          fixamp=[True,False])
-
-    print xmean
-    print xcovar[1,:,:]
-    
+    import doctest
+    doctest.testmod(verbose=True)
