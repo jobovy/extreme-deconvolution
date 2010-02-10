@@ -76,4 +76,6 @@ spotless: clean
 	$(RM) pro/projected_gauss_mixtures.pro
 	$(RM) build/extremedeconvolution
 	$(RM) build/extremedeconvolution.so
+	$(RM) py/extreme_deconvolution.py
+	$(RM) pro/projected_gauss_mixtures_c.pro
 	rmdir build
