@@ -1,5 +1,6 @@
 INSTALL_DIR=/usr/local/lib/
 RM= /bin/rm -vf
+CC=gcc
 
 proj_gauss_mixtures_objects= src/bovy_isfin.o src/bovy_randvec.o \
 	src/calc_splitnmerge.o src/logsum.o src/minmax.o\
@@ -21,17 +22,17 @@ build:
 	mkdir build
 
 build/extremedeconvolution: $(proj_gauss_mixtures_objects) $(proj_gauss_main_objects) build
-	gcc -o $@ -lm -lgsl -lgslcblas $(proj_gauss_mixtures_objects)\
+	$(CC) -o $@ -lm -lgsl -lgslcblas $(proj_gauss_mixtures_objects)\
 	 $(proj_gauss_main_objects)
 
 build/extremedeconvolution.so: $(proj_gauss_mixtures_objects) \
 			src/proj_gauss_mixtures_IDL.o build
-	gcc -shared -o $@ -lm -lgsl -lgslcblas\
+	$(CC) -shared -o $@ -lm -lgsl -lgslcblas\
 	 $(proj_gauss_mixtures_objects)\
 	 src/proj_gauss_mixtures_IDL.o
 
 %.o: %.c
-	gcc -fpic -Wall -c $< -o $@ -I src/
+	$(CC) -fpic -Wall -c $< -o $@ -I src/
 
 #
 # INSTALL THE IDL WRAPPER
