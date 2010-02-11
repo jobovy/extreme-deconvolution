@@ -83,17 +83,17 @@ program and the shared library.
 
 
 
-USAGE I: THROUGH THE IDL WRAPPER
----------------------------------
+USAGE I: THROUGH THE PYTHON OR IDL WRAPPERS
+--------------------------------------------
 
-Usage through the IDL wrapper is encouraged. Indeed, the "main"
-program is lacking in many respects, was never used in any scientific
-analysis, and has not been tested. However, it might work. More on
-this later.
+Usage through the python or IDL wrappers is encouraged. Indeed, the
+"main" program is lacking in many respects, was never used in any
+scientific analysis, and has not been tested. However, it might
+work. More on this later.
 
-See the IDL wrapper header for information on how to call the IDL
-routine. Various logfiles can be written, one of them logs everything
-(ie, loglikelihoods after each iteration + input and output
+See the python and IDL wrapper header for information on how to call
+the IDL routine. Various logfiles can be written, one of them logs
+everything (ie, loglikelihoods after each iteration + input and output
 parameters). The other one only outputs the loglikelihood trajectory
 of the accepted split and merge moves.
 
