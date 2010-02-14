@@ -4,12 +4,14 @@ CC=gcc
 PYTHON=python
 IDL=idl
 
-#EDCFLAGS:= -arch $(shell uname -m) $(CFLAGS)
-#EDLDFLAGS:= -arch $(shell uname -m) $(LDFLAGS)
+EDCFLAGS:= $(CFLAGS)
+EDLDFLAGS:= $(LDFLAGS)
 
 OS=$(shell uname -s)
 ifeq ($(OS),Darwin)
 	LIBEXT= dylib
+	EDCFLAGS:= -arch=$(shell uname -m) $(EDCFLAGS)
+	EDLDFLAGS:= -arch=$(shell uname -m) $(EDLDFLAGS)
 else
 	LIBEXT= so
 endif
@@ -86,11 +88,17 @@ clean:
 	$(RM) $(proj_gauss_main_objects)
 	$(RM) src/proj_gauss_mixtures_IDL.o
 
-spotless: clean
+spotless: clean rmbuild
 	$(RM) src/*.~
 	$(RM) pro/projected_gauss_mixtures.pro
-	$(RM) build/extremedeconvolution
-	$(RM) build/$(TARGETLIB)
 	$(RM) py/extreme_deconvolution.py
 	$(RM) pro/projected_gauss_mixtures_c.pro
-	rmdir build
+	$(RM) examples/TF.ps examples/TF.tex
+
+rmbuild: build/
+	$(RM) build/extremedeconvolution
+	$(RM) build/$(TARGETLIB)
+	rmdir -v build
+
+build/:
+	mkdir build
