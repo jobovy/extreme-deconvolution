@@ -10,8 +10,8 @@ EDLDFLAGS:= $(LDFLAGS)
 OS=$(shell uname -s)
 ifeq ($(OS),Darwin)
 	LIBEXT= dylib
-	EDCFLAGS:= -arch=$(shell uname -m) $(EDCFLAGS)
-	EDLDFLAGS:= -arch=$(shell uname -m) $(EDLDFLAGS)
+	EDCFLAGS:= -arch $(shell uname -m) $(EDCFLAGS)
+	EDLDFLAGS:= -arch $(shell uname -m) $(EDLDFLAGS)
 else
 	LIBEXT= so
 endif
