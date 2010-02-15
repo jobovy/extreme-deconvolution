@@ -24,8 +24,8 @@ proj_gauss_mixtures_objects= src/bovy_isfin.o src/bovy_randvec.o \
 	src/proj_gauss_mixtures.o src/splitnmergegauss.o src/bovy_det.o
 
 proj_gauss_main_objects= src/main.o src/parse_option.o src/read_data.o \
-		src/read_IC.o src/read_till_sep.o src/write_model.o \
-		src/cleanup.o
+	src/read_IC.o src/read_till_sep.o src/write_model.o \
+	src/cleanup.o
 
 #
 # The next targets are the main make targets: all, 
@@ -44,7 +44,7 @@ build/extremedeconvolution: $(proj_gauss_mixtures_objects) $(proj_gauss_main_obj
 	 $(proj_gauss_main_objects)
 
 build/$(TARGETLIB): $(proj_gauss_mixtures_objects) \
-			src/proj_gauss_mixtures_IDL.o build
+	src/proj_gauss_mixtures_IDL.o build
 	$(CC) -shared -o $@ -lm -lgsl -lgslcblas\
 	 $(EDLDFLAGS)\
 	 $(proj_gauss_mixtures_objects)\
@@ -103,6 +103,3 @@ rmbuild: build/
 	$(RM) build/extremedeconvolution
 	$(RM) build/$(TARGETLIB)
 	rmdir -v build
-
-build/:
-	mkdir build
