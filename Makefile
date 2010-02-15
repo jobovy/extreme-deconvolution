@@ -60,13 +60,17 @@ install: build/$(TARGETLIB)
 	cp $< $(INSTALL_DIR)$(TARGETLIB)
 
 idlwrapper:
+	(ls $(INSTALL_DIR)$(TARGETLIB) || (echo "Cannot find library '$(INSTALL_DIR)$(TARGETLIB)', run again with 'INSTALL_DIR=' set to the directory you installed the library in" && exit -1))
 	echo 'result = CALL_EXTERNAL("$(INSTALL_DIR)$(TARGETLIB)", $$' > tmp
 	cat pro/projected_gauss_mixtures_c.pro_1 tmp pro/projected_gauss_mixtures_c.pro_2 > pro/projected_gauss_mixtures_c.pro
 	$(RM) tmp
+	echo 'Successfully installed IDL wrapper'
 
 # INSTALL THE PYTHON WRAPPER
 pywrapper:
+	(ls $(INSTALL_DIR)$(TARGETLIB) || (echo "Cannot find library '$(INSTALL_DIR)$(TARGETLIB)', run again with 'INSTALL_DIR=' set to the directory you installed the library in" && exit -1))
 	sed "s#TEMPLATE_LIBRARY_PATH#'$(INSTALL_DIR)'#g" py/extreme_deconvolution_TEMPLATE.py > py/extreme_deconvolution.py
+	((cd py && (echo 'import extreme_deconvolution' | $(PYTHON)) && echo 'Successfully installed Python wrapper') || (echo 'Something went wrong installing Python wrapper' && exit -1))
 
 
 #
