@@ -42,6 +42,7 @@ build:
 build/extremedeconvolution: $(proj_gauss_mixtures_objects) $(proj_gauss_main_objects) build
 	$(CC) -o $@ -lm -lgsl -lgslcblas\
 	 $(EDCFLAGS)\
+	 $(EDLDFLAGS)\
 	 $(proj_gauss_mixtures_objects)\
 	 $(proj_gauss_main_objects)
 
