@@ -12,8 +12,10 @@ ifeq ($(OS),Darwin)
 	LIBEXT= dylib
 	EDCFLAGS:= -arch $(shell uname -m) $(EDCFLAGS)
 	EDLDFLAGS:= -arch $(shell uname -m) $(EDLDFLAGS)
+	LINKOPTIONS:= -dynamiclib -W1 -single_module
 else
 	LIBEXT= so
+	LINKOPTIONS:= -shared
 endif
 TARGETLIB= libextremedeconvolution.$(LIBEXT)
 
@@ -45,7 +47,7 @@ build/extremedeconvolution: $(proj_gauss_mixtures_objects) $(proj_gauss_main_obj
 
 build/$(TARGETLIB): $(proj_gauss_mixtures_objects) \
 	src/proj_gauss_mixtures_IDL.o build
-	$(CC) -shared -o $@ -lm -lgsl -lgslcblas\
+	$(CC) $(LINKOPTIONS) -o $@ -lm -lgsl -lgslcblas\
 	 $(EDLDFLAGS)\
 	 $(proj_gauss_mixtures_objects)\
 	 src/proj_gauss_mixtures_IDL.o
