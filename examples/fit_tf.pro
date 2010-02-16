@@ -212,8 +212,8 @@ bangx=!X
 bangy=!Y
 !P.FONT= -1
 set_plot, "PS"
-!P.BACKGROUND= djs_icolor('white')
-!P.COLOR= djs_icolor('black')
+!P.BACKGROUND= 16777215
+!P.COLOR= 0
 if(NOT keyword_set(xsize)) then xsize= 3.375*2.
 if(NOT keyword_set(ysize)) then ysize= 6.
 device, file=plotfilename,/inches,xsize=xsize,ysize=ysize, $
@@ -268,7 +268,14 @@ FOR ii=0L, 4 DO BEGIN
       xrange=xrange, xtitle=xtitle, position=positions[0:3,ii], symsize=0.5, /NOERASE
     oplot, xline, yline, psym=-3
     ypos_label=yranges[0,ii]+ypos_label_rel*(yranges[1,ii]-yranges[0,ii])
-    legend, [bands[ii]],pos=[xpos_label,ypos_label], box=0, charsize=1.5*!P.charsize
+    hasLegend= 0
+    CATCH, Error_status
+    IF Error_status NE 0 THEN BEGIN  
+        print, "Skipping legend because legend function not found"
+        hasLegend= 1
+        CATCH, /CANCEL  
+    ENDIF  
+    IF hasLegend EQ 0 THEN legend, [bands[ii]],pos=[xpos_label,ypos_label], box=0, charsize=1.5*!P.charsize
 ENDFOR
 
 device,/close
