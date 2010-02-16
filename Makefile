@@ -80,7 +80,7 @@ pywrapper:
 # TEST THE INSTALLATION
 #
 testidl:
-	(cd examples && echo 'fit_TF' | $(IDL))
+	(cd examples && export IDL_PATH=$(IDL_PATH):../pro && echo 'fit_TF' | $(IDL))
 	(cd examples && ((diff TF.tex TF.out && echo 'Ouput of test agrees with given solution') \
 	|| echo -e 'Output of test does not agree with given solution\nManually diff the TF.tex and TF.out (given solution) file'))
 
