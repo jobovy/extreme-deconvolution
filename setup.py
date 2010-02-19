@@ -14,4 +14,5 @@ setup(name='extreme-deconvolution',
       package_dir = {'': 'py'},
       py_modules=['extreme_deconvolution'],
       ext_modules=[Extension('extreme-deconvolution', srcFiles)],
-      include_dirs=['src/'])
+      include_dirs=['src/'],
+      data_files=[('doc',['extreme-deconvolution.pdf'])])
