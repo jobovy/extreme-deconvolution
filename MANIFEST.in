@@ -1,0 +1,5 @@
+include README LICENSE INSTALL
+include src/*.c
+include src/*.h
+include py/extreme_deconvolution.py
+include doc/extreme_deconvolution.pdf
