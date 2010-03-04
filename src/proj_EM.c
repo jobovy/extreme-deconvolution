@@ -46,6 +46,8 @@ void proj_EM(struct datapoint * data, int N, struct gaussian * gaussians,
     if (keeplog){
       fprintf(logfile,"%f\n",*avgloglikedata);
       fprintf(tmplogfile,"%f\n",*avgloglikedata);
+      fflush(logfile);
+      fflush(tmplogfile);
       //printf("%f\n",*avgloglikedata);
     }
     if (niter > 0){
