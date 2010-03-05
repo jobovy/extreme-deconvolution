@@ -93,9 +93,10 @@ void proj_EM_step(struct datapoint * data, int N,
       TinvwminusRm = gsl_vector_alloc (di);
       Tij = gsl_matrix_alloc(di,di);
       if ( ! noproj ) {
-	if ( diagerrs )
+	if ( diagerrs ) {
+	  gsl_matrix_set_zero(Tij);
 	  for (ll = 0; ll != di; ++ll)
-	    gsl_matrix_set(Tij,ll,ll,gsl_matrix_get(data->SS,ll,0));
+	    gsl_matrix_set(Tij,ll,ll,gsl_matrix_get(data->SS,ll,0));}
 	else
 	  gsl_matrix_memcpy(Tij,data->SS);
       }
@@ -110,9 +111,12 @@ void proj_EM_step(struct datapoint * data, int N,
 	gsl_blas_dgemm(CblasNoTrans,CblasNoTrans,1.0,data->RR,VRT,1.0,Tij);}//This is Tij
       else {
 	if ( diagerrs ) {
-	  gsl_matrix_memcpy(Tij,gaussians->VV);
-	  for (ll = 0; ll != di; ++ll)
-	    gsl_matrix_set(Tij,ll,ll,gsl_matrix_get(Tij,ll,ll)+gsl_matrix_get(data->SS,ll,0));}
+	  for (kk = 0; kk != d; ++kk){
+	    gsl_matrix_set(Tij,kk,kk,gsl_matrix_get(data->SS,kk,0)+gsl_matrix_get(gaussians->VV,kk,kk));
+	    for (ll = kk+1; ll != d; ++ll){
+	      sumSV= gsl_matrix_get(gaussians->VV,kk,ll);
+	      gsl_matrix_set(Tij,kk,ll,sumSV);
+	      gsl_matrix_set(Tij,ll,kk,sumSV);}}}
 	else {
 	  for (kk = 0; kk != d; ++kk){
 	    gsl_matrix_set(Tij,kk,kk,gsl_matrix_get(data->SS,kk,kk)+gsl_matrix_get(gaussians->VV,kk,kk));
