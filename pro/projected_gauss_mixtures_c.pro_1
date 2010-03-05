@@ -7,14 +7,15 @@
 ;   ngauss     - number of desired gaussians to fit
 ;   ydata      - [ndimy,ndata] observed velocities
 ;   ycovar     - [ndimy,ndimy,ndata] observed velocities' errors
-;   projection - [ndimx, ndimy, ndata] non-square matrices
-;                implementing the projection
 ;   amp        - [ngauss] list of relative amplitudes
 ;   xmean      - [ndimx,ngauss] list of initial guesses for the means
 ;   xcovar     - [ndimx,ndimx,ngauss] list of initial guesses for the
 ;                 covar
 ;
 ; OPTIONAL INPUTS:
+;   projection - [ndimx, ndimy, ndata] non-square matrices
+;                implementing a projection from the model space to the
+;                data space for each data point
 ;   fixamp     - [ngauss] list of integers: 0 to update amp, 1 not to
 ;   fixmean    - [ngauss] list of integers: 0 to update xmean, 1 not to
 ;   fixcovar   - [ngauss] list of integers: 0 to update xcovar, 1 not
@@ -50,9 +51,11 @@
 ;   2008-07-17  added 'w' input - Bovy
 ;   2008-09-15  rewritten the algorithm in C, written this wrapper for
 ;               it - Bovy
+;   2010-03-04  made projection optional - Bovy
 ;-
-pro projected_gauss_mixtures_c, ngauss, ydata, ycovar, projection, $
+pro projected_gauss_mixtures_c, ngauss, ydata, ycovar, $
                                 amp, xmean, xcovar, $
+				projection=projection, $
                                 fixamp=fixamp,fixmean=fixmean, $
                                 fixcovar=fixcovar, $
                                 avgloglikedata=avgloglikedata, $
@@ -76,6 +79,12 @@ if ~keyword_set(w) then w=0D
 if keyword_set(maxsnm) then splitnmerge=long(ngauss*(ngauss-1L)*(ngauss-2L)/2)
 ;;amplitudes have to add up to 1
 if not (total(amp) EQ 1D) then amp = amp/total(amp)
+if ~keyword_set(projection) THEN BEGIN
+	noprojection= 1B
+	projection= 0D0
+ENDIF ELSE BEGIN
+	noprojection= 0B
+ENDELSE
 
 ;;Make sure everything is double
 amp= double(amp)
@@ -85,10 +94,10 @@ ydata=double(ydata)
 ycovar=double(ycovar)
 projection=double(projection)
 
-;;For now this assumes that the dimensions of all datapoints are equal
+;;This assumes that the dimensions of all datapoints are equal
 ndimy=n_elements(ycovar)/n_elements(ydata)
 ndata=n_elements(ydata)/ndimy
-ndimx=n_elements(projection)/ndata/ndimy
+ndimx=n_elements(xmean)/n_elements(amp)
 
 avgloglikedata=0.D
 
@@ -108,7 +117,7 @@ n_clog2 = strlen(clog2)
 
 clog = byte(clog)
 clog2 = byte(clog2)
-value= bytarr(23)
+value= bytarr(24)
 value[3]=1
 value[4]=1
 value[8]=1
@@ -120,6 +129,7 @@ value[17]=1
 value[19]=1
 value[20]=1
 value[22]=1
+value[23]=1
 
 IF ~keyword_set(quiet) THEN splog, "Loading C-implementation to run the projected_gauss_mixtures algorithm..."
 

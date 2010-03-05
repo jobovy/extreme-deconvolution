@@ -2,7 +2,7 @@
   NAME:
      proj_gauss_mixtures_IDL
   PURPOSE:
-     run the projected gaussian mixtures algorithm from IDL
+     run the projected gaussian mixtures algorithm from IDL (or python)
   CALLING SEQUENCE:
      see IDL wrapper
   INPUT:
@@ -11,6 +11,7 @@
      updated model gaussians and average loglikelihood, see IDL WRAPPER
   REVISION HISTORY:
      2008-09-21 - Written Bovy
+     2010-03-01 Added noproj option - Bovy
 */
 #include <stdio.h>
 #include <stdbool.h>
@@ -28,7 +29,8 @@ int proj_gauss_mixtures_IDL(double * ydata, double * ycovar,
 			    double * avgloglikedata, double tol, 
 			    int maxiter, char likeonly, double w, 
 			    char * logfilename, int slen, int splitnmerge,
-			    char * convlogfilename, int convloglen){
+			    char * convlogfilename, int convloglen,
+			    char noprojection){
   //Set up logfiles  
   bool keeplog = true;
   char logname[slen+1];
@@ -68,26 +70,28 @@ int proj_gauss_mixtures_IDL(double * ydata, double * ycovar,
   struct datapoint * data = (struct datapoint *) malloc( N * sizeof (struct datapoint) );
   struct gaussian * gaussians = (struct gaussian *) malloc (K * sizeof (struct gaussian) );
 
-  
+  bool noproj= (bool) noprojection;
   int ii, jj,dd1,dd2;
   for (ii = 0; ii != N; ++ii){
     data->ww = gsl_vector_alloc(dy);
     data->SS = gsl_matrix_alloc(dy,dy);
-    data->RR = gsl_matrix_alloc(dy,d);
+    if ( ! noproj ) data->RR = gsl_matrix_alloc(dy,d);
     for (dd1 = 0; dd1 != dy;++dd1)
       gsl_vector_set(data->ww,dd1,*(ydata++));
     for (dd1 = 0; dd1 != dy; ++dd1)
       for (dd2 = 0; dd2 != dy; ++dd2)
 	gsl_matrix_set(data->SS,dd1,dd2,*(ycovar++));
-    for (dd1 = 0; dd1 != dy; ++dd1)
-      for (dd2 = 0; dd2 != d; ++dd2)
-	gsl_matrix_set(data->RR,dd1,dd2,*(projection++));
+    if ( ! noproj )
+      for (dd1 = 0; dd1 != dy; ++dd1)
+	for (dd2 = 0; dd2 != d; ++dd2)
+	  gsl_matrix_set(data->RR,dd1,dd2,*(projection++));
+    else data->RR= NULL;
     ++data;
   }
   data -= N;
   ydata -= N*dy;
   ycovar -= N*dy*dy;
-  projection -= N*dy*d;
+  if ( ! noproj ) projection -= N*dy*d;
 
   for (jj = 0; jj != K; ++jj){
     gaussians->mm = gsl_vector_alloc(d);
@@ -104,8 +108,6 @@ int proj_gauss_mixtures_IDL(double * ydata, double * ycovar,
   amp -= K;
   xmean -= K*d;
   xcovar -= K*d*d;
-
-
 
 
   //Print the initial model parameters to the logfile
@@ -146,7 +148,7 @@ int proj_gauss_mixtures_IDL(double * ydata, double * ycovar,
   proj_gauss_mixtures(data,N,gaussians,K,(bool *) fixamp,
 		      (bool *) fixmean, (bool *) fixcovar,avgloglikedata,
 		      tol,(long long int) maxiter, (bool) likeonly, w,
-		      splitnmerge,keeplog,logfile,convlogfile);
+		      splitnmerge,keeplog,logfile,convlogfile,noproj);
 
 
   //Print the final model parameters to the logfile
@@ -200,7 +202,7 @@ int proj_gauss_mixtures_IDL(double * ydata, double * ycovar,
   for (ii = 0; ii != N; ++ii){
     gsl_vector_free(data->ww);
     gsl_matrix_free(data->SS);
-    gsl_matrix_free(data->RR);
+    if ( ! noproj )  gsl_matrix_free(data->RR);
     ++data;
   }
   data -= N;

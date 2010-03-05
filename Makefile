@@ -34,7 +34,7 @@ proj_gauss_main_objects= src/main.o src/parse_option.o src/read_data.o \
 # extremedeconvolution (the executable), and 
 # extremedeconvolution.so (the sharable object library)
 #
-all: build/extremedeconvolution build/$(TARGETLIB)
+all: build/$(TARGETLIB)
 
 build:
 	mkdir build

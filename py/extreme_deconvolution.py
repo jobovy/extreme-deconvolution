@@ -5,20 +5,15 @@ import numpy as nu
 from numpy.ctypeslib import ndpointer
 #Find and load the library
 _lib = None
-_libname = ctypes.util.find_library('extreme-deconvolution')
+_libname = ctypes.util.find_library('libextremedeconvolution.so')
 if _libname:
     _lib = ctypes.CDLL(_libname)
+if _lib is None: #Hack
+    p = os.path.join('/home/users/jb2777/lib/','libextremedeconvolution.so')
+    if os.path.exists(p):
+        _lib = ctypes.CDLL(p)
 if _lib is None:
-    import sys
-for path in sys.path:
-    try:
-        _lib = ctypes.CDLL(os.path.join(path,'extreme-deconvolution.so'))
-    except OSError:
-        _lib = None
-    else:
-        break
-if _lib is None:
-        raise IOError('extreme-deconvolution library not found')
+        raise IOError('libextremedeconvolution.so library not found')
 
 def _fix2chararray(fix,ngauss):
     """Internal function to process the fix* inputs"""
@@ -34,8 +29,9 @@ def _fix2chararray(fix,ngauss):
             fix= [chr(fix) for kk in range(ngauss)]
     return fix
 
-def extreme_deconvolution(ydata,ycovar,projection,
+def extreme_deconvolution(ydata,ycovar,
                           xamp,xmean,xcovar,
+                          projection=None,
                           fixamp=None,fixmean=None,fixcovar=None,
                           tol=1.e-6,maxiter=long(1e9),w=0.,logfile=None,
                           splitnmerge=0,maxsnm=False,likeonly=False):
@@ -47,11 +43,11 @@ def extreme_deconvolution(ydata,ycovar,projection,
     INPUT:
        ydata - [ndata,dy] numpy array of observed quantities
        ycovar - [ndata,dy,dy] numpy array of observational error covariances
-       projection - [ndata,dy,dx] numpy array of projection matrices
        xamp - [ngauss] numpy array of initial amplitudes
        xmean - [ngauss,dx] numpy array of initial means
        xcovar - [ngauss,dx,dx] numpy array of initial covariances
     OPTIONAL INPUTS:
+       projection - [ndata,dy,dx] numpy array of projection matrices
        fixamp - (default=None) None, True/False, or list of bools
        fixmean - (default=None) None, True/False, or list of bools
        fixcovar - (default=None) None, True/False, or list of bools
@@ -92,7 +88,7 @@ def extreme_deconvolution(ydata,ycovar,projection,
     >>> print xmean
     [[ 0.6613586   0.75460518]
      [ 0.59746367  0.17107033]]
-    >>> extreme_deconvolution(ydata,ycovar,projection,xamp,xmean,xcovar)
+    >>> extreme_deconvolution(ydata,ycovar,xamp,xmean,xcovar,projection=projection)
     -1.3594338204401231
     >>> print xmean
     [[ 0.0975456   0.03640963]
@@ -123,6 +119,12 @@ def extreme_deconvolution(ydata,ycovar,projection,
     if maxsnm:
         splitnmerge = long(ngauss*(ngauss-1)*(ngauss-2)/2)
 
+    if projection == None:
+        noprojection= True
+        projection= nu.zeros(1)
+    else:
+        noprojection= False
+        
     ndarrayFlags= ('C_CONTIGUOUS','WRITEABLE')
     exdeconvFunc= _lib.proj_gauss_mixtures_IDL
     exdeconvFunc.argtypes = [ndpointer(dtype=nu.float64,flags=ndarrayFlags),
@@ -147,7 +149,8 @@ def extreme_deconvolution(ydata,ycovar,projection,
                              ctypes.c_int,
                              ctypes.c_int,
                              ctypes.c_char_p,
-                             ctypes.c_int]
+                             ctypes.c_int,
+                             ctypes.c_char]
                                              
                                              
     exdeconvFunc(ydata,
@@ -166,13 +169,14 @@ def extreme_deconvolution(ydata,ycovar,projection,
                  avgloglikedata,
                  ctypes.c_double(tol),
                  ctypes.c_int(maxiter),
-                 ctypes.c_char(chr(False)),
+                 ctypes.c_char(chr(likeonly)),
                  ctypes.c_double(w),
                  ctypes.create_string_buffer(clog),
                  ctypes.c_int(n_clog),
                  ctypes.c_int(splitnmerge),
                  ctypes.create_string_buffer(clog2),
-                 ctypes.c_int(n_clog2))
+                 ctypes.c_int(n_clog2),
+                 ctypes.c_char(chr(noprojection)))
     return avgloglikedata.contents.value
 
 if __name__ == '__main__':

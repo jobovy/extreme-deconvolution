@@ -6,7 +6,7 @@
   CALLING SEQUENCE:
      proj_EM_step(struct datapoint * data, int N, struct gaussian * gaussians, int K,
      bool * fixamp, bool * fixmean, bool * fixcovar, double * avgloglikedata, 
-     bool likeonly, double w)
+     bool likeonly, double w, bool noproj)
   INPUT:
      data         - the data
      N            - number of data points
@@ -16,11 +16,13 @@
      fixmean      - fix the mean?
      fixcovar     - fix the covar?
      likeonly     - only compute likelihood?
-     w            - regularization paramter
+     w            - regularization parameter
+     noproj       - don't perform any projections
   OUTPUT:
      avgloglikedata - average loglikelihood of the data
   REVISION HISTORY:
      2008-09-21 - Written Bovy
+     2010-03-01 Added noproj option - Bovy
 */
 #include <stdbool.h>
 #include <math.h>
@@ -34,7 +36,7 @@
 void proj_EM_step(struct datapoint * data, int N, 
 		  struct gaussian * gaussians, int K,bool * fixamp, 
 		  bool * fixmean, bool * fixcovar, double * avgloglikedata, 
-		  bool likeonly, double w){
+		  bool likeonly, double w, bool noproj){
   *avgloglikedata = 0.0;
   
   int signum,di;
@@ -77,7 +79,8 @@ void proj_EM_step(struct datapoint * data, int N,
 
 
   //now loop over data and gaussians to update the model parameters
-  int ii, jj;
+  int ii, jj, ll;
+  double sumSV;
   for (ii = 0; ii != N; ++ii){
     for (jj = 0; jj != K; ++jj){
       //prepare...
@@ -88,20 +91,33 @@ void proj_EM_step(struct datapoint * data, int N,
       gsl_vector_memcpy(wminusRm,data->ww);
       TinvwminusRm = gsl_vector_alloc (di);
       Tij = gsl_matrix_alloc(di,di);
-      gsl_matrix_memcpy(Tij,data->SS);
+      if ( ! noproj ) gsl_matrix_memcpy(Tij,data->SS);
       Tij_inv = gsl_matrix_alloc(di,di);
-      VRT = gsl_matrix_alloc(d,di);
+      if ( ! noproj ) VRT = gsl_matrix_alloc(d,di);
       VRTTinv = gsl_matrix_alloc(d,di);
-      Rtrans = gsl_matrix_alloc(d,di);
+      if ( ! noproj ) Rtrans = gsl_matrix_alloc(d,di);
       //Calculate Tij
-      gsl_matrix_transpose_memcpy(Rtrans,data->RR);
-      gsl_blas_dsymm(CblasLeft,CblasUpper,1.0,gaussians->VV,Rtrans,0.0,VRT);//Only the upper right part of VV is calculated
-      gsl_blas_dgemm(CblasNoTrans,CblasNoTrans,1.0,data->RR,VRT,1.0,Tij);//This is Tij
+      if ( ! noproj ) {
+	gsl_matrix_transpose_memcpy(Rtrans,data->RR);
+	gsl_blas_dsymm(CblasLeft,CblasUpper,1.0,gaussians->VV,Rtrans,0.0,VRT);//Only the upper right part of VV is calculated --> use only that part
+	gsl_blas_dgemm(CblasNoTrans,CblasNoTrans,1.0,data->RR,VRT,1.0,Tij);}//This is Tij
+      else {
+	for (kk = 0; kk != d; ++kk){
+	  gsl_matrix_set(Tij,kk,kk,gsl_matrix_get(data->SS,kk,kk)+gsl_matrix_get(gaussians->VV,kk,kk));
+	  for (ll = kk+1; ll != d; ++ll){
+	    sumSV= gsl_matrix_get(data->SS,kk,ll)+gsl_matrix_get(gaussians->VV,kk,ll);
+	    gsl_matrix_set(Tij,kk,ll,sumSV);
+	    gsl_matrix_set(Tij,ll,kk,sumSV);
+	  }
+	}
+      }
+      //gsl_matrix_add(Tij,gaussians->VV);}
       //Calculate LU decomp of Tij and Tij inverse
       gsl_linalg_LU_decomp(Tij,p,&signum);
       gsl_linalg_LU_invert(Tij,p,Tij_inv);
       //Calculate Tijinv*(w-Rm)
-      gsl_blas_dgemv(CblasNoTrans,-1.0,data->RR,gaussians->mm,1.0,wminusRm);
+      if ( ! noproj ) gsl_blas_dgemv(CblasNoTrans,-1.0,data->RR,gaussians->mm,1.0,wminusRm);
+      else gsl_vector_sub(wminusRm,gaussians->mm);
       //printf("wminusRm = %f\t%f\n",gsl_vector_get(wminusRm,0),gsl_vector_get(wminusRm,1));
       gsl_blas_dsymv(CblasUpper,1.0,Tij_inv,wminusRm,0.0,TinvwminusRm);
       //printf("TinvwminusRm = %f\t%f\n",gsl_vector_get(TinvwminusRm,0),gsl_vector_get(TinvwminusRm,1));
@@ -111,11 +127,16 @@ void proj_EM_step(struct datapoint * data, int N,
       //printf("Here we have = %f\n",gsl_matrix_get(qij,ii,jj));
       //Now calculate bij and Bij
       gsl_vector_memcpy(bs->bbij,gaussians->mm);
-      gsl_blas_dgemv(CblasNoTrans,1.0,VRT,TinvwminusRm,1.0,bs->bbij);
+      if ( ! noproj ) gsl_blas_dgemv(CblasNoTrans,1.0,VRT,TinvwminusRm,1.0,bs->bbij);
+      else gsl_blas_dsymv(CblasUpper,1.0,gaussians->VV,TinvwminusRm,1.0,bs->bbij);
       //printf("bij = %f\t%f\n",gsl_vector_get(bs->bbij,0),gsl_vector_get(bs->bbij,1));
       gsl_matrix_memcpy(bs->BBij,gaussians->VV);
-      gsl_blas_dgemm(CblasNoTrans,CblasNoTrans,1.0,VRT,Tij_inv,0.0,VRTTinv);
-      gsl_blas_dgemm(CblasNoTrans,CblasTrans,-1.0,VRTTinv,VRT,1.0,bs->BBij);
+      if ( ! noproj ) {
+	gsl_blas_dgemm(CblasNoTrans,CblasNoTrans,1.0,VRT,Tij_inv,0.0,VRTTinv);
+	gsl_blas_dgemm(CblasNoTrans,CblasTrans,-1.0,VRTTinv,VRT,1.0,bs->BBij);}
+      else {
+	gsl_blas_dsymm(CblasLeft,CblasUpper,1.0,gaussians->VV,Tij_inv,0.0,VRTTinv);
+	gsl_blas_dsymm(CblasRight,CblasUpper,-1.0,gaussians->VV,VRTTinv,1.0,bs->BBij);}
       gsl_blas_dsyr(CblasUpper,1.0,bs->bbij,bs->BBij);//This is bijbijT + Bij, which is the relevant quantity
       //Clean up
       gsl_permutation_free (p);
@@ -123,9 +144,9 @@ void proj_EM_step(struct datapoint * data, int N,
       gsl_vector_free(TinvwminusRm);
       gsl_matrix_free(Tij);
       gsl_matrix_free(Tij_inv);
-      gsl_matrix_free(VRT);
+      if ( ! noproj ) gsl_matrix_free(VRT);
       gsl_matrix_free(VRTTinv);
-      gsl_matrix_free(Rtrans);
+      if ( ! noproj ) gsl_matrix_free(Rtrans);
       ++gaussians;
       ++bs;
     }

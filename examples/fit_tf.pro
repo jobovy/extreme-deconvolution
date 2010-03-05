@@ -111,8 +111,8 @@ FOR ii=0L, 4 DO BEGIN
     xcovar[0,0,0]= (max(ydata[0,0:ndata-1])-min(ydata[0,0:ndata-1]))^2.
     xcovar[1,1,0]= (max(ydata[1,0:ndata-1])-min(ydata[1,0:ndata-1]))^2.
     ;;Run proj_gauss_mixtures
-    projected_gauss_mixtures_c, 1, ydata, ycovar, projection, $
-      amp, xmean, xcovar, tol=tol, /quiet
+    projected_gauss_mixtures_c, 1, ydata, ycovar, $
+      amp, xmean, xcovar, tol=tol, /quiet, projection=projection
     ;;Slope and zero point
     eigenvals= EIGENQL(xcovar,eigenvectors=eigenvectors)
     slopes[ii]= eigenvectors[1,0]/eigenvectors[0,0]
@@ -140,8 +140,8 @@ FOR ii=0L, 4 DO BEGIN
         xcovar[0,0,0]= (max(ydata[0,0:ndata-2])-min(ydata[0,0:ndata-2]))^2.
         xcovar[1,1,0]= (max(ydata[1,0:ndata-2])-min(ydata[1,0:ndata-2]))^2.
         ;;Run proj_gauss_mixtures
-        projected_gauss_mixtures_c, 1, jack_ydata, jack_ycovar, jack_projection, $
-          amp, xmean, xcovar, tol=tol, /quiet
+        projected_gauss_mixtures_c, 1, jack_ydata, jack_ycovar, $
+          amp, xmean, xcovar, tol=tol, /quiet, projection=jack_projection
         ;;Slope and zero point
         eigenvals= EIGENQL(xcovar,eigenvectors=eigenvectors)
         jack_slopes[jj]= eigenvectors[1,0]/eigenvectors[0,0]
