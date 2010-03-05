@@ -1,0 +1,26 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%Quick-install guide for the python extreme-deconvolution library
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+For more info, see the README file.
+
+To install the python library using distutils do
+
+	python setup.py build
+
+followed by
+
+	sudo python setup.py install
+
+or
+
+	python setup.py install --prefix=/path/to/install/dir/
+
+
+More info on the various options to these commands can be obtained by
+
+	python setup.py --help
+	python setup.py --help build
+	python setup.py --help install
