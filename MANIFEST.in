@@ -1,5 +1,15 @@
-include README LICENSE INSTALL
-include src/*.c
-include src/*.h
+include README LICENSE INSTALL_PYTHON
+include src/bovy_isfin.c 
+include src/bovy_randvec.c
+include src/calc_splitnmerge.c
+include src/logsum.c
+include src/minmax.c
+include	src/normalize_row.c
+include src/proj_EM.c
+include src/proj_EM_step.c
+include	src/proj_gauss_mixtures.c 
+include src/splitnmergegauss.c
+include src/bovy_det.c
+include src/proj_gauss_mixtures.h
 include py/extreme_deconvolution.py
 include doc/extreme-deconvolution.pdf

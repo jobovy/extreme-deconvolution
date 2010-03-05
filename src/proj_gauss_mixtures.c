@@ -7,7 +7,7 @@
      proj_gauss_mixtures(struct datapoint * data, int N, struct gaussian * gaussians, 
      int K,bool * fixamp, bool * fixmean, bool * fixcovar, double * avgloglikedata, 
      double tol,long long int maxiter, bool likeonly, double w, int splitnmerge, bool keeplog,
-     FILE *logfile, FILE *convlogfile, bool noproj))
+     FILE *logfile, FILE *convlogfile, bool noproj, bool diagerrs))
   INPUT:
      data        - the data
      N           - number of datapoints
@@ -25,6 +25,7 @@
      logfile     - pointer to the logfile
      convlogfile - pointer to the convlogfile
      noproj      - don't perform any projections
+     diagerrs    - the data->SS errors-squared are diagonal
   OUTPUT:
      updated model gaussians
      avgloglikedata - average log likelihood of the data
@@ -44,8 +45,8 @@ void proj_gauss_mixtures(struct datapoint * data, int N,
 			 bool * fixamp, bool * fixmean, bool * fixcovar, 
 			 double * avgloglikedata, double tol,
 			 long long int maxiter, bool likeonly, double w, 
-			 int splitnmerge, bool keeplog, 
-			 FILE *logfile, FILE *convlogfile, bool noproj){
+			 int splitnmerge, bool keeplog, FILE *logfile, 
+			 FILE *convlogfile, bool noproj, bool diagerrs){
   //Allocate some memory
   struct gaussian * startgaussians;
   startgaussians = gaussians;
@@ -120,7 +121,7 @@ void proj_gauss_mixtures(struct datapoint * data, int N,
   fflush(logfile);
   proj_EM(data,N,gaussians,K,fixamp_tmp,fixmean_tmp,fixcovar_tmp,
 	  avgloglikedata,tol,maxiter,likeonly,w,
-	  keeplog,logfile,convlogfile,noproj);
+	  keeplog,logfile,convlogfile,noproj,diagerrs);
   if (keeplog){
     fprintf(logfile,"\n");
     fprintf(convlogfile,"\n");
@@ -181,7 +182,8 @@ void proj_gauss_mixtures(struct datapoint * data, int N,
 	if (keeplog)
 	  fprintf(logfile,"#Merging %i and %i, splitting %i\n",j,k,l);
 	proj_EM(data,N,gaussians,K,fixamp_tmp,fixmean_tmp,fixcovar_tmp,
-		avgloglikedata,tol,maxiter,likeonly,w,keeplog,logfile,tmpconvfile,noproj);
+		avgloglikedata,tol,maxiter,likeonly,w,keeplog,logfile,
+		tmpconvfile,noproj,diagerrs);
 	//reset fix* vectors
 	for (ll = 0; ll != K; ++ll){
 	    *(fixamp_tmp++) = *(fixamp++);
@@ -200,7 +202,8 @@ void proj_gauss_mixtures(struct datapoint * data, int N,
 	  fprintf(tmpconvfile,"\n");
 	}
 	proj_EM(data,N,gaussians,K,fixamp_tmp,fixmean_tmp,fixcovar_tmp,
-		avgloglikedata,tol,maxiter,likeonly,w,keeplog,logfile,tmpconvfile,noproj);
+		avgloglikedata,tol,maxiter,likeonly,w,keeplog,logfile,
+		tmpconvfile,noproj,diagerrs);
 	if (keeplog){
 	  fprintf(logfile,"\n");
 	  fprintf(tmpconvfile,"\n");

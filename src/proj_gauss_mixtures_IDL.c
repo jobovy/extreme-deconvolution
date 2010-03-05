@@ -30,7 +30,7 @@ int proj_gauss_mixtures_IDL(double * ydata, double * ycovar,
 			    int maxiter, char likeonly, double w, 
 			    char * logfilename, int slen, int splitnmerge,
 			    char * convlogfilename, int convloglen,
-			    char noprojection){
+			    char noprojection,char diagerrors){
   //Set up logfiles  
   bool keeplog = true;
   char logname[slen+1];
@@ -71,16 +71,22 @@ int proj_gauss_mixtures_IDL(double * ydata, double * ycovar,
   struct gaussian * gaussians = (struct gaussian *) malloc (K * sizeof (struct gaussian) );
 
   bool noproj= (bool) noprojection;
+  bool diagerrs= (bool) diagerrors;
   int ii, jj,dd1,dd2;
   for (ii = 0; ii != N; ++ii){
     data->ww = gsl_vector_alloc(dy);
-    data->SS = gsl_matrix_alloc(dy,dy);
+    if ( diagerrs ) data->SS = gsl_matrix_alloc(dy,1);
+    else data->SS = gsl_matrix_alloc(dy,dy);
     if ( ! noproj ) data->RR = gsl_matrix_alloc(dy,d);
     for (dd1 = 0; dd1 != dy;++dd1)
       gsl_vector_set(data->ww,dd1,*(ydata++));
-    for (dd1 = 0; dd1 != dy; ++dd1)
-      for (dd2 = 0; dd2 != dy; ++dd2)
-	gsl_matrix_set(data->SS,dd1,dd2,*(ycovar++));
+    if ( diagerrs)
+      for (dd1 = 0; dd1 != dy; ++dd1)
+	  gsl_matrix_set(data->SS,dd1,0,*(ycovar++));
+    else
+      for (dd1 = 0; dd1 != dy; ++dd1)
+	for (dd2 = 0; dd2 != dy; ++dd2)
+	  gsl_matrix_set(data->SS,dd1,dd2,*(ycovar++));
     if ( ! noproj )
       for (dd1 = 0; dd1 != dy; ++dd1)
 	for (dd2 = 0; dd2 != d; ++dd2)
@@ -90,7 +96,8 @@ int proj_gauss_mixtures_IDL(double * ydata, double * ycovar,
   }
   data -= N;
   ydata -= N*dy;
-  ycovar -= N*dy*dy;
+  if ( diagerrs ) ycovar -= N*dy;
+  else ycovar -= N*dy*dy;
   if ( ! noproj ) projection -= N*dy*d;
 
   for (jj = 0; jj != K; ++jj){
@@ -148,7 +155,7 @@ int proj_gauss_mixtures_IDL(double * ydata, double * ycovar,
   proj_gauss_mixtures(data,N,gaussians,K,(bool *) fixamp,
 		      (bool *) fixmean, (bool *) fixcovar,avgloglikedata,
 		      tol,(long long int) maxiter, (bool) likeonly, w,
-		      splitnmerge,keeplog,logfile,convlogfile,noproj);
+		      splitnmerge,keeplog,logfile,convlogfile,noproj,diagerrs);
 
 
   //Print the final model parameters to the logfile

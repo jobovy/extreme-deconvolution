@@ -98,7 +98,6 @@ clean:
 spotless: clean rmbuild
 	$(RM) src/*.~
 	$(RM) pro/projected_gauss_mixtures.pro
-	$(RM) py/extreme_deconvolution.py
 	$(RM) pro/projected_gauss_mixtures_c.pro
 	$(RM) examples/TF.ps examples/TF.tex
 

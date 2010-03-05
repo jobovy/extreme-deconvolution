@@ -10,7 +10,7 @@ longDescription= "We present a general algorithm to infer a d-dimensional distri
 
 
 setup(name='extreme-deconvolution',
-      version='1.1',
+      version='1.2',
       description='Density estimation using Gaussian mixtures in the presence of noisy, heterogeneous and incomplete data',
       author='Jo Bovy',
       author_email='jb2777@nyu.edu',

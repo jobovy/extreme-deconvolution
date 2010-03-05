@@ -10,6 +10,10 @@ Copyright 2008-2010 Jo Bovy, David W. Hogg, and Sam Roweis.
 INSTALLATION:
 --------------
 
+(for an alternative way to install the python library, see the
+INSTALL_PYTHON file)
+
+
 The installation can produce two things: (1) a shared library which
 can be called from other programs and which is called in the IDL
 wrapper provided with the distribution, (2) a "main" program which
@@ -60,7 +64,6 @@ specifying INSTALL_DIR, also run
 
 make pywrapper INSTALL_DIR=/path/to/install/dir/
 
-
 5) make testidl: this will run the test program 'fit_tf.pro' from the
 examples directory, fitting the Tully-Fisher relation in different
 bandpasses (see arXiv:0905:2979v1 for details). A plot TF.ps and
@@ -100,11 +103,9 @@ of the accepted split and merge moves.
 The code given here is more general than the algorithm given in the
 paper in the documentation in that it includes the possibility of
 providing a projection matrix which projects the *underlying* values
-on the data, i.e., as in Eq. (3) of the paper. Indeed, this projection
-matrix must be specified for every data-point, since it is used
-everywhere in the code. This also holds for the IDL wrapper. However,
-if this projection matrix does not have full rank (eg, when the data
-is incomplete), then the calculation of the split and merge hierarchy
+on the data, i.e., as in Eq. (3) of the paper. However, if this
+projection matrix does not have full rank (eg, when the data is
+incomplete), then the calculation of the split and merge hierarchy
 implemented here is not correct. Therefore, if you want to employ the
 split and merge algorithm with incomplete data we suggest that you use
 full rank projection matrices and put in very large errors for the
@@ -136,8 +137,12 @@ matrix SS holds the uncertainty covariance matrix associated with this
 data point, and the projection matrix RR projects from the space where
 the model lives to the space of the data (this could be a rotation, or
 just simply a unit matrix if the model and the observations are given
-in the same coordinates).
-The integer 'N' specifies the number of datapoints.
+in the same coordinates). Once can set RR to a null pointer if no
+projection is necessary, in which case you also need to provide the
+bool noproj (see later). The data->SS matrix can be (di,1) dimensional
+instead of (di,di) dimensional, when the uncertainty covariances are
+diagonal. In this case, also set the diagerrs bool (see below). The
+integer 'N' specifies the number of datapoints.
 
 b. The model parameters, i.e., the initial conditions: The initial
 conditions for the model parameters are given as an array of
@@ -183,14 +188,23 @@ the average loglikelihoods of the initial convergence (before the
 first split-and-merge step) and those of successfull split-and-merge
 steps.
 
+i. noproj: indicates that no projection from the model space to the
+data space is necessary.
+
+j. diagerrs: indicates that the uncertainty covariances in data->SS
+are diagonal, such that data->SS is a (di,1) matrix instead of a
+(di,di) matrix.
+
 
 USAGE III: THROUGH THE MAIN PROGRAM
 -----------------------------------
 
-The "main" program: since no effort was made to develop this, this
-"main" program is very rudimemtary. The input data and initial
-conditions must be supplied in the files "inputdata.dat" and "IC.dat"
-respectively, and the results are written to the file
+AS OF v1.2, THE MAIN PROGRAM IS NO LONGER SUPPORTED
+
+(deprecated) The "main" program: since no effort was made to develop
+this, this "main" program is very rudimemtary. The input data and
+initial conditions must be supplied in the files "inputdata.dat" and
+"IC.dat" respectively, and the results are written to the file
 "result.dat". The main advantage of the "main" program is that it can
 deal with data that has unobserved dimensions that are different for
 different data points, i.e., it can handle the situation in which the

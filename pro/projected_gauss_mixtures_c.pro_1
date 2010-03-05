@@ -6,7 +6,9 @@
 ; INPUTS:
 ;   ngauss     - number of desired gaussians to fit
 ;   ydata      - [ndimy,ndata] observed velocities
-;   ycovar     - [ndimy,ndimy,ndata] observed velocities' errors
+;   ycovar     - [ndimy(,ndimy),ndata] observed velocities' errors-squared 
+;                (if [ndimy,ndata] then the errors are assumed to be 
+;                uncorrelated)
 ;   amp        - [ngauss] list of relative amplitudes
 ;   xmean      - [ndimx,ngauss] list of initial guesses for the means
 ;   xcovar     - [ndimx,ndimx,ngauss] list of initial guesses for the
@@ -52,6 +54,7 @@
 ;   2008-09-15  rewritten the algorithm in C, written this wrapper for
 ;               it - Bovy
 ;   2010-03-04  made projection optional - Bovy
+;   2010-03-05  made uncorrelated errors possible - Bovy
 ;-
 pro projected_gauss_mixtures_c, ngauss, ydata, ycovar, $
                                 amp, xmean, xcovar, $
@@ -95,11 +98,15 @@ ycovar=double(ycovar)
 projection=double(projection)
 
 ;;This assumes that the dimensions of all datapoints are equal
-ndimy=n_elements(ycovar)/n_elements(ydata)
+ndimy=(size(ydata,/dimensions))[0]
 ndata=n_elements(ydata)/ndimy
 ndimx=n_elements(xmean)/n_elements(amp)
 
 avgloglikedata=0.D
+
+IF n_elements(ycovar) EQ n_elements(ydata) THEN $
+	diagerrors= 1B ELSE $
+	diagerrors= 0B
 
 ;likeonly
 If ~keyword_set(likeonly) THEN likeonly = 0B
@@ -117,7 +124,7 @@ n_clog2 = strlen(clog2)
 
 clog = byte(clog)
 clog2 = byte(clog2)
-value= bytarr(24)
+value= bytarr(25)
 value[3]=1
 value[4]=1
 value[8]=1
@@ -130,6 +137,7 @@ value[19]=1
 value[20]=1
 value[22]=1
 value[23]=1
+value[24]=1
 
 IF ~keyword_set(quiet) THEN splog, "Loading C-implementation to run the projected_gauss_mixtures algorithm..."
 

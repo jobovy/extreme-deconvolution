@@ -6,7 +6,7 @@
   CALLING SEQUENCE:
      proj_EM_step(struct datapoint * data, int N, struct gaussian * gaussians, int K,
      bool * fixamp, bool * fixmean, bool * fixcovar, double * avgloglikedata, 
-     bool likeonly, double w, bool noproj)
+     bool likeonly, double w, bool noproj, bool diagerrs)
   INPUT:
      data         - the data
      N            - number of data points
@@ -18,6 +18,7 @@
      likeonly     - only compute likelihood?
      w            - regularization parameter
      noproj       - don't perform any projections
+     diagerrs     - the data->SS errors-squared are diagonal
   OUTPUT:
      avgloglikedata - average loglikelihood of the data
   REVISION HISTORY:
@@ -36,7 +37,7 @@
 void proj_EM_step(struct datapoint * data, int N, 
 		  struct gaussian * gaussians, int K,bool * fixamp, 
 		  bool * fixmean, bool * fixcovar, double * avgloglikedata, 
-		  bool likeonly, double w, bool noproj){
+		  bool likeonly, double w, bool noproj, bool diagerrs){
   *avgloglikedata = 0.0;
   
   int signum,di;
@@ -91,7 +92,13 @@ void proj_EM_step(struct datapoint * data, int N,
       gsl_vector_memcpy(wminusRm,data->ww);
       TinvwminusRm = gsl_vector_alloc (di);
       Tij = gsl_matrix_alloc(di,di);
-      if ( ! noproj ) gsl_matrix_memcpy(Tij,data->SS);
+      if ( ! noproj ) {
+	if ( diagerrs )
+	  for (ll = 0; ll != di; ++ll)
+	    gsl_matrix_set(Tij,ll,ll,gsl_matrix_get(data->SS,ll,0));
+	else
+	  gsl_matrix_memcpy(Tij,data->SS);
+      }
       Tij_inv = gsl_matrix_alloc(di,di);
       if ( ! noproj ) VRT = gsl_matrix_alloc(d,di);
       VRTTinv = gsl_matrix_alloc(d,di);
@@ -102,15 +109,17 @@ void proj_EM_step(struct datapoint * data, int N,
 	gsl_blas_dsymm(CblasLeft,CblasUpper,1.0,gaussians->VV,Rtrans,0.0,VRT);//Only the upper right part of VV is calculated --> use only that part
 	gsl_blas_dgemm(CblasNoTrans,CblasNoTrans,1.0,data->RR,VRT,1.0,Tij);}//This is Tij
       else {
-	for (kk = 0; kk != d; ++kk){
-	  gsl_matrix_set(Tij,kk,kk,gsl_matrix_get(data->SS,kk,kk)+gsl_matrix_get(gaussians->VV,kk,kk));
-	  for (ll = kk+1; ll != d; ++ll){
-	    sumSV= gsl_matrix_get(data->SS,kk,ll)+gsl_matrix_get(gaussians->VV,kk,ll);
-	    gsl_matrix_set(Tij,kk,ll,sumSV);
-	    gsl_matrix_set(Tij,ll,kk,sumSV);
-	  }
-	}
-      }
+	if ( diagerrs ) {
+	  gsl_matrix_memcpy(Tij,gaussians->VV);
+	  for (ll = 0; ll != di; ++ll)
+	    gsl_matrix_set(Tij,ll,ll,gsl_matrix_get(Tij,ll,ll)+gsl_matrix_get(data->SS,ll,0));}
+	else {
+	  for (kk = 0; kk != d; ++kk){
+	    gsl_matrix_set(Tij,kk,kk,gsl_matrix_get(data->SS,kk,kk)+gsl_matrix_get(gaussians->VV,kk,kk));
+	    for (ll = kk+1; ll != d; ++ll){
+	      sumSV= gsl_matrix_get(data->SS,kk,ll)+gsl_matrix_get(gaussians->VV,kk,ll);
+	      gsl_matrix_set(Tij,kk,ll,sumSV);
+	      gsl_matrix_set(Tij,ll,kk,sumSV);}}}}
       //gsl_matrix_add(Tij,gaussians->VV);}
       //Calculate LU decomp of Tij and Tij inverse
       gsl_linalg_LU_decomp(Tij,p,&signum);

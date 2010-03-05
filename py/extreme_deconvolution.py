@@ -9,7 +9,7 @@ _libname = ctypes.util.find_library('libextremedeconvolution.so')
 if _libname:
     _lib = ctypes.CDLL(_libname)
 if _lib is None: #Hack
-    p = os.path.join('/home/users/jb2777/lib/','libextremedeconvolution.so')
+    p = os.path.join('/home/users/jb2777/tmp/','libextremedeconvolution.so')
     if os.path.exists(p):
         _lib = ctypes.CDLL(p)
 if _lib is None:
@@ -42,7 +42,8 @@ def extreme_deconvolution(ydata,ycovar,
        run the underlying C-extreme-deconvolution code
     INPUT:
        ydata - [ndata,dy] numpy array of observed quantities
-       ycovar - [ndata,dy,dy] numpy array of observational error covariances
+       ycovar - [ndata,dy(,dy)] numpy array of observational error covariances
+                (if [ndata,dy] then the error correlations are assumed to vanish)
        xamp - [ngauss] numpy array of initial amplitudes
        xmean - [ngauss,dx] numpy array of initial means
        xcovar - [ngauss,dx,dx] numpy array of initial covariances
@@ -74,7 +75,7 @@ def extreme_deconvolution(ydata,ycovar,
     >>> nu.random.seed(seed=-1)
     >>> ndata=200
     >>> ydata=nu.reshape(nu.random.normal(1,1,ndata),(ndata,1))
-    >>> ycovar= nu.reshape(nu.ones(ndata)*.01,(ndata,1,1))
+    >>> ycovar= nu.reshape(nu.ones(ndata)*.01,(ndata,1))
     >>> projection= nu.zeros((ndata,1,2))
     >>> xamp= nu.ones(2)/2.
     >>> xmean= nu.random.random((2,2))
@@ -98,6 +99,11 @@ def extreme_deconvolution(ydata,ycovar,
     dataDim= ydata.shape[1]
     ngauss= len(xamp)
     gaussDim= xmean.shape[1]
+
+    if len(ycovar.shape) == 2:
+        diagerrors= True
+    else:
+        diagerrors= False
 
     fixamp= _fix2chararray(fixamp,ngauss)
     fixmean= _fix2chararray(fixmean,ngauss)
@@ -150,6 +156,7 @@ def extreme_deconvolution(ydata,ycovar,
                              ctypes.c_int,
                              ctypes.c_char_p,
                              ctypes.c_int,
+                             ctypes.c_char,
                              ctypes.c_char]
                                              
                                              
@@ -176,7 +183,8 @@ def extreme_deconvolution(ydata,ycovar,
                  ctypes.c_int(splitnmerge),
                  ctypes.create_string_buffer(clog2),
                  ctypes.c_int(n_clog2),
-                 ctypes.c_char(chr(noprojection)))
+                 ctypes.c_char(chr(noprojection)),
+                 ctypes.c_char(chr(diagerrors)))
     return avgloglikedata.contents.value
 
 if __name__ == '__main__':
