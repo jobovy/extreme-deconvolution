@@ -94,8 +94,8 @@ def extreme_deconvolution(ydata,ycovar,
     >>> print xmean
     [[ 0.86447943  0.322681  ]
      [ 0.67078879  0.45087394]]
-    >>> extreme_deconvolution(ydata,ycovar,xamp,xmean,xcovar,projection=projection)
-    -1.3114744655258121
+    >>> l= extreme_deconvolution(ydata,ycovar,xamp,xmean,xcovar,projection=projection)
+    >>> assert (l--1.3114744655258121)**2. < 10.**-8
     >>> print xmean
     [[ 1.26556633  0.73032131]
      [ 1.2233845   0.9966311 ]]
