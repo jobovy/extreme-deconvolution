@@ -8,6 +8,7 @@ include	src/normalize_row.c
 include src/proj_EM.c
 include src/proj_EM_step.c
 include	src/proj_gauss_mixtures.c 
+include	src/proj_gauss_mixtures_IDL.c 
 include src/splitnmergegauss.c
 include src/bovy_det.c
 include src/proj_gauss_mixtures.h
