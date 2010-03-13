@@ -1,19 +1,23 @@
-import os, os.path
+import os, os.path, platform
 import ctypes
 import ctypes.util
 import numpy as nu
 from numpy.ctypeslib import ndpointer
 #Find and load the library
 _lib = None
-_libname = ctypes.util.find_library('libextremedeconvolution.so')
+if platform.system()=='Darwin':
+    _libraryname= 'libextremedeconvolution.dylib'
+else:
+    _libraryname= 'libextremedeconvolution.so'
+_libname = ctypes.util.find_library(_libraryname)
 if _libname:
     _lib = ctypes.CDLL(_libname)
 if _lib is None: #Hack
-    p = os.path.join(TEMPLATE_LIBRARY_PATH,'libextremedeconvolution.so')
+    p = os.path.join(TEMPLATE_LIBRARY_PATH,_libraryname)
     if os.path.exists(p):
         _lib = ctypes.CDLL(p)
 if _lib is None:
-        raise IOError('libextremedeconvolution.so library not found')
+        raise IOError(_libraryname+' library not found')
 
 def _fix2chararray(fix,ngauss):
     """Internal function to process the fix* inputs"""
