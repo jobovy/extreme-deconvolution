@@ -15,11 +15,13 @@ ifeq ($(OS),Darwin)
 	LINKOPTIONS:= -dynamiclib -W1 -single_module
 	RMDIR=rmdir
 	ECHO=echo
+	TRUE=TRUE
 else
 	LIBEXT= so
 	LINKOPTIONS:= -shared
 	RMDIR=rmdir -v
-	ECHO=echo -e
+	ECHO=/bin/echo -e
+	TRUE=true
 endif
 TARGETLIB= libextremedeconvolution.$(LIBEXT)
 
@@ -105,7 +107,7 @@ spotless: clean rmbuild
 	$(RM) pro/projected_gauss_mixtures.pro
 	$(RM) pro/projected_gauss_mixtures_c.pro
 	$(RM) examples/TF.ps examples/TF.tex
-	(ls py/.extreme_deconvolution.py && mv py/.extreme_deconvolution.py py/extreme_deconvolution.py || TRUE)
+	(ls py/.extreme_deconvolution.py && mv py/.extreme_deconvolution.py py/extreme_deconvolution.py || $(TRUE))
 
 rmbuild: build/
 	$(RM) build/extremedeconvolution
