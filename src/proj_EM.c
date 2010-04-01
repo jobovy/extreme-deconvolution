@@ -8,7 +8,8 @@
      int K, bool * fixamp, bool * fixmean, bool * fixcovar, 
      double * avgloglikedata, double tol,long long int maxiter, 
      bool likeonly, double w,int partial_indx[3],double * qstarij,
-     bool keeplog, FILE *logfile, FILE *tmplogfile, bool noproj, bool diagerrs)
+     bool keeplog, FILE *logfile, FILE *tmplogfile, bool noproj, 
+     bool diagerrs, bool noweight)
   INPUT:
      data         - the data
      N            - number of data points
@@ -23,14 +24,17 @@
      w            - regularization parameter
      keeplog      - keep a log in a logfile?
      logfile      - pointer to the logfile
-     tmplogfile   - pointer to a tmplogfile to which the log likelihoods are written
-     noproj      - don't perform any projections
-     diagerrs    - the data->SS errors-squared are diagonal
+     tmplogfile   - pointer to a tmplogfile to which the log likelihoods 
+                    are written
+     noproj       - don't perform any projections
+     diagerrs     - the data->SS errors-squared are diagonal
+     noweight     - don't use data-weights
   OUTPUT:
      avgloglikedata - average log likelihood of the data
   REVISION HISTORY:
      2008-09-21 - Written Bovy
      2010-03-01 Added noproj option - Bovy
+     2010-04-01 Added noweight option - Bovy
 */
 #include <stdio.h>
 #include <math.h>
@@ -40,13 +44,14 @@ void proj_EM(struct datapoint * data, int N, struct gaussian * gaussians,
 	     int K,bool * fixamp, bool * fixmean, bool * fixcovar, 
 	     double * avgloglikedata, double tol,long long int maxiter, 
 	     bool likeonly, double w, bool keeplog, FILE *logfile,
-	     FILE *tmplogfile, bool noproj, bool diagerrs){
+	     FILE *tmplogfile, bool noproj, bool diagerrs, bool noweight){
   double diff = 2. * tol, oldavgloglikedata;
   int niter = 0;
   int d = (gaussians->mm)->size;
   halflogtwopi  = 0.5 * log(8. * atan(1.0));
   while ( diff > tol && niter < maxiter){
-    proj_EM_step(data,N,gaussians,K,fixamp,fixmean,fixcovar,avgloglikedata,likeonly,w,noproj,diagerrs);
+    proj_EM_step(data,N,gaussians,K,fixamp,fixmean,fixcovar,avgloglikedata,
+		 likeonly,w,noproj,diagerrs,noweight);
     if (keeplog){
       fprintf(logfile,"%f\n",*avgloglikedata);
       fprintf(tmplogfile,"%f\n",*avgloglikedata);

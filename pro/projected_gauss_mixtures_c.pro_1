@@ -18,6 +18,7 @@
 ;   projection - [ndimx, ndimy, ndata] non-square matrices
 ;                implementing a projection from the model space to the
 ;                data space for each data point
+;   weight     - weights to be applied to the data points [ndimy]
 ;   fixamp     - [ngauss] list of integers: 0 to update amp, 1 not to
 ;   fixmean    - [ngauss] list of integers: 0 to update xmean, 1 not to
 ;   fixcovar   - [ngauss] list of integers: 0 to update xcovar, 1 not
@@ -40,6 +41,7 @@
 ;   likeonly   - only compute and return the avgloglikedata; do not
 ;                update
 ;   quiet      - don't print messages
+;   logweight  - indicates that the weights in weight are actually ln(weight)
 ;
 ; OUTPUTS:
 ;   avgloglikedata - Average log-likelihood of the data after
@@ -65,7 +67,8 @@ pro projected_gauss_mixtures_c, ngauss, ydata, ycovar, $
                                 tol=tol, maxiter=maxiter, $
                                 likeonly=likeonly, w=w, $
                                 quiet=quiet, logfile=logfile, $
-                                splitnmerge=splitnmerge, maxsnm=maxsnm
+                                splitnmerge=splitnmerge, maxsnm=maxsnm, $
+				weight=weight, logweight=logweight
 
 ;ON_ERROR, 2
 
@@ -88,7 +91,20 @@ if ~keyword_set(projection) THEN BEGIN
 ENDIF ELSE BEGIN
 	noprojection= 0B
 ENDELSE
-
+IF ~keyword_set(weight) THEN BEGIN
+	noweight= 1B
+	logweights= 0D0
+ENDIF ELSE BEGIN
+	noweight= 0B
+ENDELSE
+IF keyword_set(weight) THEN BEGIN
+	IF ~keyword_set(logweight) THEN BEGIN
+		logweights= alog(weight)
+	ENDIF ELSE BEGIN
+		logweights= weight
+	ENDELSE
+ENDIF
+	
 ;;Make sure everything is double
 amp= double(amp)
 xmean=double(xmean)
@@ -96,6 +112,7 @@ xcovar=double(xcovar)
 ydata=double(ydata)
 ycovar=double(ycovar)
 projection=double(projection)
+logweights= double(logweights)
 
 ;;This assumes that the dimensions of all datapoints are equal
 ndimy=(size(ydata,/dimensions))[0]
@@ -124,20 +141,21 @@ n_clog2 = strlen(clog2)
 
 clog = byte(clog)
 clog2 = byte(clog2)
-value= bytarr(25)
-value[3]=1
+value= bytarr(27)
 value[4]=1
-value[8]=1
+value[5]=1
 value[9]=1
-value[14]=1
+value[10]=1
 value[15]=1
 value[16]=1
 value[17]=1
-value[19]=1
+value[18]=1
 value[20]=1
-value[22]=1
+value[21]=1
 value[23]=1
 value[24]=1
+value[25]=1
+value[26]=1
 
 IF ~keyword_set(quiet) THEN splog, "Loading C-implementation to run the projected_gauss_mixtures algorithm..."
 

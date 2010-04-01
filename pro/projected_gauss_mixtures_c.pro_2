@@ -1,5 +1,5 @@
                        "proj_gauss_mixtures_IDL", $
-                       ydata, ycovar, projection, ndata, ndimy, $
+                       ydata, ycovar, projection, logweights, ndata, ndimy, $
                        amp, xmean, xcovar, ndimx, ngauss, $
                        fixamp_temp, fixmean_temp, fixcovar_temp, $
                        avgloglikedata, tol, maxiter, likeonly, $

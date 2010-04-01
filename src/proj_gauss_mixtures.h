@@ -23,6 +23,7 @@ struct datapoint{
   gsl_vector *ww;
   gsl_matrix *SS;
   gsl_matrix *RR;
+  double logweight;
 };
 
 struct gaussian * newgaussians, * startnewgaussians;
@@ -49,14 +50,14 @@ gsl_rng * randgen; /* global random number generator */
 inline bool bovy_isfin(double x); /* true if x is finite */
 void minmax(gsl_matrix * q, int row, bool isrow, double * min, double * max);
 double logsum(gsl_matrix * q, int row, bool isrow);
-double normalize_row(gsl_matrix * q, int row,bool isrow);
+double normalize_row(gsl_matrix * q, int row,bool isrow,bool noweight, double weight);
 void bovy_randvec(gsl_vector * eps, int d, double length); /* returns random vector */
 double bovy_det(gsl_matrix * A);/* determinant of matrix A */
 void calc_splitnmerge(struct datapoint * data,int N,struct gaussian * gaussians, int K, gsl_matrix * qij, int * snmhierarchy);
 void splitnmergegauss(struct gaussian * gaussians,int K, gsl_matrix * qij, int j, int k, int l);
-void proj_EM_step(struct datapoint * data, int N, struct gaussian * gaussians, int K,bool * fixamp, bool * fixmean, bool * fixcovar, double * avgloglikedata, bool likeonly, double w,bool noproj, bool diagerrs);
-void proj_EM(struct datapoint * data, int N, struct gaussian * gaussians, int K,bool * fixamp, bool * fixmean, bool * fixcovar, double * avgloglikedata, double tol,long long int maxiter, bool likeonly, double w,bool keeplog, FILE *logfile,FILE *tmplogfile, bool noproj, bool diagerrs);
-void proj_gauss_mixtures(struct datapoint * data, int N, struct gaussian * gaussians, int K,bool * fixamp, bool * fixmean, bool * fixcovar, double * avgloglikedata, double tol,long long int maxiter, bool likeonly, double w, int splitnmerge, bool keeplog, FILE *logfile,FILE *convlogfile, bool noproj, bool diagerrs);
+void proj_EM_step(struct datapoint * data, int N, struct gaussian * gaussians, int K,bool * fixamp, bool * fixmean, bool * fixcovar, double * avgloglikedata, bool likeonly, double w,bool noproj, bool diagerrs, bool noweight);
+void proj_EM(struct datapoint * data, int N, struct gaussian * gaussians, int K,bool * fixamp, bool * fixmean, bool * fixcovar, double * avgloglikedata, double tol,long long int maxiter, bool likeonly, double w,bool keeplog, FILE *logfile,FILE *tmplogfile, bool noproj, bool diagerrs, bool noweight);
+void proj_gauss_mixtures(struct datapoint * data, int N, struct gaussian * gaussians, int K,bool * fixamp, bool * fixmean, bool * fixcovar, double * avgloglikedata, double tol,long long int maxiter, bool likeonly, double w, int splitnmerge, bool keeplog, FILE *logfile,FILE *convlogfile, bool noproj, bool diagerrs, bool noweight);
 void calc_qstarij(double * qstarij, gsl_matrix * qij, int partial_indx[3]);
 
 #endif /* proj_gauss_mixtures.h */

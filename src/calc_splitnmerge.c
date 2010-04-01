@@ -4,7 +4,8 @@
   PURPOSE:
      calculates the split and merge hierarchy after an proj_EM convergence
   CALLING SEQUENCE:
-     calc_splitnmerge(struct datapoint * data,int N,struct gaussian * gaussians, int K, gsl_matrix * qij, 
+     calc_splitnmerge(struct datapoint * data,int N,
+     struct gaussian * gaussians, int K, gsl_matrix * qij, 
      int * snmhierarchy){
   INPUT:
      data      - the data
@@ -14,7 +15,8 @@
      qij       - matrix of log(posterior likelihoods)
      bs        - bs from previous EM estimate
   OUTPUT:
-     snmhierarchy - the hierarchy, first row has the highest prioriry, goes down from there
+     snmhierarchy - the hierarchy, first row has the highest prioriry, 
+                    goes down from there
   REVISION HISTORY:
      2008-09-21 - Written Bovy
 */
@@ -166,7 +168,7 @@ void calc_splitnmerge(struct datapoint * data,int N,
   tempwork= gsl_vector_alloc(d);
   for (kk = 0; kk != K; ++kk){
     //calculate qil/ql factors
-    normalize_row(tempqij,kk,false);
+    normalize_row(tempqij,kk,false,true,0.);
     //calculate inverse of V and det(V)
     gsl_matrix_memcpy(tempVV,gaussians->VV);
     gsl_linalg_LU_decomp(tempVV,p,&signum);

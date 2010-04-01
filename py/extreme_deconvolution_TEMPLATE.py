@@ -36,9 +36,11 @@ def _fix2chararray(fix,ngauss):
 def extreme_deconvolution(ydata,ycovar,
                           xamp,xmean,xcovar,
                           projection=None,
+                          weight=None,
                           fixamp=None,fixmean=None,fixcovar=None,
                           tol=1.e-6,maxiter=long(1e9),w=0.,logfile=None,
-                          splitnmerge=0,maxsnm=False,likeonly=False):
+                          splitnmerge=0,maxsnm=False,likeonly=False,
+                          logweight=False):
     """
     NAME:
        extreme_deconvolution
@@ -53,6 +55,9 @@ def extreme_deconvolution(ydata,ycovar,
        xcovar - [ngauss,dx,dx] numpy array of initial covariances
     OPTIONAL INPUTS:
        projection - [ndata,dy,dx] numpy array of projection matrices
+       weight - [ndata] numpy array of weights to be applied to the data points
+       logweight - (bool, default=False) if True, weight is actually
+                   log(weight)
        fixamp - (default=None) None, True/False, or list of bools
        fixmean - (default=None) None, True/False, or list of bools
        fixcovar - (default=None) None, True/False, or list of bools
@@ -135,9 +140,20 @@ def extreme_deconvolution(ydata,ycovar,
     else:
         noprojection= False
         
+    if weight == None:
+        noweight= True
+        logweights= nu.zeros(1)
+    elif not logweight:
+        noweight= False
+        logweights= nu.log(weight)
+    else:
+        noweight= False
+        logweights= weight
+        
     ndarrayFlags= ('C_CONTIGUOUS','WRITEABLE')
     exdeconvFunc= _lib.proj_gauss_mixtures_IDL
     exdeconvFunc.argtypes = [ndpointer(dtype=nu.float64,flags=ndarrayFlags),
+                             ndpointer(dtype=nu.float64,flags=ndarrayFlags),
                              ndpointer(dtype=nu.float64,flags=ndarrayFlags),
                              ndpointer(dtype=nu.float64,flags=ndarrayFlags),
                              ctypes.c_int,
@@ -161,12 +177,14 @@ def extreme_deconvolution(ydata,ycovar,
                              ctypes.c_char_p,
                              ctypes.c_int,
                              ctypes.c_char,
+                             ctypes.c_char,
                              ctypes.c_char]
                                              
                                              
     exdeconvFunc(ydata,
                  ycovar,
                  projection,
+                 logweights,
                  ctypes.c_int(ndata),
                  ctypes.c_int(dataDim),
                  xamp,
@@ -188,7 +206,8 @@ def extreme_deconvolution(ydata,ycovar,
                  ctypes.create_string_buffer(clog2),
                  ctypes.c_int(n_clog2),
                  ctypes.c_char(chr(noprojection)),
-                 ctypes.c_char(chr(diagerrors)))
+                 ctypes.c_char(chr(diagerrors)),
+                 ctypes.c_char(chr(noweight)))
     return avgloglikedata.contents.value
 
 if __name__ == '__main__':

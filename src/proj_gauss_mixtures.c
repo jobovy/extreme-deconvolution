@@ -2,12 +2,15 @@
   NAME:
      proj_gauss_mixtures
   PURPOSE:
-     runs the full projected gaussian mixtures algorithms, with regularization and split and merge
+     runs the full projected gaussian mixtures algorithms, with 
+     regularization and split and merge
   CALLING SEQUENCE:
-     proj_gauss_mixtures(struct datapoint * data, int N, struct gaussian * gaussians, 
-     int K,bool * fixamp, bool * fixmean, bool * fixcovar, double * avgloglikedata, 
-     double tol,long long int maxiter, bool likeonly, double w, int splitnmerge, bool keeplog,
-     FILE *logfile, FILE *convlogfile, bool noproj, bool diagerrs))
+     proj_gauss_mixtures(struct datapoint * data, int N, 
+     struct gaussian * gaussians, int K,bool * fixamp, bool * fixmean, 
+     bool * fixcovar, double * avgloglikedata, double tol,
+     long long int maxiter, bool likeonly, double w, int splitnmerge, 
+     bool keeplog, FILE *logfile, FILE *convlogfile, bool noproj, 
+     bool diagerrs,noweight)
   INPUT:
      data        - the data
      N           - number of datapoints
@@ -26,12 +29,14 @@
      convlogfile - pointer to the convlogfile
      noproj      - don't perform any projections
      diagerrs    - the data->SS errors-squared are diagonal
+     noweight    - don't use data-weights
   OUTPUT:
      updated model gaussians
      avgloglikedata - average log likelihood of the data
   REVISION HISTORY:
      2008-08-21 Written Bovy
      2010-03-01 Added noproj option - Bovy
+     2010-04-01 Added noweight option - Bovy
 */
 #include <stdio.h>
 #include <math.h>
@@ -46,7 +51,8 @@ void proj_gauss_mixtures(struct datapoint * data, int N,
 			 double * avgloglikedata, double tol,
 			 long long int maxiter, bool likeonly, double w, 
 			 int splitnmerge, bool keeplog, FILE *logfile, 
-			 FILE *convlogfile, bool noproj, bool diagerrs){
+			 FILE *convlogfile, bool noproj, bool diagerrs,
+			 bool noweight){
   //Allocate some memory
   struct gaussian * startgaussians;
   startgaussians = gaussians;
@@ -121,7 +127,7 @@ void proj_gauss_mixtures(struct datapoint * data, int N,
   fflush(logfile);
   proj_EM(data,N,gaussians,K,fixamp_tmp,fixmean_tmp,fixcovar_tmp,
 	  avgloglikedata,tol,maxiter,likeonly,w,
-	  keeplog,logfile,convlogfile,noproj,diagerrs);
+	  keeplog,logfile,convlogfile,noproj,diagerrs,noweight);
   if (keeplog){
     fprintf(logfile,"\n");
     fprintf(convlogfile,"\n");
@@ -183,7 +189,7 @@ void proj_gauss_mixtures(struct datapoint * data, int N,
 	  fprintf(logfile,"#Merging %i and %i, splitting %i\n",j,k,l);
 	proj_EM(data,N,gaussians,K,fixamp_tmp,fixmean_tmp,fixcovar_tmp,
 		avgloglikedata,tol,maxiter,likeonly,w,keeplog,logfile,
-		tmpconvfile,noproj,diagerrs);
+		tmpconvfile,noproj,diagerrs,noweight);
 	//reset fix* vectors
 	for (ll = 0; ll != K; ++ll){
 	    *(fixamp_tmp++) = *(fixamp++);
@@ -203,7 +209,7 @@ void proj_gauss_mixtures(struct datapoint * data, int N,
 	}
 	proj_EM(data,N,gaussians,K,fixamp_tmp,fixmean_tmp,fixcovar_tmp,
 		avgloglikedata,tol,maxiter,likeonly,w,keeplog,logfile,
-		tmpconvfile,noproj,diagerrs);
+		tmpconvfile,noproj,diagerrs,noweight);
 	if (keeplog){
 	  fprintf(logfile,"\n");
 	  fprintf(tmpconvfile,"\n");

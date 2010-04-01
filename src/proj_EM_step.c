@@ -4,9 +4,10 @@
   PURPOSE:
      one proj_EM step
   CALLING SEQUENCE:
-     proj_EM_step(struct datapoint * data, int N, struct gaussian * gaussians, int K,
-     bool * fixamp, bool * fixmean, bool * fixcovar, double * avgloglikedata, 
-     bool likeonly, double w, bool noproj, bool diagerrs)
+     proj_EM_step(struct datapoint * data, int N, struct gaussian * gaussians,
+     int K,bool * fixamp, bool * fixmean, bool * fixcovar, 
+     double * avgloglikedata, bool likeonly, double w, bool noproj, 
+     bool diagerrs, bool noweight)
   INPUT:
      data         - the data
      N            - number of data points
@@ -19,11 +20,13 @@
      w            - regularization parameter
      noproj       - don't perform any projections
      diagerrs     - the data->SS errors-squared are diagonal
+     noweight     - don't use data-weights
   OUTPUT:
      avgloglikedata - average loglikelihood of the data
   REVISION HISTORY:
      2008-09-21 - Written Bovy
      2010-03-01 Added noproj option - Bovy
+     2010-04-01 Added noweight option - Bovy
 */
 #include <stdbool.h>
 #include <math.h>
@@ -37,7 +40,8 @@
 void proj_EM_step(struct datapoint * data, int N, 
 		  struct gaussian * gaussians, int K,bool * fixamp, 
 		  bool * fixmean, bool * fixcovar, double * avgloglikedata, 
-		  bool likeonly, double w, bool noproj, bool diagerrs){
+		  bool likeonly, double w, bool noproj, bool diagerrs,
+		  bool noweight){
   *avgloglikedata = 0.0;
   
   int signum,di;
@@ -60,6 +64,7 @@ void proj_EM_step(struct datapoint * data, int N,
   //check whether for some Gaussians none of the parameters get updated
   double sumfixedamps= 0;
   bool * allfixed = (bool *) calloc(K, sizeof (bool) );
+  double ampnorm;
   for (kk=0; kk != K; ++kk){
     if (*fixamp == true){
       sumfixedamps += gaussians->alpha;
@@ -166,7 +171,7 @@ void proj_EM_step(struct datapoint * data, int N,
     bs -= K;
     gaussians = startgaussians;
     //Normalize qij properly
-    *avgloglikedata += normalize_row(qij,ii,true);
+    *avgloglikedata += normalize_row(qij,ii,true,noweight,data->logweight);
     if (likeonly){
       ++data;
       continue;
@@ -266,14 +271,13 @@ void proj_EM_step(struct datapoint * data, int N,
   allfixed -= K;
 
   //normalize the amplitudes
-  if (sumfixedamps == 0.){
+  if ( sumfixedamps == 0. && noweight ){
     for (kk=0; kk != K; ++kk){
-      (gaussians++)->alpha /= (double) N;
+      if ( noweight ) (gaussians++)->alpha /= (double) N;
     }
-    gaussians -= K;
   }
   else {
-    double ampnorm= 0;
+    ampnorm= 0;
     for (kk=0; kk != K; ++kk){
       if (*(fixamp++) == false) ampnorm += gaussians->alpha;
       ++gaussians;

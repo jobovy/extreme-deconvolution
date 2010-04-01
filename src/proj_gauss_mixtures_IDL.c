@@ -12,6 +12,7 @@
   REVISION HISTORY:
      2008-09-21 - Written Bovy
      2010-03-01 Added noproj option - Bovy
+     2010-04-01 Added noweight option and logweights - Bovy
 */
 #include <stdio.h>
 #include <stdbool.h>
@@ -21,7 +22,8 @@
 #include <proj_gauss_mixtures.h>
 
 int proj_gauss_mixtures_IDL(double * ydata, double * ycovar, 
-			    double * projection, int N, int dy, 
+			    double * projection, double * logweights,
+			    int N, int dy, 
 			    double * amp, double * xmean, 
 			    double * xcovar, int d, int K, 
 			    char * fixamp, char * fixmean, 
@@ -30,7 +32,8 @@ int proj_gauss_mixtures_IDL(double * ydata, double * ycovar,
 			    int maxiter, char likeonly, double w, 
 			    char * logfilename, int slen, int splitnmerge,
 			    char * convlogfilename, int convloglen,
-			    char noprojection,char diagerrors){
+			    char noprojection,char diagerrors,
+			    char noweights){
   //Set up logfiles  
   bool keeplog = true;
   char logname[slen+1];
@@ -71,10 +74,12 @@ int proj_gauss_mixtures_IDL(double * ydata, double * ycovar,
   struct gaussian * gaussians = (struct gaussian *) malloc (K * sizeof (struct gaussian) );
 
   bool noproj= (bool) noprojection;
+  bool noweight= (bool) noweights;
   bool diagerrs= (bool) diagerrors;
   int ii, jj,dd1,dd2;
   for (ii = 0; ii != N; ++ii){
     data->ww = gsl_vector_alloc(dy);
+    if ( ! noweight ) data->logweight = *(logweights++);
     if ( diagerrs ) data->SS = gsl_matrix_alloc(dy,1);
     else data->SS = gsl_matrix_alloc(dy,dy);
     if ( ! noproj ) data->RR = gsl_matrix_alloc(dy,d);
@@ -155,7 +160,8 @@ int proj_gauss_mixtures_IDL(double * ydata, double * ycovar,
   proj_gauss_mixtures(data,N,gaussians,K,(bool *) fixamp,
 		      (bool *) fixmean, (bool *) fixcovar,avgloglikedata,
 		      tol,(long long int) maxiter, (bool) likeonly, w,
-		      splitnmerge,keeplog,logfile,convlogfile,noproj,diagerrs);
+		      splitnmerge,keeplog,logfile,convlogfile,noproj,diagerrs,
+		      noweight);
 
 
   //Print the final model parameters to the logfile
