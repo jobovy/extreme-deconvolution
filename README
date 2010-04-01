@@ -113,6 +113,9 @@ unobserved dimensions. This works. Some hints are given in the code on
 what the correct implementation would be for projections matrices that
 don't have full rank.
 
+The code here is also more general than the algorithm in that one can
+specify a weight for each data point with which its contribution to
+the log-likelihood should be weighted. Use this option with care!
 
 USAGE II: THROUGH THE SHARED OBJECT LIBRARY
 -------------------------------------------
