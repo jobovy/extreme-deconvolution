@@ -78,7 +78,7 @@ idlwrapper:
 # INSTALL THE PYTHON WRAPPER
 pywrapper:
 	(ls $(INSTALL_DIR)$(TARGETLIB) || ($(ECHO) "Cannot find library '$(INSTALL_DIR)$(TARGETLIB)', run again with 'INSTALL_DIR=' set to the directory you installed the library in" && exit -1))
-	mv py/extreme_deconvolution.py py/.extreme_deconvolution.py
+	(ls py/.extreme_deconvolution.py || mv py/extreme_deconvolution.py py/.extreme_deconvolution.py)
 	sed "s#TEMPLATE_LIBRARY_PATH#'$(INSTALL_DIR)'#g" py/extreme_deconvolution_TEMPLATE.py > py/extreme_deconvolution.py
 	((cd py && $(ECHO) 'import extreme_deconvolution' | $(PYTHON)) && $(ECHO) 'Successfully installed Python wrapper' || ($(ECHO) 'Something went wrong installing Python wrapper' && exit -1))
 
