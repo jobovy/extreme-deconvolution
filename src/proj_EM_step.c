@@ -252,8 +252,9 @@ void proj_EM_step(struct datapoint * data, int N,
       }
       if (w > 0.){
 	gsl_matrix_add(newgaussians->VV,I);
+	gsl_matrix_scale(newgaussians->VV,1.0/(qj+1.0));
       }
-      gsl_matrix_scale(newgaussians->VV,1.0/(qj+1.0));
+      else gsl_matrix_scale(newgaussians->VV,1.0/qj);
       gsl_matrix_memcpy(gaussians->VV,newgaussians->VV);
     }
     ++fixamp;
