@@ -45,7 +45,7 @@ double normalize_row(gsl_matrix * q, int row, bool isrow,
       else
 	gsl_matrix_set(q,dd,row,gsl_matrix_get(q,dd,row)-loglike+weight);
     }
-  if ( ! noweight ) loglike+= weight;
+  if ( ! noweight ) loglike*= exp(weight);
 
   return loglike;
 }
