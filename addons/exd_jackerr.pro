@@ -47,7 +47,6 @@
 ; KEYWORDS:
 ;   maxsnm     - use the maximum number of split 'n' merge steps,
 ;                K*(K-1)*(K-2)/2
-;   quiet      - don't print messages
 ;   logweight  - indicates that the weights in weight are actually ln(weight)
 ;
 ; OUTPUTS:
@@ -130,20 +129,12 @@ FOR ii=0L, njack-1 DO BEGIN
       ii+1,njack,string(13B)
     avgloglikedata= 0D0
     projected_gauss_mixtures_c, ngauss, thisydata, thisycovar, $
-      thisamp, thisxmean, thisxcovar, $
+      thisamp, thisxmean, thisxcovar, /quiet,$
       _EXTRA=_EXDKEYS
     ;;Collect results
-    ;;Test permutations
-    x= lindgen(ngauss)
-    y= randomu(seed,ngauss)
-    randperm= x[sort(y)]
-    amps[randperm,ii]= thisamp
-    xmeans[*,randperm,ii]= thisxmean
-    xcovars[*,*,randperm,ii]= thisxcovar
-
-    ;amps[*,ii]= thisamp
-    ;xmeans[*,*,ii]= thisxmean
-    ;xcovars[*,*,*,ii]= thisxcovar
+    amps[*,ii]= thisamp
+    xmeans[*,*,ii]= thisxmean
+    xcovars[*,*,*,ii]= thisxcovar
 ENDFOR
 
 ;;Now sort the jackknife estimates
