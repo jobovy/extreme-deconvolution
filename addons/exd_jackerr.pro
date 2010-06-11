@@ -28,7 +28,11 @@
 ;                 covar (best-fit)
 ;
 ; OPTIONAL INPUTS:
-;   njack      - number of jackknife subsamples to use (default: ndata)
+;   njack      - number of jackknife subsamples to use; this is
+;                approximate; actual number used can be larger. If you
+;                set this variable to a named variable, on output it
+;                will contain the actual number of jackknife
+;                subsamples used (default: ndata)
 ;   projection - [ndimx, ndimy, ndata] non-square matrices
 ;                implementing a projection from the model space to the
 ;                data space for each data point
@@ -73,7 +77,7 @@ ENDELSE
 IF ~keyword_set(njack) THEN njack= ndata
 IF njack NE ndata THEN BEGIN
     ndatasub= floor(double(ndata)/njack)
-    njack= ceil(double(ndata)/ndatasub)
+    njack= floor(double(ndata)/ndatasub)
 ENDIF
 
 ;;Run ExD for each jackknife subsample and collect the results
@@ -119,7 +123,38 @@ FOR ii=0L, njack-1 DO BEGIN
             thisycovar= reform(thisycovar,ndimy,ndimy,ndata-1)
         ENDELSE
     ENDIF ELSE BEGIN
-        print, "njack NE ndata not currently implemented"
+        ;;ydata
+        IF ii EQ 0 THEN BEGIN
+            thisydata= ydata[*,ndatasub:njack*ndatasub-1]
+        ENDIF ELSE IF ii EQ njack-1 THEN BEGIN
+            thisydata= ydata[*,0:(njack-1)*ndatasub-1]
+        ENDIF ELSE BEGIN
+            thisydata= transpose([transpose(ydata[*,0:ii*ndatasub-1]),$
+                                  transpose(ydata[*,(ii+1)*ndatasub:njack*ndatasub-1])])
+        ENDELSE
+        thisydata= reform(thisydata,ndimy,(njack-1)*ndatasub)
+        ;;ycovar
+        IF diagerrors THEN BEGIN
+            IF ii EQ 0 THEN BEGIN
+                thisycovar= ycovar[*,ndatasub:njack*ndatasub-1]
+            ENDIF ELSE IF ii EQ njack-1 THEN BEGIN
+                thisycovar= ycovar[*,0:(njack-1)*ndatasub-1]
+            ENDIF ELSE BEGIN
+                thisycovar= transpose([transpose(ycovar[*,0:ii*ndatasub-1]),$
+                                       transpose(ycovar[*,(ii+1)*ndatasub:njack*ndatasub-1])])
+            ENDELSE
+            thisycovar= reform(thisycovar,ndimy,(njack-1)*ndatasub)
+        ENDIF ELSE BEGIN 
+            IF ii EQ 0 THEN BEGIN
+                thisycovar= ycovar[*,*,ndatasub:njack*ndatasub-1]
+            ENDIF ELSE IF ii EQ njack-1 THEN BEGIN
+                thisycovar= ycovar[*,*,0:(njack-1)*ndatasub-1]
+            ENDIF ELSE BEGIN
+                thisycovar= transpose([transpose(ycovar[*,*,0:ii*ndatasub-1]),$
+                                       transpose(ycovar[*,*,(ii+1)*ndatasub:njack*ndatasub-1])])
+            ENDELSE
+            thisycovar= reform(thisycovar,ndimy,ndimy,(njack-1)*ndatasub)
+        ENDELSE
     ENDELSE
     thisamp= initamp
     thisxmean= initxmean
