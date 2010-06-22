@@ -3,7 +3,7 @@
 ;      sample_gaussians
 ;
 ;   PURPOSE:
-;      sample a distribution that is the some of gaussians
+;      sample a distribution that is the sum of gaussians
 ;
 ;   CALLING SEQUENCE:
 ;      sample_gaussians, nsamples=nsamples, mean=mean, covar=covar,
