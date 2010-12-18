@@ -19,6 +19,7 @@
      2010-04-01 - Added noweight and weight inputs to allow the qij to have 
                   weights - Bovy
 */
+#include <math.h>
 #include <gsl/gsl_matrix.h>
 #include <proj_gauss_mixtures.h>
 
