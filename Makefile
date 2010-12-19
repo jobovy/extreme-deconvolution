@@ -4,8 +4,8 @@ CC=gcc
 PYTHON=python
 IDL=idl
 
-EDCFLAGS:= $(CFLAGS)
-EDLDFLAGS:= $(LDFLAGS)
+EDCFLAGS:= $(CFLAGS) -fopenmp
+EDLDFLAGS:= $(LDFLAGS) -fopenmp
 
 OS=$(shell uname -s)
 ifeq ($(OS),Darwin)
