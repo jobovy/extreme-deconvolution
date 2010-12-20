@@ -37,7 +37,7 @@
 #include <gsl/gsl_blas.h>
 #include <proj_gauss_mixtures.h>
 
-#define CHUNKSIZE 100
+#define CHUNKSIZE 1
 
 void proj_EM_step(struct datapoint * data, int N, 
 		  struct gaussian * gaussians, int K,bool * fixamp, 
@@ -94,22 +94,26 @@ void proj_EM_step(struct datapoint * data, int N,
   double sumSV;
   int chunk;
   chunk= CHUNKSIZE;
-#pragma omp parallel for ordered schedule(dynamic,chunk) private(di,signum,exponent,ii,jj,Tij,Tij_inv,wminusRm,p,VRTTinv,sumSV,VRT,TinvwminusRm,Rtrans,thisgaussian,thisdata) shared(newgaussians,gaussians,bs)
+#pragma omp parallel for schedule(static,chunk) private(tid,di,signum,exponent,ii,jj,ll,kk,Tij,Tij_inv,wminusRm,p,VRTTinv,sumSV,VRT,TinvwminusRm,Rtrans,thisgaussian,thisdata,thisbs) shared(newgaussians,gaussians,bs,allfixed,K,d,data,avgloglikedata,currqij)
   for (ii = 0 ; ii < N; ++ii){
     thisdata= data+ii;
     tid= omp_get_thread_num();
+    di = (thisdata->SS)->size1;
+    //printf("Datapoint has dimension %i\n",di);
+    p = gsl_permutation_alloc (di);
+    wminusRm = gsl_vector_alloc (di);
+    gsl_vector_memcpy(wminusRm,thisdata->ww);
+    TinvwminusRm = gsl_vector_alloc (di);
+    Tij = gsl_matrix_alloc(di,di);
+    Tij_inv = gsl_matrix_alloc(di,di);
+    if ( ! noproj ) VRT = gsl_matrix_alloc(d,di);
+    VRTTinv = gsl_matrix_alloc(d,di);
+    if ( ! noproj ) Rtrans = gsl_matrix_alloc(d,di);
     for (jj = 0; jj != K; ++jj){
       //printf("%i\n",omp_get_thread_num());
       //printf("%i\n",omp_get_num_threads());
       thisgaussian= gaussians+jj;
       //prepare...
-      di = (thisdata->SS)->size1;
-      //printf("Datapoint has dimension %i\n",di);
-      p = gsl_permutation_alloc (di);
-      wminusRm = gsl_vector_alloc (di);
-      gsl_vector_memcpy(wminusRm,thisdata->ww);
-      TinvwminusRm = gsl_vector_alloc (di);
-      Tij = gsl_matrix_alloc(di,di);
       if ( ! noproj ) {
 	if ( diagerrs ) {
 	  gsl_matrix_set_zero(Tij);
@@ -118,10 +122,6 @@ void proj_EM_step(struct datapoint * data, int N,
 	else
 	  gsl_matrix_memcpy(Tij,thisdata->SS);
       }
-      Tij_inv = gsl_matrix_alloc(di,di);
-      if ( ! noproj ) VRT = gsl_matrix_alloc(d,di);
-      VRTTinv = gsl_matrix_alloc(d,di);
-      if ( ! noproj ) Rtrans = gsl_matrix_alloc(d,di);
       //Calculate Tij
       if ( ! noproj ) {
 	gsl_matrix_transpose_memcpy(Rtrans,thisdata->RR);
@@ -159,6 +159,7 @@ void proj_EM_step(struct datapoint * data, int N,
       //Now calculate bij and Bij
       thisbs= bs+tid*K+jj;
       gsl_vector_memcpy(thisbs->bbij,thisgaussian->mm);
+      //printf("%i,%i,%i\n",tid,ii,jj);
       //fprintf(stdout,"Where is the seg fault?\n");
       if ( ! noproj ) gsl_blas_dgemv(CblasNoTrans,1.0,VRT,TinvwminusRm,1.0,thisbs->bbij);
       else gsl_blas_dsymv(CblasUpper,1.0,thisgaussian->VV,TinvwminusRm,1.0,thisbs->bbij);
@@ -171,33 +172,33 @@ void proj_EM_step(struct datapoint * data, int N,
 	gsl_blas_dsymm(CblasLeft,CblasUpper,1.0,thisgaussian->VV,Tij_inv,0.0,VRTTinv);
 	gsl_blas_dsymm(CblasRight,CblasUpper,-1.0,thisgaussian->VV,VRTTinv,1.0,thisbs->BBij);}
       gsl_blas_dsyr(CblasUpper,1.0,thisbs->bbij,thisbs->BBij);//This is bijbijT + Bij, which is the relevant quantity
-      //Clean up
-      gsl_permutation_free (p);
-      gsl_vector_free(wminusRm);
-      gsl_vector_free(TinvwminusRm);
-      gsl_matrix_free(Tij);
-      gsl_matrix_free(Tij_inv);
-      if ( ! noproj ) gsl_matrix_free(VRT);
-      gsl_matrix_free(VRTTinv);
-      if ( ! noproj ) gsl_matrix_free(Rtrans);
       //++gaussians;
       //++bs;
     }
+    //Clean up
+    gsl_permutation_free (p);
+    gsl_vector_free(wminusRm);
+    gsl_vector_free(TinvwminusRm);
+    gsl_matrix_free(Tij);
+    gsl_matrix_free(Tij_inv);
+    if ( ! noproj ) gsl_matrix_free(VRT);
+    gsl_matrix_free(VRTTinv);
+    if ( ! noproj ) gsl_matrix_free(Rtrans);
     //bs -= K;
     //gaussians = startgaussians;
-    //Normalize qij properly
-    *avgloglikedata += normalize_row(qij,ii,true,noweight,thisdata->logweight);
     //if (likeonly){
     //  ++data;
     //  continue;
     //}
-    //printf("qij = %f\t%f\n",gsl_matrix_get(qij,ii,0),gsl_matrix_get(qij,ii,1));
-    //printf("avgloglgge = %f\n",*avgloglikedata);
     //Again loop over the gaussians to update the model(can this be more efficient? in any case this is not so bad since generally K << N)
-#pragma omp ordered
+#pragma omp critical
     {
+      //Normalize qij properly
+      *avgloglikedata += normalize_row(qij,ii,true,noweight,thisdata->logweight);
+      //printf("qij = %f\t%f\n",gsl_matrix_get(qij,ii,0),gsl_matrix_get(qij,ii,1));
+      //printf("avgloglgge = %f\n",*avgloglikedata);
       for (jj = 0; jj != K; ++jj){
-	if (*(allfixed++)){
+	if (*(allfixed+jj)){
 	  ++newgaussians;
 	  //++bs;
 	  continue;
@@ -217,13 +218,12 @@ void proj_EM_step(struct datapoint * data, int N,
 	}
       }
       //bs -= K;
-      allfixed -= K;
+      //allfixed -= K;
       newgaussians = startnewgaussians;
       //++data;
     }
     //data -= N;
   }
-  
   *avgloglikedata /= N;
   if (likeonly)
     return;
