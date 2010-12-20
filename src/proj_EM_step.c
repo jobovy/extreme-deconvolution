@@ -48,6 +48,7 @@ void proj_EM_step(struct datapoint * data, int N,
   
   struct datapoint * thisdata;
   struct gaussian * thisgaussian;
+  struct gaussian * thisnewgaussian;
   int signum,di;
   double exponent;
   double currqij;
@@ -57,7 +58,7 @@ void proj_EM_step(struct datapoint * data, int N,
 
   //Initialize new parameters
   int kk;
-  for (kk=0; kk != K; ++kk){
+  for (kk=0; kk != K*nthreads; ++kk){
     newgaussians->alpha = 0.0;
     gsl_vector_set_zero(newgaussians->mm);
     gsl_matrix_set_zero(newgaussians->VV);
@@ -95,8 +96,8 @@ void proj_EM_step(struct datapoint * data, int N,
   int chunk;
   chunk= CHUNKSIZE;
 #pragma omp parallel for schedule(static,chunk) \
-  private(tid,di,signum,exponent,ii,jj,ll,kk,Tij,Tij_inv,wminusRm,p,VRTTinv,sumSV,VRT,TinvwminusRm,Rtrans,thisgaussian,thisdata,thisbs) \
-  shared(newgaussians,gaussians,bs,allfixed,K,d,data,avgloglikedata,currqij)
+  private(tid,di,signum,exponent,ii,jj,ll,kk,Tij,Tij_inv,wminusRm,p,VRTTinv,sumSV,VRT,TinvwminusRm,Rtrans,thisgaussian,thisdata,thisbs,thisnewgaussian,currqij) \
+  shared(newgaussians,gaussians,bs,allfixed,K,d,data,avgloglikedata)
   for (ii = 0 ; ii < N; ++ii){
     thisdata= data+ii;
     tid= omp_get_thread_num();
@@ -197,38 +198,48 @@ void proj_EM_step(struct datapoint * data, int N,
     {
       //Normalize qij properly
       *avgloglikedata += normalize_row(qij,ii,true,noweight,thisdata->logweight);
+    }
       //printf("qij = %f\t%f\n",gsl_matrix_get(qij,ii,0),gsl_matrix_get(qij,ii,1));
       //printf("avgloglgge = %f\n",*avgloglikedata);
       for (jj = 0; jj != K; ++jj){
-	if (*(allfixed+jj)){
-	  ++newgaussians;
-	  //++bs;
-	  continue;
-	}
-	else {
-	  currqij = exp(gsl_matrix_get(qij,ii,jj));
-	  //printf("Current qij = %f\n",currqij);
-	  thisbs= bs+tid*K+jj;
-	  gsl_vector_scale(thisbs->bbij,currqij);
-	  gsl_vector_add(newgaussians->mm,thisbs->bbij);
-	  gsl_matrix_scale(thisbs->BBij,currqij);
-	  gsl_matrix_add(newgaussians->VV,thisbs->BBij);
-	  //printf("bij = %f\t%f\n",gsl_vector_get(bs->bbij,0),gsl_vector_get(bs->bbij,1));
-	  //printf("Bij = %f\t%f\t%f\n",gsl_matrix_get(bs->BBij,0,0),gsl_matrix_get(bs->BBij,1,1),gsl_matrix_get(bs->BBij,0,1));
-	  ++newgaussians;
-	  //++bs;
-	}
+	//if (*(allfixed+jj)){
+	//  ++newgaussians;
+	//  //++bs;
+	//  continue;
+	//}
+	//else {
+	currqij = exp(gsl_matrix_get(qij,ii,jj));
+	//printf("Current qij = %f\n",currqij);
+	thisbs= bs+tid*K+jj;
+	thisnewgaussian= newgaussians+tid*K+jj;
+	gsl_vector_scale(thisbs->bbij,currqij);
+	gsl_vector_add(thisnewgaussian->mm,thisbs->bbij);
+	gsl_matrix_scale(thisbs->BBij,currqij);
+	gsl_matrix_add(thisnewgaussian->VV,thisbs->BBij);
+	//printf("bij = %f\t%f\n",gsl_vector_get(bs->bbij,0),gsl_vector_get(bs->bbij,1));
+	//printf("Bij = %f\t%f\t%f\n",gsl_matrix_get(bs->BBij,0,0),gsl_matrix_get(bs->BBij,1,1),gsl_matrix_get(bs->BBij,0,1));
+	//++newgaussians;
+	//++bs;
+	//}
       }
       //bs -= K;
       //allfixed -= K;
-      newgaussians = startnewgaussians;
+      //newgaussians = startnewgaussians;
       //++data;
-    }
     //data -= N;
   }
   *avgloglikedata /= N;
   if (likeonly)
     return;
+
+  //gather newgaussians
+  if ( nthreads != 1 ) 
+    for (ll = 1; ll != nthreads; ++ll) 
+      for (jj = 0; jj != K; ++jj) {
+	gsl_vector_add((newgaussians+jj)->mm,(newgaussians+ll*K+jj)->mm);
+	gsl_matrix_add((newgaussians+jj)->VV,(newgaussians+ll*K+jj)->VV);
+      }
+  
 
   //Now update the parameters
   //Thus, loop over gaussians again!
