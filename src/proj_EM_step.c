@@ -234,8 +234,10 @@ void proj_EM_step(struct datapoint * data, int N,
 
   //gather newgaussians
   if ( nthreads != 1 ) 
-    for (ll = 1; ll != nthreads; ++ll) 
-      for (jj = 0; jj != K; ++jj) {
+#pragma omp parallel for schedule(static,chunk) \
+  private(ll,jj)
+    for (jj = 0; jj < K; ++jj) 
+      for (ll = 1; ll != nthreads; ++ll) {
 	gsl_vector_add((newgaussians+jj)->mm,(newgaussians+ll*K+jj)->mm);
 	gsl_matrix_add((newgaussians+jj)->VV,(newgaussians+ll*K+jj)->VV);
       }
