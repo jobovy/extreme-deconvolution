@@ -243,65 +243,68 @@ void proj_EM_step(struct datapoint * data, int N,
 
   //Now update the parameters
   //Thus, loop over gaussians again!
+  //BOVY: parallize
   double qj;
-  for (jj = 0; jj != K; ++jj){
-    if (*(allfixed++)){
-      ++fixamp;
-      ++fixmean;
-      ++fixcovar;
-      ++gaussians;
-      ++newgaussians;
+#pragma omp parallel for schedule(static,chunk) \
+  private(jj,qj)
+  for (jj = 0; jj < K; ++jj){
+    if (*(allfixed+jj)){
+      //++fixamp;
+      //++fixmean;
+      //++fixcovar;
+      //++gaussians;
+      //++newgaussians;
       continue;
     }
     else {
       qj = exp(logsum(qij,jj,false));
       (qj < DBL_MIN) ? qj = 0: 0;
       //printf("qj = %f\n",qj);
-      if (*fixamp != true) {
-	gaussians->alpha = qj;
+      if (*(fixamp+jj) != true) {
+	(gaussians+jj)->alpha = qj;
 	if (qj == 0) {//rethink this
-	  *fixamp=1;
-	  *fixmean=1;
-	  *fixcovar=1;
-	  ++fixamp;
-	  ++fixmean;
-	  ++fixcovar;
-	  ++gaussians;
-	  ++newgaussians;
+	  *(fixamp+jj)=1;
+	  *(fixmean+jj)=1;
+	  *(fixcovar+jj)=1;
+	  //++fixamp;
+	  //++fixmean;
+	  //++fixcovar;
+	  //++gaussians;
+	  //++newgaussians;
 	  continue;
 	}
       }
-    if (*fixmean != true){
-      gsl_vector_scale(newgaussians->mm,1.0/qj);
-      gsl_vector_memcpy(gaussians->mm,newgaussians->mm);
+      if (*(fixmean+jj) != true){
+	gsl_vector_scale((newgaussians+jj)->mm,1.0/qj);
+	gsl_vector_memcpy((gaussians+jj)->mm,(newgaussians+jj)->mm);
     }
-    if (*fixcovar != true){
-      if (*fixmean != true)
-	gsl_blas_dsyr(CblasUpper,-qj,gaussians->mm,newgaussians->VV);
+      if (*(fixcovar+jj) != true){
+	if (*(fixmean+jj) != true)
+	  gsl_blas_dsyr(CblasUpper,-qj,(gaussians+jj)->mm,(newgaussians+jj)->VV);
       else {
-	gsl_blas_dsyr(CblasUpper,qj,gaussians->mm,newgaussians->VV);
-	gsl_blas_dsyr2(CblasUpper,-qj,gaussians->mm,newgaussians->mm,newgaussians->VV);
+	gsl_blas_dsyr(CblasUpper,qj,(gaussians+jj)->mm,(newgaussians+jj)->VV);
+	gsl_blas_dsyr2(CblasUpper,-qj,(gaussians+jj)->mm,(newgaussians+jj)->mm,(newgaussians+jj)->VV);
       }
       if (w > 0.){
-	gsl_matrix_add(newgaussians->VV,I);
-	gsl_matrix_scale(newgaussians->VV,1.0/(qj+1.0));
+	gsl_matrix_add((newgaussians+jj)->VV,I);
+	gsl_matrix_scale((newgaussians+jj)->VV,1.0/(qj+1.0));
       }
-      else gsl_matrix_scale(newgaussians->VV,1.0/qj);
-      gsl_matrix_memcpy(gaussians->VV,newgaussians->VV);
-    }
-    ++fixamp;
-    ++fixmean;
-    ++fixcovar;
-    ++gaussians;
-    ++newgaussians;
+      else gsl_matrix_scale((newgaussians+jj)->VV,1.0/qj);
+      gsl_matrix_memcpy((gaussians+jj)->VV,(newgaussians+jj)->VV);
+      }
+      //++fixamp;
+      //++fixmean;
+      //++fixcovar;
+      //++gaussians;
+      //++newgaussians;
     }
   }
-  newgaussians = startnewgaussians;
-  gaussians= startgaussians;
-  fixamp -= K;
-  fixmean -= K;
-  fixcovar -= K;
-  allfixed -= K;
+  //newgaussians = startnewgaussians;
+  //gaussians= startgaussians;
+  //fixamp -= K;
+  //fixmean -= K;
+  //fixcovar -= K;
+  //allfixed -= K;
 
   //normalize the amplitudes
   if ( sumfixedamps == 0. && noweight ){
