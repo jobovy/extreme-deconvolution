@@ -243,7 +243,6 @@ void proj_EM_step(struct datapoint * data, int N,
 
   //Now update the parameters
   //Thus, loop over gaussians again!
-  //BOVY: parallize
   double qj;
 #pragma omp parallel for schedule(static,chunk) \
   private(jj,qj)
