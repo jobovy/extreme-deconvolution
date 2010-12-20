@@ -94,7 +94,9 @@ void proj_EM_step(struct datapoint * data, int N,
   double sumSV;
   int chunk;
   chunk= CHUNKSIZE;
-#pragma omp parallel for schedule(static,chunk) private(tid,di,signum,exponent,ii,jj,ll,kk,Tij,Tij_inv,wminusRm,p,VRTTinv,sumSV,VRT,TinvwminusRm,Rtrans,thisgaussian,thisdata,thisbs) shared(newgaussians,gaussians,bs,allfixed,K,d,data,avgloglikedata,currqij)
+#pragma omp parallel for schedule(static,chunk) \
+  private(tid,di,signum,exponent,ii,jj,ll,kk,Tij,Tij_inv,wminusRm,p,VRTTinv,sumSV,VRT,TinvwminusRm,Rtrans,thisgaussian,thisdata,thisbs) \
+  shared(newgaussians,gaussians,bs,allfixed,K,d,data,avgloglikedata,currqij)
   for (ii = 0 ; ii < N; ++ii){
     thisdata= data+ii;
     tid= omp_get_thread_num();
@@ -102,7 +104,6 @@ void proj_EM_step(struct datapoint * data, int N,
     //printf("Datapoint has dimension %i\n",di);
     p = gsl_permutation_alloc (di);
     wminusRm = gsl_vector_alloc (di);
-    gsl_vector_memcpy(wminusRm,thisdata->ww);
     TinvwminusRm = gsl_vector_alloc (di);
     Tij = gsl_matrix_alloc(di,di);
     Tij_inv = gsl_matrix_alloc(di,di);
@@ -110,6 +111,7 @@ void proj_EM_step(struct datapoint * data, int N,
     VRTTinv = gsl_matrix_alloc(d,di);
     if ( ! noproj ) Rtrans = gsl_matrix_alloc(d,di);
     for (jj = 0; jj != K; ++jj){
+      gsl_vector_memcpy(wminusRm,thisdata->ww);
       //printf("%i\n",omp_get_thread_num());
       //printf("%i\n",omp_get_num_threads());
       thisgaussian= gaussians+jj;
