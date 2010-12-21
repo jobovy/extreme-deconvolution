@@ -30,6 +30,8 @@
 */
 #include <omp.h>
 #include <math.h>
+//#include <time.h>
+//#include <sys/time.h>
 #include <float.h>
 #include <gsl/gsl_matrix.h>
 #include <gsl/gsl_vector.h>
@@ -45,17 +47,17 @@ void proj_EM_step(struct datapoint * data, int N,
 		  bool likeonly, double w, bool noproj, bool diagerrs,
 		  bool noweight){
   *avgloglikedata = 0.0;
-  
+  //struct timeval start,time1, time2, time3, time4, time5,end;
   struct datapoint * thisdata;
   struct gaussian * thisgaussian;
   struct gaussian * thisnewgaussian;
   int signum,di;
   double exponent;
   double currqij;
-  struct gaussian * startgaussians = gaussians;
   struct modelbs * thisbs;
   int d = (gaussians->VV)->size1;//dim of mm
 
+  //gettimeofday(&start,NULL);
   //Initialize new parameters
   int kk;
   for (kk=0; kk != K*nthreads; ++kk){
@@ -66,7 +68,7 @@ void proj_EM_step(struct datapoint * data, int N,
   }
   newgaussians= startnewgaussians;
     
-  
+  //gettimeofday(&time1,NULL);
   //check whether for some Gaussians none of the parameters get updated
   double sumfixedamps= 0;
   bool * allfixed = (bool *) calloc(K, sizeof (bool) );
@@ -89,6 +91,7 @@ void proj_EM_step(struct datapoint * data, int N,
   fixmean -= K;
   fixcovar -= K;
 
+  //gettimeofday(&time2,NULL);
 
   //now loop over data and gaussians to update the model parameters
   int ii, jj, ll;
@@ -112,9 +115,9 @@ void proj_EM_step(struct datapoint * data, int N,
     VRTTinv = gsl_matrix_alloc(d,di);
     if ( ! noproj ) Rtrans = gsl_matrix_alloc(d,di);
     for (jj = 0; jj != K; ++jj){
+      //printf("%i,%i\n",(thisdata->ww)->size,wminusRm->size);
       gsl_vector_memcpy(wminusRm,thisdata->ww);
-      //printf("%i\n",omp_get_thread_num());
-      //printf("%i\n",omp_get_num_threads());
+      //fprintf(stdout,"Where is the seg fault?\n");
       thisgaussian= gaussians+jj;
       //prepare...
       if ( ! noproj ) {
@@ -163,7 +166,6 @@ void proj_EM_step(struct datapoint * data, int N,
       thisbs= bs+tid*K+jj;
       gsl_vector_memcpy(thisbs->bbij,thisgaussian->mm);
       //printf("%i,%i,%i\n",tid,ii,jj);
-      //fprintf(stdout,"Where is the seg fault?\n");
       if ( ! noproj ) gsl_blas_dgemv(CblasNoTrans,1.0,VRT,TinvwminusRm,1.0,thisbs->bbij);
       else gsl_blas_dsymv(CblasUpper,1.0,thisgaussian->VV,TinvwminusRm,1.0,thisbs->bbij);
       //printf("bij = %f\t%f\n",gsl_vector_get(bs->bbij,0),gsl_vector_get(bs->bbij,1));
@@ -175,10 +177,7 @@ void proj_EM_step(struct datapoint * data, int N,
 	gsl_blas_dsymm(CblasLeft,CblasUpper,1.0,thisgaussian->VV,Tij_inv,0.0,VRTTinv);
 	gsl_blas_dsymm(CblasRight,CblasUpper,-1.0,thisgaussian->VV,VRTTinv,1.0,thisbs->BBij);}
       gsl_blas_dsyr(CblasUpper,1.0,thisbs->bbij,thisbs->BBij);//This is bijbijT + Bij, which is the relevant quantity
-      //++gaussians;
-      //++bs;
-    }
-    //Clean up
+      }
     gsl_permutation_free (p);
     gsl_vector_free(wminusRm);
     gsl_vector_free(TinvwminusRm);
@@ -187,12 +186,6 @@ void proj_EM_step(struct datapoint * data, int N,
     if ( ! noproj ) gsl_matrix_free(VRT);
     gsl_matrix_free(VRTTinv);
     if ( ! noproj ) gsl_matrix_free(Rtrans);
-    //bs -= K;
-    //gaussians = startgaussians;
-    //if (likeonly){
-    //  ++data;
-    //  continue;
-    //}
     //Again loop over the gaussians to update the model(can this be more efficient? in any case this is not so bad since generally K << N)
 #pragma omp critical
     {
@@ -202,12 +195,6 @@ void proj_EM_step(struct datapoint * data, int N,
       //printf("qij = %f\t%f\n",gsl_matrix_get(qij,ii,0),gsl_matrix_get(qij,ii,1));
       //printf("avgloglgge = %f\n",*avgloglikedata);
       for (jj = 0; jj != K; ++jj){
-	//if (*(allfixed+jj)){
-	//  ++newgaussians;
-	//  //++bs;
-	//  continue;
-	//}
-	//else {
 	currqij = exp(gsl_matrix_get(qij,ii,jj));
 	//printf("Current qij = %f\n",currqij);
 	thisbs= bs+tid*K+jj;
@@ -218,19 +205,12 @@ void proj_EM_step(struct datapoint * data, int N,
 	gsl_matrix_add(thisnewgaussian->VV,thisbs->BBij);
 	//printf("bij = %f\t%f\n",gsl_vector_get(bs->bbij,0),gsl_vector_get(bs->bbij,1));
 	//printf("Bij = %f\t%f\t%f\n",gsl_matrix_get(bs->BBij,0,0),gsl_matrix_get(bs->BBij,1,1),gsl_matrix_get(bs->BBij,0,1));
-	//++newgaussians;
-	//++bs;
-	//}
       }
-      //bs -= K;
-      //allfixed -= K;
-      //newgaussians = startnewgaussians;
-      //++data;
-    //data -= N;
   }
   *avgloglikedata /= N;
   if (likeonly)
     return;
+  //gettimeofday(&time3,NULL);
 
   //gather newgaussians
   if ( nthreads != 1 ) 
@@ -242,19 +222,15 @@ void proj_EM_step(struct datapoint * data, int N,
 	gsl_matrix_add((newgaussians+jj)->VV,(newgaussians+ll*K+jj)->VV);
       }
   
+  //gettimeofday(&time4,NULL);
 
   //Now update the parameters
   //Thus, loop over gaussians again!
   double qj;
-#pragma omp parallel for schedule(static,chunk) \
+#pragma omp parallel for schedule(dynamic,chunk) \
   private(jj,qj)
   for (jj = 0; jj < K; ++jj){
     if (*(allfixed+jj)){
-      //++fixamp;
-      //++fixmean;
-      //++fixcovar;
-      //++gaussians;
-      //++newgaussians;
       continue;
     }
     else {
@@ -267,11 +243,6 @@ void proj_EM_step(struct datapoint * data, int N,
 	  *(fixamp+jj)=1;
 	  *(fixmean+jj)=1;
 	  *(fixcovar+jj)=1;
-	  //++fixamp;
-	  //++fixmean;
-	  //++fixcovar;
-	  //++gaussians;
-	  //++newgaussians;
 	  continue;
 	}
       }
@@ -293,19 +264,9 @@ void proj_EM_step(struct datapoint * data, int N,
       else gsl_matrix_scale((newgaussians+jj)->VV,1.0/qj);
       gsl_matrix_memcpy((gaussians+jj)->VV,(newgaussians+jj)->VV);
       }
-      //++fixamp;
-      //++fixmean;
-      //++fixcovar;
-      //++gaussians;
-      //++newgaussians;
     }
   }
-  //newgaussians = startnewgaussians;
-  //gaussians= startgaussians;
-  //fixamp -= K;
-  //fixmean -= K;
-  //fixcovar -= K;
-  //allfixed -= K;
+  //gettimeofday(&time5,NULL);
 
   //normalize the amplitudes
   if ( sumfixedamps == 0. && noweight ){
@@ -331,7 +292,16 @@ void proj_EM_step(struct datapoint * data, int N,
     fixamp -= K;
     gaussians -= K;
   }
-
+  //gettimeofday(&end,NULL);
+  //double diff, diff1, diff2, diff3, diff4, diff5,diff6;
+  //diff= difftime (end.tv_sec,start.tv_sec)+difftime (end.tv_usec,start.tv_usec)/1000000;
+  //diff1= (difftime(time1.tv_sec,start.tv_sec)+difftime(time1.tv_usec,start.tv_usec)/1000000)/diff;
+  //diff2= (difftime(time2.tv_sec,time1.tv_sec)+difftime(time2.tv_usec,time1.tv_usec)/1000000)/diff;
+  //diff3= (difftime(time3.tv_sec,time2.tv_sec)+difftime(time3.tv_usec,time2.tv_usec)/1000000)/diff;
+  //diff4= (difftime(time4.tv_sec,time3.tv_sec)+difftime(time4.tv_usec,time3.tv_usec)/1000000)/diff;
+  //diff5= (difftime(time5.tv_sec,time4.tv_sec)+difftime(time5.tv_usec,time4.tv_usec)/1000000)/diff;
+  //diff6= (difftime(end.tv_sec,time5.tv_sec)+difftime(end.tv_usec,time5.tv_usec)/1000000)/diff;
+  //printf("%f,%f,%f,%f,%f,%f,%f\n",diff,diff1,diff2,diff3,diff4,diff5,diff6);
 
   free(allfixed);
 
