@@ -52,6 +52,7 @@ if ~keyword_set(projection) and ndimx NE ndimy THEN $
   message, "Dimension of model is not equal to the dimension of the data and projection is not set"
 IF n_elements(ycovar) EQ n_elements(ydata) THEN diagcovar= 1B ELSE diagcovar= 0B
 
+twopiterm=0.5*double(ndimy)*alog(2.*!DPI)
 
 logpost= dblarr(ngauss,ndata)
 IF arg_present(loglike) THEN loglike= dblarr(ndata)
