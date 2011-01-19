@@ -58,7 +58,7 @@ logpost= dblarr(ngauss,ndata)
 IF arg_present(loglike) THEN loglike= dblarr(ndata)
 ;;Loop over data and Gaussians to find posterior probabilities
 FOR ii= 0L, ndata-1 DO BEGIN
-    loglike= dblarr(ngauss)
+    thisloglike= dblarr(ngauss)
     FOR kk= 0L, ngauss-1 DO BEGIN
         IF keyword_set(projection) THEN BEGIN
             IF diagcovar THEN BEGIN
@@ -77,12 +77,12 @@ FOR ii= 0L, ndata-1 DO BEGIN
             ENDELSE
             delta=ydata[*,ii]-xmean[*,kk]
         ENDELSE
-        loglike[kk]=alog(xamp[kk])+0.5*alog(bovy_determ(tinv,/double,/check) > (machar(/double)).xmin)- $
+        thisloglike[kk]=alog(xamp[kk])+0.5*alog(bovy_determ(tinv,/double,/check) > (machar(/double)).xmin)- $
           0.5*transpose(delta)#tinv#delta-twopiterm
     ENDFOR
     ;;normalize the probabilities
-    curr_loglikedata=bovy_logsum(loglike)
+    curr_loglikedata=bovy_logsum(thisloglike)
     IF arg_present(loglike) THEN loglike[ii]= curr_loglikedata
-    logpost[*,ii]=loglike-curr_loglikedata
+    logpost[*,ii]=thisloglike-curr_loglikedata
 ENDFOR
 END
