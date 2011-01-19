@@ -6,7 +6,7 @@
 ;      component of the mixture
 ;   CALLING SEQUENCE:
 ;      calc_membership_prob, logpost, ydata, ycovar, xmean, xcovar, xamp,
-;      projection=projection
+;      projection=projection, loglike=loglike
 ;   INPUT:
 ;      ydata    - the data [ndimy,ndata]
 ;      ycovar   - error covariances [ndimy,ndimy,ndata]
@@ -19,11 +19,15 @@
 ;                  observable-space
 ;   KEYWORDS:
 ;   OUTPUT:
-;      logpost     - matrix of ln of posterior probabilities [ngauss,ndata]
+;      logpost     - matrix of ln of posterior probabilities
+;                    [ngauss,ndata]
+;   OPTIONAL OUTPUT:
+;      loglike     - log-likelihood of all the data points
 ;   REVISION HISTORY:
 ;      2008-12-16 - Written - Jo Bovy (NYU)
 ;      2010-02-24 - ReWritten to be stand-alone - Bovy
-;      2010--6-11 - Slightly rewritten to go in 'addons' - Bovy
+;      2010-06-11 - Slightly rewritten to go in 'addons' - Bovy
+;      2011-01-18 - Added 'loglike' output - Bovy
 ;-
 FUNCTION BOVY_LOGSUM, array
 amax= max(array)
@@ -37,7 +41,7 @@ IF n_elements(matrix) EQ 1 THEN return, matrix ELSE $
   return, determ(matrix,double=double,check=check)
 END
 PRO CALC_MEMBERSHIP_PROB, logpost, ydata, ycovar, xmean, xcovar, xamp, $
-                          projection=projection
+                          projection=projection, loglike=loglike
 
 ;;This assumes that the dimensions of all datapoints are equal
 ngauss= n_elements(xamp)
@@ -50,6 +54,7 @@ IF n_elements(ycovar) EQ n_elements(ydata) THEN diagcovar= 1B ELSE diagcovar= 0B
 
 
 logpost= dblarr(ngauss,ndata)
+IF arg_present(loglike) THEN loglike= dblarr(ndata)
 ;;Loop over data and Gaussians to find posterior probabilities
 FOR ii= 0L, ndata-1 DO BEGIN
     loglike= dblarr(ngauss)
@@ -76,6 +81,7 @@ FOR ii= 0L, ndata-1 DO BEGIN
     ENDFOR
     ;;normalize the probabilities
     curr_loglikedata=bovy_logsum(loglike)
+    IF arg_present(loglike) THEN loglike[ii]= curr_loglikedata
     logpost[*,ii]=loglike-curr_loglikedata
 ENDFOR
 END
