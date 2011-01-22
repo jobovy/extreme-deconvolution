@@ -71,7 +71,7 @@ pro projected_gauss_mixtures_c, ngauss, ydata, ycovar, $
 				weight=weight, logweight=logweight
 
 ON_ERROR, 2
-w= wmin
+
 ;;Perform some massive checking of the inputs here, return if (some
 ;;critical) parameters aren't set
 ;;We don't want fixamp, ... to be changed by the C-code

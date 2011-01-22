@@ -3,7 +3,7 @@
                        amp, xmean, xcovar, ndimx, ngauss, $
                        fixamp_temp, fixmean_temp, fixcovar_temp, $
                        avgloglikedata, tol, maxiter, likeonly, $
-                       w,clog,n_clog,splitnmerge, clog2,n_clog2, $
+                       wmin,clog,n_clog,splitnmerge, clog2,n_clog2, $
 		       noprojection,diagerrors,noweight,$
                        /CDECL,/AUTO_GLUE,VALUE=value)
 
