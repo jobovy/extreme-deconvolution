@@ -38,6 +38,7 @@
      2010-03-01 Added noproj option - Bovy
      2010-04-01 Added noweight option - Bovy
 */
+#include <omp.h>
 #include <stdio.h>
 #include <math.h>
 #include <stdbool.h>
@@ -75,10 +76,11 @@ void proj_gauss_mixtures(struct datapoint * data, int N,
   fixcovar -= K;
   fixcovar_tmp -= K;
   //allocate the newalpha, newmm and newVV matrices
-  newgaussians = (struct gaussian *) malloc(K * sizeof (struct gaussian) );
+  nthreads= omp_get_max_threads();
+  newgaussians = (struct gaussian *) malloc(K * nthreads * sizeof (struct gaussian) );
   startnewgaussians = newgaussians;
   int ll;
-  for (kk=0; kk != K; ++kk){
+  for (kk=0; kk != K*nthreads; ++kk){
     newgaussians->alpha = 0.0;
     newgaussians->mm = gsl_vector_calloc (d);
     newgaussians->VV = gsl_matrix_calloc (d,d);
@@ -93,13 +95,13 @@ void proj_gauss_mixtures(struct datapoint * data, int N,
   gsl_matrix_set_identity(I);//Unit matrix
   gsl_matrix_scale(I,w);//scaled to w
   //Also take care of the bbij's and the BBij's
-  bs = (struct modelbs *) malloc(K * sizeof (struct modelbs) );
-  for (kk = 0; kk != K; ++kk){
+  bs = (struct modelbs *) malloc(nthreads * K * sizeof (struct modelbs) );
+  for (kk = 0; kk != nthreads*K; ++kk){
     bs->bbij = gsl_vector_alloc (d);
     bs->BBij = gsl_matrix_alloc (d,d);
     ++bs;
   }
-  bs -= K;
+  bs -= nthreads*K;
   //splitnmerge
   int maxsnm = K*(K-1)*(K-2)/2;
   int * snmhierarchy = (int *) malloc(maxsnm*3* sizeof (int) );
@@ -301,14 +303,14 @@ void proj_gauss_mixtures(struct datapoint * data, int N,
   //Free memory
   gsl_matrix_free(I);
   gsl_matrix_free(qij);
-  for (kk = 0; kk != K; ++kk){
+  for (kk = 0; kk != nthreads*K; ++kk){
     gsl_vector_free(bs->bbij);
     gsl_matrix_free(bs->BBij);
     ++bs;
   }
-  bs -= K;
+  bs -= nthreads*K;
   free(bs);
-  for (kk=0; kk != K; ++kk){
+  for (kk=0; kk != K*nthreads; ++kk){
     gsl_vector_free(newgaussians->mm);
     gsl_matrix_free(newgaussians->VV);
     ++newgaussians;

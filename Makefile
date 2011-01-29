@@ -4,8 +4,8 @@ CC=gcc
 PYTHON=python
 IDL=idl
 
-EDCFLAGS:= $(CFLAGS)
-EDLDFLAGS:= $(LDFLAGS)
+EDCFLAGS:= $(CFLAGS) -fopenmp
+EDLDFLAGS:= $(LDFLAGS) -fopenmp
 
 OS=$(shell uname -s)
 ifeq ($(OS),Darwin)
@@ -105,6 +105,7 @@ clean:
 spotless: clean rmbuild
 	$(RM) src/*.~
 	$(RM) pro/projected_gauss_mixtures.pro
+	$(RM) py/*.pyc
 	$(RM) pro/projected_gauss_mixtures_c.pro
 	$(RM) examples/TF.ps examples/TF.tex
 	(ls py/.extreme_deconvolution.py && mv py/.extreme_deconvolution.py py/extreme_deconvolution.py || $(TRUE))

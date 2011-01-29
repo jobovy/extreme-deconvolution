@@ -13,6 +13,9 @@
 
 double halflogtwopi; /* constant used in calculation */
 
+int nthreads;
+int tid;
+
 struct gaussian{
   double alpha;
   gsl_vector *mm;
