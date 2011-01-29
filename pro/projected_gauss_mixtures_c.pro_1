@@ -26,7 +26,7 @@
 ;   tol        - tolerance (convergence iff difference in avgloglike <
 ;                tol)
 ;   maxiter    - maximum number of iterations
-;   w          - constrain the any variance to be larger than this
+;   wmin       - constrain the any variance to be larger than this
 ;                value
 ;   logfile    - basename for several logfiles (_c.log has output from
 ;                the c-routine; _loglike.log has the log likelihood
@@ -65,7 +65,7 @@ pro projected_gauss_mixtures_c, ngauss, ydata, ycovar, $
                                 fixcovar=fixcovar, $
                                 avgloglikedata=avgloglikedata, $
                                 tol=tol, maxiter=maxiter, $
-                                likeonly=likeonly, w=w, $
+                                likeonly=likeonly, wmin=wmin, $
                                 quiet=quiet, logfile=logfile, $
                                 splitnmerge=splitnmerge, maxsnm=maxsnm, $
 				weight=weight, logweight=logweight
@@ -81,7 +81,7 @@ if(NOT keyword_set(fixcovar)) then fixcovar_temp= bytarr(ngauss) else fixcovar_t
 if(NOT keyword_set(tol)) then tol=1.D-6
 if(NOT keyword_set(maxiter)) then maxiter=1000000000L
 if ~keyword_set(splitnmerge) then splitnmerge = 0L else splitnmerge = long(splitnmerge)
-if ~keyword_set(w) then w=0D
+if ~keyword_set(wmin) then wmin=0D
 if keyword_set(maxsnm) then splitnmerge=long(ngauss*(ngauss-1L)*(ngauss-2L)/2)
 ;;amplitudes have to add up to 1
 if not (total(amp) EQ 1D) then amp = amp/total(amp)
