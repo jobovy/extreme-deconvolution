@@ -268,7 +268,7 @@ FOR ii=0L, 4 DO BEGIN
       xrange=xrange, xtitle=xtitle, position=positions[0:3,ii], symsize=0.5, /NOERASE
     oplot, xline, yline, psym=-3
     ypos_label=yranges[0,ii]+ypos_label_rel*(yranges[1,ii]-yranges[0,ii])
-    hasLegend= 0
+    IF Float(!Version.Release) GE 8. THEN hasLegend= 1 ELSE hasLegend= 0
     CATCH, Error_status
     IF Error_status NE 0 THEN BEGIN  
         print, "Skipping legend because legend function not found"
