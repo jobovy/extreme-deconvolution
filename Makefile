@@ -3,15 +3,20 @@ RM= /bin/rm -vf
 CC=gcc
 PYTHON=python
 IDL=idl
+ARCH=UNDEFINED
 
 EDCFLAGS:= $(CFLAGS) -fopenmp
 EDLDFLAGS:= $(LDFLAGS) -fopenmp
 
+ifeq ($(ARCH),UNDEFINED)
+	ARCH=$(shell uname -m)
+endif
+
 OS=$(shell uname -s)
 ifeq ($(OS),Darwin)
 	LIBEXT= dylib
-	EDCFLAGS:= -arch $(shell uname -m) $(EDCFLAGS)
-	EDLDFLAGS:= -arch $(shell uname -m) $(EDLDFLAGS)
+	EDCFLAGS:= -arch $(ARCH) $(EDCFLAGS)
+	EDLDFLAGS:= -arch $(ARCH) $(EDLDFLAGS)
 	LINKOPTIONS:= -dynamiclib -W1 -single_module
 	RMDIR=rmdir
 	ECHO=echo
