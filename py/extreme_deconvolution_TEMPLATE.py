@@ -81,7 +81,6 @@ def extreme_deconvolution(ydata,ycovar,
        2010-02-10 - Written - Bovy (NYU)
     DOCTEST:
     >>> import numpy as nu
-    >>> nu.random.seed(seed=1)
     >>> ydata= nu.array([[  2.62434536e+00],
     ...                  [  3.88243586e-01],
     ...                  [  4.71828248e-01],
