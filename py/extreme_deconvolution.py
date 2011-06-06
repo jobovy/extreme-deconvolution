@@ -303,18 +303,36 @@ def extreme_deconvolution(ydata,ycovar,
     >>> assert (xmean[0,1]-1.70701517)**2. < 10.**-5
     >>> assert (xmean[1,0]-1.08009397)**2. < 10.**-5
     >>> assert (xmean[1,1]-0.8888667)**2. < 10.**-5
+    >>> assert (xcovar[0,0,0]-0.445645987259)**2. < 10.**-5.
     >>> assert (xamp[0]-0.11968415)**2. < 10.**-5
     >>> ydata= nu.asfortranarray(ydata)
     >>> ydata.flags['C_CONTIGUOUS']
     False
     >>> ydata.flags['F_CONTIGUOUS']
     True
+    >>> xamp= nu.ones(2)/2.
+    >>> xmean= nu.array([[ 0.86447943,0.322681  ],
+    ...                  [ 0.67078879,0.45087394]])
+    >>> xcovar= nu.array([[[ 0.03821028, 0.04108113],
+    ...                   [ 0.04014796,  0.03173839]],
+    ...                   [[ 0.06219194,  0.04302473],
+    ...                   [ 0.09738021,  0.06778009]]])
+    >>> xamp= nu.asfortranarray(xamp)
+    >>> xmean= nu.asfortranarray(xmean)
+    >>> xcovar= nu.asfortranarray(xcovar)
+    >>> xamp.flags['F_CONTIGUOUS']
+    True
+    >>> xmean.flags['F_CONTIGUOUS']
+    True
+    >>> xmean.flags['C_CONTIGUOUS']
+    False
     >>> l= extreme_deconvolution(ydata,ycovar,xamp,xmean,xcovar,projection=projection)
     >>> assert (l--1.3114744655258121)**2. < 10.**-8
     >>> assert (xmean[0,0]-2.30368235)**2. < 10.**-5
     >>> assert (xmean[0,1]-1.70701517)**2. < 10.**-5
     >>> assert (xmean[1,0]-1.08009397)**2. < 10.**-5
     >>> assert (xmean[1,1]-0.8888667)**2. < 10.**-5
+    >>> assert (xcovar[0,0,0]-0.445645987259)**2. < 10.**-5.
     >>> assert (xamp[0]-0.11968415)**2. < 10.**-5
     >>> ydata.flags['C_CONTIGUOUS']
     False
@@ -409,9 +427,9 @@ def extreme_deconvolution(ydata,ycovar,
     ycovar= nu.require(ycovar,dtype=nu.float64,requirements=['C','W'])
     projection= nu.require(projection,dtype=nu.float64,requirements=['C','W'])
     logweights= nu.require(logweights,dtype=nu.float64,requirements=['C','W'])
-    xamp= nu.require(xamp,dtype=nu.float64,requirements=['C','W'])
-    xmean= nu.require(xmean,dtype=nu.float64,requirements=['C','W'])
-    xcovar= nu.require(xcovar,dtype=nu.float64,requirements=['C','W'])
+    xamp_tmp= nu.require(xamp,dtype=nu.float64,requirements=['C','W'])
+    xmean_tmp= nu.require(xmean,dtype=nu.float64,requirements=['C','W'])
+    xcovar_tmp= nu.require(xcovar,dtype=nu.float64,requirements=['C','W'])
 
     exdeconvFunc(ydata,
                  ycovar,
@@ -419,9 +437,9 @@ def extreme_deconvolution(ydata,ycovar,
                  logweights,
                  ctypes.c_int(ndata),
                  ctypes.c_int(dataDim),
-                 xamp,
-                 xmean,
-                 xcovar,
+                 xamp_tmp,
+                 xmean_tmp,
+                 xcovar_tmp,
                  ctypes.c_int(gaussDim),
                  ctypes.c_int(ngauss),
                  ctypes.byref(ctypes.c_char(fixamp[0])),
@@ -445,9 +463,13 @@ def extreme_deconvolution(ydata,ycovar,
     if f_cont[1]: ycovar= nu.asfortranarray(ycovar)
     if f_cont[2]: projection= nu.asfortranarray(projection)
     if f_cont[3]: logweights= nu.asfortranarray(logweights)
-    if f_cont[4]: xamp=  nu.asfortranarray(xamp)
-    if f_cont[5]: xmean=  nu.asfortranarray(xmean)
-    if f_cont[6]: xcovar=  nu.asfortranarray(xcovar)
+    if f_cont[4]: xamp_tmp=  nu.asfortranarray(xamp_tmp)
+    if f_cont[5]: xmean_tmp=  nu.asfortranarray(xmean_tmp)
+    if f_cont[6]: xcovar_tmp=  nu.asfortranarray(xcovar_tmp)
+
+    xamp[0:ngauss]= xamp_tmp
+    xmean[0:ngauss,0:gaussDim]= xmean_tmp
+    xcovar[0:ngauss,0:gaussDim,0:gaussDim]= xcovar_tmp
 
     return avgloglikedata.contents.value
 
