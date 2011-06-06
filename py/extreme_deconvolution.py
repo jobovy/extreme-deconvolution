@@ -50,7 +50,7 @@ def extreme_deconvolution(ydata,ycovar,
        ydata - [ndata,dy] numpy array of observed quantities
        ycovar - [ndata,dy(,dy)] numpy array of observational error covariances
                 (if [ndata,dy] then the error correlations are assumed to vanish)
-       xamp - [ngauss] numpy array of initial amplitudes
+       xamp - [ngauss] numpy array of initial amplitudes (*not* [1,ngauss])
        xmean - [ngauss,dx] numpy array of initial means
        xcovar - [ngauss,dx,dx] numpy array of initial covariances
     OPTIONAL INPUTS:
@@ -305,6 +305,7 @@ def extreme_deconvolution(ydata,ycovar,
     >>> assert (xmean[1,1]-0.8888667)**2. < 10.**-5
     >>> assert (xcovar[0,0,0]-0.445645987259)**2. < 10.**-5.
     >>> assert (xamp[0]-0.11968415)**2. < 10.**-5
+    >>> assert (xamp[1]-0.880315852981)**2. < 10.**-5
     >>> ydata= nu.asfortranarray(ydata)
     >>> ydata.flags['C_CONTIGUOUS']
     False
@@ -334,6 +335,7 @@ def extreme_deconvolution(ydata,ycovar,
     >>> assert (xmean[1,1]-0.8888667)**2. < 10.**-5
     >>> assert (xcovar[0,0,0]-0.445645987259)**2. < 10.**-5.
     >>> assert (xamp[0]-0.11968415)**2. < 10.**-5
+    >>> assert (xamp[1]-0.880315852981)**2. < 10.**-5
     >>> ydata.flags['C_CONTIGUOUS']
     False
     >>> ydata.flags['F_CONTIGUOUS']

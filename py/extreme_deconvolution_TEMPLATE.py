@@ -305,6 +305,7 @@ def extreme_deconvolution(ydata,ycovar,
     >>> assert (xmean[1,1]-0.8888667)**2. < 10.**-5
     >>> assert (xcovar[0,0,0]-0.445645987259)**2. < 10.**-5.
     >>> assert (xamp[0]-0.11968415)**2. < 10.**-5
+    >>> assert (xamp[1]-0.880315852981)**2. < 10.**-5
     >>> ydata= nu.asfortranarray(ydata)
     >>> ydata.flags['C_CONTIGUOUS']
     False
@@ -334,6 +335,7 @@ def extreme_deconvolution(ydata,ycovar,
     >>> assert (xmean[1,1]-0.8888667)**2. < 10.**-5
     >>> assert (xcovar[0,0,0]-0.445645987259)**2. < 10.**-5.
     >>> assert (xamp[0]-0.11968415)**2. < 10.**-5
+    >>> assert (xamp[1]-0.880315852981)**2. < 10.**-5
     >>> ydata.flags['C_CONTIGUOUS']
     False
     >>> ydata.flags['F_CONTIGUOUS']
