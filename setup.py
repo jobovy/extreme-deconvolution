@@ -21,4 +21,4 @@ setup(name='extreme-deconvolution',
       py_modules=['extreme_deconvolution'],
       ext_modules=[Extension('extreme-deconvolution', srcFiles,libraries=['m','gsl','gslcblas'])],
       include_dirs=['src/'],
-      data_files=[('doc',['extreme-deconvolution.pdf'])])
+      )
