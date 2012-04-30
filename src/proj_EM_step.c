@@ -246,8 +246,8 @@ void proj_EM_step(struct datapoint * data, int N,
 	  continue;
 	}
       }
+      gsl_vector_scale((newgaussians+jj)->mm,1.0/qj);
       if (*(fixmean+jj) != true){
-	gsl_vector_scale((newgaussians+jj)->mm,1.0/qj);
 	gsl_vector_memcpy((gaussians+jj)->mm,(newgaussians+jj)->mm);
     }
       if (*(fixcovar+jj) != true){
