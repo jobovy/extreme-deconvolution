@@ -32,7 +32,7 @@ def _fix2chararray(fix,ngauss):
                 fix= [chr(fix[kk]) for kk in range(ngauss)]
         except TypeError: #fixamp == Bool
             fix= [chr(fix) for kk in range(ngauss)]
-    return fix
+    return ''.join(fix)
 
 def extreme_deconvolution(ydata,ycovar,
                           xamp,xmean,xcovar,
@@ -445,9 +445,9 @@ def extreme_deconvolution(ydata,ycovar,
                  xcovar_tmp,
                  ctypes.c_int(gaussDim),
                  ctypes.c_int(ngauss),
-                 ctypes.byref(ctypes.c_char(fixamp[0])),
-                 ctypes.byref(ctypes.c_char(fixmean[0])),
-                 ctypes.byref(ctypes.c_char(fixcovar[0])),
+                 ctypes.c_char_p(fixamp),
+                 ctypes.c_char_p(fixmean),
+                 ctypes.c_char_p(fixcovar),
                  avgloglikedata,
                  ctypes.c_double(tol),
                  ctypes.c_int(maxiter),
