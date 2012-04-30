@@ -31,7 +31,7 @@ def _fix2chararray(fix,ngauss):
                 fix= [chr(fix[kk]) for kk in range(ngauss)]
         except TypeError: #fixamp == Bool
             fix= [chr(fix) for kk in range(ngauss)]
-    return fix
+    return ''.join(fix)
 
 def extreme_deconvolution(ydata,ycovar,
                           xamp,xmean,xcovar,
