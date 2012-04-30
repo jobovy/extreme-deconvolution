@@ -251,12 +251,12 @@ void proj_EM_step(struct datapoint * data, int N,
 	gsl_vector_memcpy((gaussians+jj)->mm,(newgaussians+jj)->mm);
     }
       if (*(fixcovar+jj) != true){
-	if (*(fixmean+jj) != true)
-	  gsl_blas_dsyr(CblasUpper,-qj,(gaussians+jj)->mm,(newgaussians+jj)->VV);
-      else {
+	//	if (*(fixmean+jj) != true)
+	//  gsl_blas_dsyr(CblasUpper,-qj,(gaussians+jj)->mm,(newgaussians+jj)->VV);
+	//else {
 	gsl_blas_dsyr(CblasUpper,qj,(gaussians+jj)->mm,(newgaussians+jj)->VV);
 	gsl_blas_dsyr2(CblasUpper,-qj,(gaussians+jj)->mm,(newgaussians+jj)->mm,(newgaussians+jj)->VV);
-      }
+	//}
       if (w > 0.){
 	gsl_matrix_add((newgaussians+jj)->VV,I);
 	gsl_matrix_scale((newgaussians+jj)->VV,1.0/(qj+1.0));
