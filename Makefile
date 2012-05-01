@@ -51,7 +51,7 @@ build:
 	mkdir build
 
 build/extremedeconvolution: $(proj_gauss_mixtures_objects) $(proj_gauss_main_objects) build
-	$(CC) -o $@ -lm -lgsl -lgslcblas\
+	$(CC) -o $@ -lm -lgsl -lgslcblas -lgomp \
 	 $(EDCFLAGS)\
 	 $(EDLDFLAGS)\
 	 $(proj_gauss_mixtures_objects)\
@@ -59,7 +59,7 @@ build/extremedeconvolution: $(proj_gauss_mixtures_objects) $(proj_gauss_main_obj
 
 build/$(TARGETLIB): $(proj_gauss_mixtures_objects) \
 	src/proj_gauss_mixtures_IDL.o build
-	$(CC) $(LINKOPTIONS) -o $@ -lm -lgsl -lgslcblas\
+	$(CC) $(LINKOPTIONS) -o $@ -lm -lgsl -lgslcblas -lgomp \
 	 $(EDLDFLAGS)\
 	 $(proj_gauss_mixtures_objects)\
 	 src/proj_gauss_mixtures_IDL.o
