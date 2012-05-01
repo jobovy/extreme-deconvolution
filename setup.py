@@ -22,8 +22,10 @@ setup(name='extreme-deconvolution',
       long_description=longDescription,
       url='http://code.google.com/p/extreme-deconvolution/',
       package_dir = {'extreme_deconvolution': 'py'},
-      ext_modules=[Extension('extreme_deconvolution._extreme_deconvolution', srcFiles,
-      						libraries=['m','gsl','gslcblas'])],
+      ext_modules=[Extension('extreme_deconvolution._extreme_deconvolution', 
+                             srcFiles,
+                             libraries=['m','gsl','gslcblas'],
+                             extra_compile_args=["-fopenmp"])],
       include_dirs=['src/'],
       packages=['extreme_deconvolution']
       )
