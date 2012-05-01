@@ -1,24 +1,11 @@
-import os, os.path
+import os, os.path, inspect
 import ctypes
 import ctypes.util
 import numpy as nu
-from numpy.ctypeslib import ndpointer
-#Find and load the library
-_lib = None
-_libname = ctypes.util.find_library('extreme-deconvolution')
-if _libname:
-    _lib = ctypes.CDLL(_libname)
-if _lib is None:
-    import sys
-for path in sys.path:
-    try:
-        _lib = ctypes.CDLL(os.path.join(path,'extreme-deconvolution.so'))
-    except OSError:
-        _lib = None
-    else:
-        break
-if _lib is None:
-    raise IOError('extreme-deconvolution library not found')
+from numpy.ctypeslib import ndpointer, load_library
+
+cmd_folder = os.path.abspath(os.path.split(inspect.getfile( inspect.currentframe() ))[0])
+_lib = load_library('_extreme_deconvolution',cmd_folder)
 
 def _fix2chararray(fix,ngauss):
     """Internal function to process the fix* inputs"""
