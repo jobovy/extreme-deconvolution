@@ -38,7 +38,9 @@
      2010-03-01 Added noproj option - Bovy
      2010-04-01 Added noweight option - Bovy
 */
+#ifdef _OPENMP
 #include <omp.h>
+#endif
 #include <stdio.h>
 #include <math.h>
 #include <stdbool.h>
@@ -76,7 +78,11 @@ void proj_gauss_mixtures(struct datapoint * data, int N,
   fixcovar -= K;
   fixcovar_tmp -= K;
   //allocate the newalpha, newmm and newVV matrices
-  nthreads= omp_get_max_threads();
+#ifdef _OPENMP
+  nthreads = omp_get_max_threads();
+#else
+  nthreads = 1;
+#endif
   newgaussians = (struct gaussian *) malloc(K * nthreads * sizeof (struct gaussian) );
   startnewgaussians = newgaussians;
   int ll;

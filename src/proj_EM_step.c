@@ -28,7 +28,10 @@
      2010-03-01 Added noproj option - Bovy
      2010-04-01 Added noweight option - Bovy
 */
+#ifdef _OPENMP
 #include <omp.h>
+#endif
+
 #include <math.h>
 //#include <time.h>
 //#include <sys/time.h>
@@ -103,7 +106,11 @@ void proj_EM_step(struct datapoint * data, int N,
   shared(newgaussians,gaussians,bs,allfixed,K,d,data,avgloglikedata)
   for (ii = 0 ; ii < N; ++ii){
     thisdata= data+ii;
+#ifdef _OPENMP
     tid= omp_get_thread_num();
+#else
+    tid = 0;
+#endif
     di = (thisdata->SS)->size1;
     //printf("Datapoint has dimension %i\n",di);
     p = gsl_permutation_alloc (di);
