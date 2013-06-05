@@ -57,11 +57,13 @@
 ;   xmeanerr, xcovarerr and amperr
 ; REVISION HISTORY:
 ;   2010-06-11  - started on one-d case- Bovy (NYU)
+;   2013-06-05 - added log likelihood calculation - Bovy (IAS)
 ;-
 PRO EXD_JACKERR, ngauss, ydata, ycovar, $
                  amp, xmean, xcovar, $
                  amperr, xmeanerr, xcovarerr, $
-                 njack=njack, _EXTRA=_EXDKEYS
+                 njack=njack, jacklogl=jacklogl, $
+                 _EXTRA=_EXDKEYS
 
 ndimy=(size(ydata,/dimensions))[0]
 ndata=n_elements(ydata)/ndimy
@@ -88,6 +90,7 @@ initxcovar= xcovar
 amps= dblarr(ngauss,njack)
 xmeans= dblarr(ndimx,ngauss,njack)
 xcovars= dblarr(ndimx,ndimx,ngauss,njack)
+jacklogls= dblarr(njack)
 FOR ii=0L, njack-1 DO BEGIN
     IF njack EQ ndata THEN BEGIN
         ;;ydata
@@ -99,6 +102,7 @@ FOR ii=0L, njack-1 DO BEGIN
             thisydata= transpose([transpose(ydata[*,0:ii-1]),$
                                   transpose(ydata[*,ii+1:ndata-1])])
         ENDELSE
+        jackydata= reform(ydata[*,ii],ndimy,1)
         thisydata= reform(thisydata,ndimy,ndata-1)
         ;;ycovar
         IF diagerrors THEN BEGIN
@@ -110,6 +114,7 @@ FOR ii=0L, njack-1 DO BEGIN
                 thisycovar= transpose([transpose(ycovar[*,0:ii-1]),$
                                        transpose(ycovar[*,ii+1:ndata-1])])
             ENDELSE
+            jackycovar= reform(ycovar[*,ii],ndimy,1)
             thisycovar= reform(thisycovar,ndimy,ndata-1)
         ENDIF ELSE BEGIN 
             IF ii EQ 0 THEN BEGIN
@@ -120,6 +125,7 @@ FOR ii=0L, njack-1 DO BEGIN
                 thisycovar= transpose([transpose(ycovar[*,*,0:ii-1]),$
                                        transpose(ycovar[*,*,ii+1:ndata-1])])
             ENDELSE
+            jackycovar= reform(ycovar[*,*,ii],ndimy,ndimy,1)
             thisycovar= reform(thisycovar,ndimy,ndimy,ndata-1)
         ENDELSE
     ENDIF ELSE BEGIN
@@ -132,6 +138,8 @@ FOR ii=0L, njack-1 DO BEGIN
             thisydata= transpose([transpose(ydata[*,0:ii*ndatasub-1]),$
                                   transpose(ydata[*,(ii+1)*ndatasub:njack*ndatasub-1])])
         ENDELSE
+        jackydata= reform(ydata[*,ii*ndatasub:(ii+1)*ndatasub-1],$
+                          ndimy,ndatasub)
         thisydata= reform(thisydata,ndimy,(njack-1)*ndatasub)
         ;;ycovar
         IF diagerrors THEN BEGIN
@@ -143,6 +151,8 @@ FOR ii=0L, njack-1 DO BEGIN
                 thisycovar= transpose([transpose(ycovar[*,0:ii*ndatasub-1]),$
                                        transpose(ycovar[*,(ii+1)*ndatasub:njack*ndatasub-1])])
             ENDELSE
+            jackycovar= reform(ycovar[*,ii*ndatasub:(ii+1)*ndatasub-1],$
+                               ndimy,ndatasub)
             thisycovar= reform(thisycovar,ndimy,(njack-1)*ndatasub)
         ENDIF ELSE BEGIN 
             IF ii EQ 0 THEN BEGIN
@@ -153,6 +163,8 @@ FOR ii=0L, njack-1 DO BEGIN
                 thisycovar= transpose([transpose(ycovar[*,*,0:ii*ndatasub-1]),$
                                        transpose(ycovar[*,*,(ii+1)*ndatasub:njack*ndatasub-1])])
             ENDELSE
+            jackycovar= reform(ycovar[*,*,ii*ndatasub:(ii+1)*ndatasub-1],$
+                               ndimy,ndimy,ndatasub)
             thisycovar= reform(thisycovar,ndimy,ndimy,(njack-1)*ndatasub)
         ENDELSE
     ENDELSE
@@ -170,6 +182,14 @@ FOR ii=0L, njack-1 DO BEGIN
     amps[*,ii]= thisamp
     xmeans[*,*,ii]= thisxmean
     xcovars[*,*,*,ii]= thisxcovar
+    ;;calculate logl of jackydata
+    IF arg_present(jacklogl) THEN BEGIN
+        projected_gauss_mixtures_c, ngauss, jackydata, jackycovar, $
+          thisamp, thisxmean, thisxcovar, /quiet,$
+          avgloglikedata=avgloglikedata, /likeonly, $          
+          _EXTRA=_EXDKEYS
+        jacklogls[ii]= avgloglikedata*ndatasub
+    ENDIF
 ENDFOR
 
 ;;Now sort the jackknife estimates
@@ -196,4 +216,9 @@ IF ndimx EQ 1 THEN BEGIN
 ENDIF ELSE BEGIN
     print, "ndimx > 1 not implemented at this point"
 ENDELSE
+
+;;jacklogl if requested
+IF arg_present(jacklogl) THEN $
+  jacklogl= TOTAL(jacklogls)-alog(njack)
+
 END
