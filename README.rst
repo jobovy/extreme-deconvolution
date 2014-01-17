@@ -86,42 +86,42 @@ Clean up intermediate files::
 Usage
 ------
 
-Examples of use of the code are in the IDL example code in `<examples/fit_tf.pro>`__ and in the python doctest in `py/extreme_deconvolution.py`.
+Examples of use of the code are in the IDL example code in `<examples/fit_tf.pro>`__ and in the python doctest in `<py/extreme_deconvolution.py>`__.
 
-In python you would typically do something like
-{{{
-from extreme_deconvolution import extreme_deconvolution
-#Set up your arrays: ydata has the data, ycovar the uncertainty covariances
-#initamp, initmean, and initcovar are initial guesses
-#get help on their shapes and other options using
-?extreme_deconvolution
-#Run the code
-extreme_deconvolution(ydata,ycovar,initamp,initmean,initcovar)
-#initamp, initmean, and initcovar are now updated to their best fit values
-}}}
+In python you would typically do something like::
 
-In IDL this becomes
-{{{
-;;Set up arrays and the number of Gaussians
-K=2 ;;K Gaussians
-;;Run the code
-projected_gauss_mixtures_c, K, ydata, ycovar, initamp, initmean, initcovar, /quiet
-;;initamp, initmean, and initcovar are now updated to their best fit values
+   from extreme_deconvolution import extreme_deconvolution
+   #Set up your arrays: ydata has the data, ycovar the uncertainty covariances
+   #initamp, initmean, and initcovar are initial guesses
+   #get help on their shapes and other options using
+   ?extreme_deconvolution
+   #Run the code
+   extreme_deconvolution(ydata,ycovar,initamp,initmean,initcovar)
+   #initamp, initmean, and initcovar are now updated to their best fit values
+
+
+In IDL this becomes::
+
+   ;;Set up arrays and the number of Gaussians
+   K=2 ;;K Gaussians
+   ;;Run the code
+   projected_gauss_mixtures_c, K, ydata, ycovar, initamp, initmean, initcovar, /quiet
+   ;;initamp, initmean, and initcovar are now updated to their best fit values
 }}}
 
 Installation FAQ
 -----------------
 
-  * _`make` returns "file was built for unsupported file format which is not the architecture being linked (i386)" errors (or x86_64)_
+* _`make` returns "file was built for unsupported file format which is not the architecture being linked (i386)" errors (or x86_64)_
 
   XD is trying to compile as a 32 (or 64) bit library while your GSL or OpenMP libraries were compiled as 64 (or 32) bit libraries. You can force XD to compile as a particular architecture by adding the ARCH option to make, e.g.,
 {{{
 make ARCH=x86_64
 }}}
 
-  *  _I do not have/want OpenMP_
+*  _I do not have/want OpenMP_
 
-  You can disable OpenMP support by removing the `-fopenmp` references in the Makefile and copying the `src/_omp.h` file to `src/omp.h`.
+  You can disable OpenMP support by removing the `-fopenmp` references in the Makefile.
 
 Acknowledgments
 -----------------
