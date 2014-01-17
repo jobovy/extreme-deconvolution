@@ -86,7 +86,7 @@ Clean up intermediate files::
 Usage
 ------
 
-Examples of use of the code are in the IDL example code in `examples/fit_tf.pro` and in the python doctest in `py/extreme_deconvolution.py`.
+Examples of use of the code are in the IDL example code in `<examples/fit_tf.pro>`__ and in the python doctest in `py/extreme_deconvolution.py`.
 
 In python you would typically do something like
 {{{
