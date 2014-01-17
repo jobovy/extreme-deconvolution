@@ -156,18 +156,18 @@ Examples
 Extreme-deconvolution in action
 --------------------------------
 
-* The Velocity Distribution of Nearby Stars from Hipparcos Data. I. The Significance of the Moving Groups, Bovy, Jo, Hogg, David W., & Roweis, Sam T., 2009, _Astrophys. J._ *700*, 1794 [http://adsabs.harvard.edu/abs/2009ApJ...700.1794B 2009ApJ...700.1794B]
+* The Velocity Distribution of Nearby Stars from Hipparcos Data. I. The Significance of the Moving Groups, Bovy, Jo, Hogg, David W., & Roweis, Sam T., 2009, *Astrophys. J.* **700**, 1794 `2009ApJ...700.1794B <http://adsabs.harvard.edu/abs/2009ApJ...700.1794B>`__
 
-* The Velocity Distribution of Nearby Stars from Hipparcos data II. The Nature of the Low-velocity Moving Groups, Bovy, Jo & Hogg, David W., 2010, _Astrophys. J._ *717*, 617 [http://adsabs.harvard.edu/abs/2010ApJ...717..617B 2010ApJ...717..617B]
+* The Velocity Distribution of Nearby Stars from Hipparcos data II. The Nature of the Low-velocity Moving Groups, Bovy, Jo & Hogg, David W., 2010, *Astrophys. J.* **717**, 617 `2010ApJ...717..617B <http://adsabs.harvard.edu/abs/2010ApJ...717..617B>`__
 
-* Think Outside the Color Box: Probabilistic Target Selection and the SDSS-XDQSO Quasar Targeting Catalog, Bovy, Jo, et al., 2011, _Astrophys. J._ *729*, 141 [http://adsabs.harvard.edu/abs/2011ApJ...729..141B 2011ApJ...729..141B]
+* Think Outside the Color Box: Probabilistic Target Selection and the SDSS-XDQSO Quasar Targeting Catalog, Bovy, Jo, et al., 2011, *Astrophys. J.* **729**, 141 `2011ApJ...729..141B <http://adsabs.harvard.edu/abs/2011ApJ...729..141B>`__
 
-* Carbon-Enhanced Metal-Poor Stars in the Inner and Outer Halo Components of the Milky Way, Carollo, Daniela, et al., 2012, _Astrophys. J._ *744*, 195 [http://adsabs.harvard.edu/abs/2012ApJ...744..195C 2012ApJ...744..195C]
+* Carbon-Enhanced Metal-Poor Stars in the Inner and Outer Halo Components of the Milky Way, Carollo, Daniela, et al., 2012, *Astrophys. J.* **744**, 195 `2012ApJ...744..195C <http://adsabs.harvard.edu/abs/2012ApJ...744..195C>`__
 
-* Photometric Redshifts and Quasar Probabilities from a Single, Data-driven Generative Model, Bovy, Jo, et al., 2012, _Astrophys. J._ *749*, 41 [http://adsabs.harvard.edu/abs/2012ApJ...749...41B 2012ApJ...749...41B]
+* Photometric Redshifts and Quasar Probabilities from a Single, Data-driven Generative Model, Bovy, Jo, et al., 2012, *Astrophys. J.* **749**, 41 `2012ApJ...749...41B <http://adsabs.harvard.edu/abs/2012ApJ...749...41B>`__
 
-* The Stellar Metallicity Distribution Function of the Galactic Halo from SDSS Photometry, An, Deokkeun, et al., 2013, _Astrophys. J._ *763*, 65 [http://adsabs.harvard.edu/abs/2013ApJ...763...65A 2013ApJ...763...65A]
+* The Stellar Metallicity Distribution Function of the Galactic Halo from SDSS Photometry, An, Deokkeun, et al., 2013, *Astrophys. J.* **763**, 65 `2013ApJ...763...65A <http://adsabs.harvard.edu/abs/2013ApJ...763...65A>`__
 
-* Sagittarius Stream Three-dimensional Kinematics from Sloan Digital Sky Survey Stripe 82, Koposov, Sergey, Belokurov, Vasily, & Wyn Evans, N., 2013, _Astrophys. J._ *766*, 79 [http://adsabs.harvard.edu/abs/2013ApJ...766...79K 2013ApJ...766...79K]
+* Sagittarius Stream Three-dimensional Kinematics from Sloan Digital Sky Survey Stripe 82, Koposov, Sergey, Belokurov, Vasily, & Wyn Evans, N., 2013, *Astrophys. J.* **766**, 79 `2013ApJ...766...79K <http://adsabs.harvard.edu/abs/2013ApJ...766...79K>`__
 
-* Your paper here? [mailto:bovy-at-ias-dot-edu email]
+* Your paper here? `email <mailto:bovy-at-ias-dot-edu>`__
