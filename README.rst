@@ -51,7 +51,7 @@ If you download the last version from the download tab, do::
 
 To install the library do::
 
-   sudo make install``
+   sudo make install
 
 or::
 
@@ -60,7 +60,7 @@ or::
 
 To install the IDL wrapper do::
 
-make idlwrapper
+   make idlwrapper
 
 Add INSTALL_DIR=/path/to/install/dir/ if you used this to install the library
 
@@ -86,7 +86,7 @@ Clean up intermediate files::
 Usage
 ------
 
-Examples of use of the code are in the IDL example code in {{{examples/fit_tf.pro}}} and in the python doctest in {{{py/extreme_deconvolution.py}}}.
+Examples of use of the code are in the IDL example code in `examples/fit_tf.pro` and in the python doctest in `py/extreme_deconvolution.py`.
 
 In python you would typically do something like
 {{{
