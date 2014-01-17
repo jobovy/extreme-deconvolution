@@ -140,14 +140,16 @@ The algorithm that the code implements is described in the paper *Extreme deconv
 Examples
 ----------
 
-* The velocity distribution of nearby stars ([http://adsabs.harvard.edu/abs/2009ApJ...700.1794B paper]): 
+* The velocity distribution of nearby stars (`paper <http://adsabs.harvard.edu/abs/2009ApJ...700.1794B>`__): 
 
   .. image:: http://cosmo.nyu.edu/~jb2777/google-code/annotated_veldist2.png
 
-* The metallicity distribution of nearby stars in the Milky Way disk as a mixture of a thin and thick disk (from  [http://arxiv.org/abs/0912.3262 this paper]): 
+* The metallicity distribution of nearby stars in the Milky Way disk as a mixture of a thin and thick disk (from `this paper <http://arxiv.org/abs/0912.3262>`__): 
+
   .. image:: http://cosmo.nyu.edu/~jb2777/google-code/gcs_zdist.png
 
-* Quasar colors as a function of redshift (from [http://arxiv.org/abs/1105.3975 this paper]): 
+* Quasar colors as a function of redshift (from `this paper <http://arxiv.org/abs/1105.3975>`__): 
+
   .. image:: http://cosmo.nyu.edu/~jb2777/google-code/quasar-photoz.png
 
 
