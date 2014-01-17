@@ -116,7 +116,7 @@ Installation FAQ
 
   XD is trying to compile as a 32 (or 64) bit library while your GSL or OpenMP libraries were compiled as 64 (or 32) bit libraries. You can force XD to compile as a particular architecture by adding the ARCH option to make, e.g.::
 
-  make ARCH=x86_64
+     make ARCH=x86_64
 
 
 * *I do not have/want OpenMP*
