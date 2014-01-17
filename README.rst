@@ -8,19 +8,19 @@ The extreme-deconvolution algorithm is available here as a dynamic C-library tha
 News
 ------
 
-* *2014/01/17*: Code was migrated to github; previous news refers to the googlecode version.
+* **2014/01/17**: Code was migrated to github; previous news refers to the googlecode version.
 
-* *2011/06/12*: Version 1.3 released. This version incorporates OpenMP multiprocessing support and other improvements since version 1.2 (see other _News_ below).  
+* **2011/06/12**: Version 1.3 released. This version incorporates OpenMP multiprocessing support and other improvements since version 1.2 (see other _News_ below).  
 
-* *2011/01/29*: The code now has multiprocessing support using OpenMP and is automatically compiled with OpenMP. Use the environment variable {{{OMP_NUM_THREADS}}} to control the number of threads used. Only available in the `trunk <http://code.google.com/p/extreme-deconvolution/source/browse/trunk>`__ at this time. If you want to compile the code without OpenMP, remove the -fopenmp references in the Makefile and copy the src/_omp.h file to src/omp.h.
+* **2011/01/29**: The code now has multiprocessing support using OpenMP and is automatically compiled with OpenMP. Use the environment variable {{{OMP_NUM_THREADS}}} to control the number of threads used. Only available in the `trunk <http://code.google.com/p/extreme-deconvolution/source/browse/trunk>`__ at this time. If you want to compile the code without OpenMP, remove the -fopenmp references in the Makefile and copy the src/_omp.h file to src/omp.h.
 
-* *2010/06/11*: Some `addons <http://code.google.com/p/extreme-deconvolution/source/browse/trunk#trunk/addons>`__ were added: Use these small IDL programs to use the output from the core extreme-deconvolution code (e.g., calculate uncertainties on the best-fit parameters, calculate membership probabilities, perform a KS test with these membership probabilities). Download them `here <http://extreme-deconvolution.googlecode.com/files/extreme-deconvolution-addons_1.0.tar.gz>`__ or check-out the code
+* **2010/06/11**: Some `addons <http://code.google.com/p/extreme-deconvolution/source/browse/trunk#trunk/addons>`__ were added: Use these small IDL programs to use the output from the core extreme-deconvolution code (e.g., calculate uncertainties on the best-fit parameters, calculate membership probabilities, perform a KS test with these membership probabilities). Download them `here <http://extreme-deconvolution.googlecode.com/files/extreme-deconvolution-addons_1.0.tar.gz>`__ or check-out the code
 
 ``svn checkout http://extreme-deconvolution.googlecode.com/svn/trunk/addons/ extreme-deconvolution-addons``
 
-* *2010/04/01*: The "weight" option was added to give the data points different weights in the calculation of the log likelihood (log likelihood = weight `*` log p(data|model) ). Only available in the `trunk <http://code.google.com/p/extreme-deconvolution/source/browse/trunk>`__ at this time.
+* **2010/04/01**: The "weight" option was added to give the data points different weights in the calculation of the log likelihood (log likelihood = weight `*` log p(data|model) ). Only available in the `trunk <http://code.google.com/p/extreme-deconvolution/source/browse/trunk>`__ at this time.
 
-* *2010/03/05*: Version 1.2 released. The "projection" matrices are now optional and the data-uncertainties can be diagonal (i.e., uncorrelated).
+* **2010/03/05**: Version 1.2 released. The "projection" matrices are now optional and the data-uncertainties can be diagonal (i.e., uncorrelated).
 
 Requirements
 ------------
