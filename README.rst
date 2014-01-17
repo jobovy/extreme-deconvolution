@@ -107,19 +107,19 @@ In IDL this becomes::
    ;;Run the code
    projected_gauss_mixtures_c, K, ydata, ycovar, initamp, initmean, initcovar, /quiet
    ;;initamp, initmean, and initcovar are now updated to their best fit values
-}}}
+
 
 Installation FAQ
 -----------------
 
-* _`make` returns "file was built for unsupported file format which is not the architecture being linked (i386)" errors (or x86_64)_
+* *`make` returns "file was built for unsupported file format which is not the architecture being linked (i386)" errors (or x86_64)*
 
-  XD is trying to compile as a 32 (or 64) bit library while your GSL or OpenMP libraries were compiled as 64 (or 32) bit libraries. You can force XD to compile as a particular architecture by adding the ARCH option to make, e.g.,
-{{{
-make ARCH=x86_64
-}}}
+  XD is trying to compile as a 32 (or 64) bit library while your GSL or OpenMP libraries were compiled as 64 (or 32) bit libraries. You can force XD to compile as a particular architecture by adding the ARCH option to make, e.g.,::
 
-*  _I do not have/want OpenMP_
+  make ARCH=x86_64
+
+
+*  *I do not have/want OpenMP*
 
   You can disable OpenMP support by removing the `-fopenmp` references in the Makefile.
 
