@@ -141,6 +141,7 @@ Examples
 ----------
 
 * The velocity distribution of nearby stars ([http://adsabs.harvard.edu/abs/2009ApJ...700.1794B paper]): 
+
   .. image:: :target: http://cosmo.nyu.edu/~jb2777/google-code/annotated_veldist2.png
 
 * The metallicity distribution of nearby stars in the Milky Way disk as a mixture of a thin and thick disk (from  [http://arxiv.org/abs/0912.3262 this paper]): 
