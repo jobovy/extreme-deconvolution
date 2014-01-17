@@ -45,9 +45,9 @@ Installation
 
 If you download the last version from the download tab, do::
 
-tar xvzf extreme-deconvolution-1.3.tar.gz
-cd extreme-deconvolution-1.3/
-make
+   tar xvzf extreme-deconvolution-1.3.tar.gz
+    cd extreme-deconvolution-1.3/
+    make
 
 To install the library do:
 
