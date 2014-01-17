@@ -119,9 +119,9 @@ Installation FAQ
   make ARCH=x86_64
 
 
-*  *I do not have/want OpenMP*
+* *I do not have/want OpenMP*
 
-  You can disable OpenMP support by removing the `-fopenmp` references in the Makefile.
+  You can disable OpenMP support by removing the -fopenmp and -lgomp references in the Makefile.
 
 Acknowledgments
 -----------------
