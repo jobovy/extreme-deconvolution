@@ -46,43 +46,42 @@ Installation
 If you download the last version from the download tab, do::
 
    tar xvzf extreme-deconvolution-1.3.tar.gz
-    cd extreme-deconvolution-1.3/
-    make
+   cd extreme-deconvolution-1.3/
+   make
 
-To install the library do:
+To install the library do::
 
-``sudo make install``
+   sudo make install``
 
-or 
+or::
 
-``make install INSTALL_DIR=/path/to/install/dir/``
-
-
-To install the IDL wrapper do:
-
-``make idlwrapper``
-
-Add INSTALL_DIR=/path/to/install/dir/ if you used this to install the library
+	make install INSTALL_DIR=/path/to/install/dir/
 
 
-To install the python wrapper do:
+To install the IDL wrapper do::
 
-``make pywrapper``
+make idlwrapper
 
 Add INSTALL_DIR=/path/to/install/dir/ if you used this to install the library
 
 
-To test whether the code and the python wrapper is working do
+To install the python wrapper do::
 
-``make testpy``
+   make pywrapper
 
-To test whether the code and the IDL wrapper is working do (requires IDL and the IDL-wrapper to be installed):
+Add INSTALL_DIR=/path/to/install/dir/ if you used this to install the library
 
-``make testidl``
+To test whether the code and the python wrapper is working do::
 
-Clean up intermediate files:
+   make testpy
 
-``make clean``
+To test whether the code and the IDL wrapper is working do (requires IDL and the IDL-wrapper to be installed)::
+
+   make testidl
+
+Clean up intermediate files::
+
+      make clean
 
 Usage
 ------
