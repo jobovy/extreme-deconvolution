@@ -114,7 +114,7 @@ Installation FAQ
 
 * *`make` returns "file was built for unsupported file format which is not the architecture being linked (i386)" errors (or x86_64)*
 
-  XD is trying to compile as a 32 (or 64) bit library while your GSL or OpenMP libraries were compiled as 64 (or 32) bit libraries. You can force XD to compile as a particular architecture by adding the ARCH option to make, e.g., ::
+  XD is trying to compile as a 32 (or 64) bit library while your GSL or OpenMP libraries were compiled as 64 (or 32) bit libraries. You can force XD to compile as a particular architecture by adding the ARCH option to make, e.g.::
 
   make ARCH=x86_64
 
@@ -131,40 +131,40 @@ Thanks to Daniela Carollo, Sergey Koposov, and Leonidas Moustakas for bug report
 Acknowledging extreme-deconvolution
 ------------------------------------
 
-The algorithm that the code implements is described in the paper _Extreme deconvolution: inferring complete distribution functions from noisy, heterogeneous and incomplete observations_; a copy of the latest draft of this paper is included in the "doc/" directory of the repository or source archive. If you use the code, please cite this paper, e.g.,
-{{{
-Extreme deconvolution: inferring complete distribution functions from noisy, heterogeneous and incomplete observations
-Jo Bovy, David W. Hogg, & Sam T. Roweis, Ann. Appl. Stat. 5, 2B, 1657 (2011)
-}}}
+The algorithm that the code implements is described in the paper *Extreme deconvolution: inferring complete distribution functions from noisy, heterogeneous and incomplete observations*; a copy of the latest draft of this paper is included in the "doc/" directory of the repository or source archive. If you use the code, please cite this paper, e.g.::
+
+    Extreme deconvolution: inferring complete distribution functions from noisy, heterogeneous and incomplete observations
+    Jo Bovy, David W. Hogg, & Sam T. Roweis, Ann. Appl. Stat. 5, 2B, 1657 (2011)
+
 
 Examples
 ----------
 
-  * The velocity distribution of nearby stars ([http://adsabs.harvard.edu/abs/2009ApJ...700.1794B paper]): 
-  [http://cosmo.nyu.edu/~jb2777/google-code/annotated_veldist2.png]
+* The velocity distribution of nearby stars ([http://adsabs.harvard.edu/abs/2009ApJ...700.1794B paper]): 
+  .. image:: http://cosmo.nyu.edu/~jb2777/google-code/annotated_veldist2.png
 
-  * The metallicity distribution of nearby stars in the Milky Way disk as a mixture of a thin and thick disk (from  [http://arxiv.org/abs/0912.3262 this paper]): 
-  [http://cosmo.nyu.edu/~jb2777/google-code/gcs_zdist.png]
+* The metallicity distribution of nearby stars in the Milky Way disk as a mixture of a thin and thick disk (from  [http://arxiv.org/abs/0912.3262 this paper]): 
+  .. image:: http://cosmo.nyu.edu/~jb2777/google-code/gcs_zdist.png
 
-  * Quasar colors as a function of redshift (from [http://arxiv.org/abs/1105.3975 this paper]): 
-  [http://cosmo.nyu.edu/~jb2777/google-code/quasar-photoz.png]
+* Quasar colors as a function of redshift (from [http://arxiv.org/abs/1105.3975 this paper]): 
+  .. image:: http://cosmo.nyu.edu/~jb2777/google-code/quasar-photoz.png
 
 
 Extreme-deconvolution in action
 --------------------------------
 
- * The Velocity Distribution of Nearby Stars from Hipparcos Data. I. The Significance of the Moving Groups, Bovy, Jo, Hogg, David W., & Roweis, Sam T., 2009, _Astrophys. J._ *700*, 1794 [http://adsabs.harvard.edu/abs/2009ApJ...700.1794B 2009ApJ...700.1794B]
+* The Velocity Distribution of Nearby Stars from Hipparcos Data. I. The Significance of the Moving Groups, Bovy, Jo, Hogg, David W., & Roweis, Sam T., 2009, _Astrophys. J._ *700*, 1794 [http://adsabs.harvard.edu/abs/2009ApJ...700.1794B 2009ApJ...700.1794B]
 
- * The Velocity Distribution of Nearby Stars from Hipparcos data II. The Nature of the Low-velocity Moving Groups, Bovy, Jo & Hogg, David W., 2010, _Astrophys. J._ *717*, 617 [http://adsabs.harvard.edu/abs/2010ApJ...717..617B 2010ApJ...717..617B]
+* The Velocity Distribution of Nearby Stars from Hipparcos data II. The Nature of the Low-velocity Moving Groups, Bovy, Jo & Hogg, David W., 2010, _Astrophys. J._ *717*, 617 [http://adsabs.harvard.edu/abs/2010ApJ...717..617B 2010ApJ...717..617B]
 
- * Think Outside the Color Box: Probabilistic Target Selection and the SDSS-XDQSO Quasar Targeting Catalog, Bovy, Jo, et al., 2011, _Astrophys. J._ *729*, 141 [http://adsabs.harvard.edu/abs/2011ApJ...729..141B 2011ApJ...729..141B]
+* Think Outside the Color Box: Probabilistic Target Selection and the SDSS-XDQSO Quasar Targeting Catalog, Bovy, Jo, et al., 2011, _Astrophys. J._ *729*, 141 [http://adsabs.harvard.edu/abs/2011ApJ...729..141B 2011ApJ...729..141B]
 
- * Carbon-Enhanced Metal-Poor Stars in the Inner and Outer Halo Components of the Milky Way, Carollo, Daniela, et al., 2012, _Astrophys. J._ *744*, 195 [http://adsabs.harvard.edu/abs/2012ApJ...744..195C 2012ApJ...744..195C]
+* Carbon-Enhanced Metal-Poor Stars in the Inner and Outer Halo Components of the Milky Way, Carollo, Daniela, et al., 2012, _Astrophys. J._ *744*, 195 [http://adsabs.harvard.edu/abs/2012ApJ...744..195C 2012ApJ...744..195C]
 
- * Photometric Redshifts and Quasar Probabilities from a Single, Data-driven Generative Model, Bovy, Jo, et al., 2012, _Astrophys. J._ *749*, 41 [http://adsabs.harvard.edu/abs/2012ApJ...749...41B 2012ApJ...749...41B]
+* Photometric Redshifts and Quasar Probabilities from a Single, Data-driven Generative Model, Bovy, Jo, et al., 2012, _Astrophys. J._ *749*, 41 [http://adsabs.harvard.edu/abs/2012ApJ...749...41B 2012ApJ...749...41B]
 
- * The Stellar Metallicity Distribution Function of the Galactic Halo from SDSS Photometry, An, Deokkeun, et al., 2013, _Astrophys. J._ *763*, 65 [http://adsabs.harvard.edu/abs/2013ApJ...763...65A 2013ApJ...763...65A]
+* The Stellar Metallicity Distribution Function of the Galactic Halo from SDSS Photometry, An, Deokkeun, et al., 2013, _Astrophys. J._ *763*, 65 [http://adsabs.harvard.edu/abs/2013ApJ...763...65A 2013ApJ...763...65A]
 
- * Sagittarius Stream Three-dimensional Kinematics from Sloan Digital Sky Survey Stripe 82, Koposov, Sergey, Belokurov, Vasily, & Wyn Evans, N., 2013, _Astrophys. J._ *766*, 79 [http://adsabs.harvard.edu/abs/2013ApJ...766...79K 2013ApJ...766...79K]
+* Sagittarius Stream Three-dimensional Kinematics from Sloan Digital Sky Survey Stripe 82, Koposov, Sergey, Belokurov, Vasily, & Wyn Evans, N., 2013, _Astrophys. J._ *766*, 79 [http://adsabs.harvard.edu/abs/2013ApJ...766...79K 2013ApJ...766...79K]
 
- * Your paper here? [mailto:bovy-at-ias-dot-edu email]
+* Your paper here? [mailto:bovy-at-ias-dot-edu email]
