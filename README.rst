@@ -28,7 +28,7 @@ Requirements
 Download ...
 --------------
 
-The latest release of the code is `extreme-deconvolution-1.3 <http://extreme-deconvolution.googlecode.com/files/extreme-deconvolution-1.3.tar.gz>`__]. A separate installer for the python library only is available as well as `extreme-deconvolution-1.3-python <http://extreme-deconvolution.googlecode.com/files/extreme-deconvolution-1.3-python.tar.gz>`__.
+The latest release of the code is `extreme-deconvolution-1.3 <http://extreme-deconvolution.googlecode.com/files/extreme-deconvolution-1.3.tar.gz>`__. A separate installer for the python library only is available as well as `extreme-deconvolution-1.3-python <http://extreme-deconvolution.googlecode.com/files/extreme-deconvolution-1.3-python.tar.gz>`__.
 
 
 or get the latest version
@@ -43,13 +43,11 @@ Installation
 
 (to only install the python library, see the INSTALL_PYTHON file)
 
-If you download the last version from the download tab, do:
+If you download the last version from the download tab, do::
 
-``
 tar xvzf extreme-deconvolution-1.3.tar.gz
 cd extreme-deconvolution-1.3/
 make
-``
 
 To install the library do:
 
