@@ -10,9 +10,10 @@
   OUTPUT:
      updated model gaussians and average loglikelihood, see IDL WRAPPER
   REVISION HISTORY:
-     2008-09-21 - Written Bovy
-     2010-03-01 Added noproj option - Bovy
-     2010-04-01 Added noweight option and logweights - Bovy
+     2008-09-21 Written - Bovy (NYU)
+     2010-03-01 Added noproj option - Bovy (NYU)
+     2010-04-01 Added noweight option and logweights - Bovy (NYU)
+     2012-05-07 Added non-Gaussian errors - Bovy (IAS)
 */
 #include <stdio.h>
 #include <stdbool.h>
@@ -33,7 +34,9 @@ int proj_gauss_mixtures_IDL(double * ydata, double * ycovar,
 			    char * logfilename, int slen, int splitnmerge,
 			    char * convlogfilename, int convloglen,
 			    char noprojection,char diagerrors,
-			    char noweights){
+			    char noweights,char ng,
+			    int M, double * ngamp, double * ngmean,
+			    double * ngcovar){
   //Set up logfiles  
   bool keeplog = true;
   char logname[slen+1];
@@ -76,22 +79,55 @@ int proj_gauss_mixtures_IDL(double * ydata, double * ycovar,
   bool noproj= (bool) noprojection;
   bool noweight= (bool) noweights;
   bool diagerrs= (bool) diagerrors;
-  int ii, jj,dd1,dd2;
+  bool ngerrors= (bool) ng;
+  int ii, jj,dd1,dd2,nn;
   for (ii = 0; ii != N; ++ii){
     data->ww = gsl_vector_alloc(dy);
     if ( ! noweight ) data->logweight = *(logweights++);
-    if ( diagerrs ) data->SS = gsl_matrix_alloc(dy,1);
-    else data->SS = gsl_matrix_alloc(dy,dy);
+    if ( ! ngerrors ) {
+      data->M= 1;
+      if ( diagerrs ) data->SS = gsl_matrix_alloc(dy,1);
+      else data->SS = gsl_matrix_alloc(dy,dy);
+    }
+    else {
+      data->M= M;
+      data->ng= (struct datangerrors *) malloc (M * sizeof(struct datangerrors) );
+      for (nn=0; nn != M; ++nn){
+	((data->ng)+nn)->ws = gsl_vector_alloc(dy);
+	if ( diagerrs ) 
+	  ((data->ng)+nn)->SS = gsl_matrix_alloc(dy,1);
+	else
+	  ((data->ng)+nn)->SS = gsl_matrix_alloc(dy,dy);
+      }
+    }
     if ( ! noproj ) data->RR = gsl_matrix_alloc(dy,d);
     for (dd1 = 0; dd1 != dy;++dd1)
       gsl_vector_set(data->ww,dd1,*(ydata++));
-    if ( diagerrs)
-      for (dd1 = 0; dd1 != dy; ++dd1)
+    if ( ! ngerrors ) {
+      if ( diagerrs)
+	for (dd1 = 0; dd1 != dy; ++dd1)
 	  gsl_matrix_set(data->SS,dd1,0,*(ycovar++));
-    else
-      for (dd1 = 0; dd1 != dy; ++dd1)
-	for (dd2 = 0; dd2 != dy; ++dd2)
-	  gsl_matrix_set(data->SS,dd1,dd2,*(ycovar++));
+      else
+	for (dd1 = 0; dd1 != dy; ++dd1)
+	  for (dd2 = 0; dd2 != dy; ++dd2)
+	    gsl_matrix_set(data->SS,dd1,dd2,*(ycovar++));
+    }
+    if ( ngerrors ) {
+      for (nn = 0; nn != M; ++nn)
+	for (dd1 = 0; dd1 != dy;++dd1)
+	  gsl_vector_set(((data->ng)+nn)->ws,dd1,*(ngmean++));
+      for (nn = 0; nn != M; ++nn)
+	((data->ng)+nn)->beta= *(ngamp++);
+      if ( diagerrs)
+	for (nn = 0; nn != M; ++nn)
+	  for (dd1 = 0; dd1 != dy; ++dd1)
+	    gsl_matrix_set(((data->ng)+nn)->SS,dd1,0,*(ngcovar++));
+      else
+	for (nn = 0; nn != M; ++nn)
+	  for (dd1 = 0; dd1 != dy; ++dd1)
+	    for (dd2 = 0; dd2 != dy; ++dd2)
+	      gsl_matrix_set(((data->ng)+nn)->SS,dd1,dd2,*(ngcovar++));
+    }
     if ( ! noproj )
       for (dd1 = 0; dd1 != dy; ++dd1)
 	for (dd2 = 0; dd2 != d; ++dd2)
@@ -101,10 +137,19 @@ int proj_gauss_mixtures_IDL(double * ydata, double * ycovar,
   }
   data -= N;
   ydata -= N*dy;
-  if ( diagerrs ) ycovar -= N*dy;
-  else ycovar -= N*dy*dy;
+  if ( ! ngerrors) {
+    if ( diagerrs ) 
+      ycovar -= N*dy;
+    else
+      ycovar -= N*dy*dy;
+  }
   if ( ! noproj ) projection -= N*dy*d;
-
+  if ( ngerrors ) {
+    ngamp-= N*M;
+    ngmean-= N*M*dy;
+    if ( diagerrs ) ngcovar-= N*M*dy;
+    else ngcovar-=N*M*dy*dy;
+  }
   for (jj = 0; jj != K; ++jj){
     gaussians->mm = gsl_vector_alloc(d);
     gaussians->VV = gsl_matrix_alloc(d,d);
@@ -161,7 +206,7 @@ int proj_gauss_mixtures_IDL(double * ydata, double * ycovar,
 		      (bool *) fixmean, (bool *) fixcovar,avgloglikedata,
 		      tol,(long long int) maxiter, (bool) likeonly, w,
 		      splitnmerge,keeplog,logfile,convlogfile,noproj,diagerrs,
-		      noweight);
+		      noweight,ngerrors);
 
 
   //Print the final model parameters to the logfile
@@ -196,7 +241,7 @@ int proj_gauss_mixtures_IDL(double * ydata, double * ycovar,
 
 
 
-  //Then update the arrays given to us by IDL
+  //Then update the arrays given to us by IDL/Python
   for (jj = 0; jj != K; ++jj){
     *(amp++) = gaussians->alpha;
     for (dd1 = 0; dd1 != d; ++dd1)
@@ -214,7 +259,16 @@ int proj_gauss_mixtures_IDL(double * ydata, double * ycovar,
   //And free any memory we allocated
   for (ii = 0; ii != N; ++ii){
     gsl_vector_free(data->ww);
-    gsl_matrix_free(data->SS);
+    if ( ! ngerrors ) {
+      gsl_matrix_free(data->SS);
+    }
+    else {
+      for (nn = 0; nn != M; ++nn) {
+	gsl_vector_free(((data->ng)+nn)->ws);
+	gsl_matrix_free(((data->ng)+nn)->SS);
+      }
+      free(data->ng);
+    }
     if ( ! noproj )  gsl_matrix_free(data->RR);
     ++data;
   }
