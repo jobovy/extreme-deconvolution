@@ -1,0 +1,92 @@
+\documentclass[12pt,preprint]{aastex}
+\usepackage{amssymb,amsmath}
+\usepackage{sidecap}
+\setlength{\emergencystretch}{2em}%No overflowing references
+\newcommand{\ie}{i.e.}
+\newcommand{\etal}{et al.}
+\newcommand{\dd}{\mathrm{d}}
+\newcommand{\eg}{e.g.}
+\newcommand{\eqnname}{equation}
+\newcommand{\figurenames}{\figurename s}
+\newcommand{\sectionname}{$\mathsection$}
+\renewcommand{\vec}[1]{\mathbf{#1}} % boldface for vectors
+
+\begin{document}
+
+\title{XD with non-Gaussian uncertainties}
+\author{Jo~Bovy (IAS; \today)}%\altaffilmark{1,2}}
+%\affil{Center for Cosmology and Particle Physics, Department of Physics, New York University, 4 Washington Place, New York, NY 10003, USA}
+%\email{jb2777@nyu.edu}
+
+In this short note I discuss how to include non-Gaussian
+uncertainties, when expressed as sums of Gaussians, in XD
+\citep{Bovy11a}. This generalization of XD includes the case where
+\emph{samples} from the uncertainty distribution are given, as those
+can be expressed as zero-width Gaussians. For simplicity, I assume
+that there is no projection operator $\vec{R}^i$ involved in going
+from the model space to the data space; such a projection can be
+trivially added. Suppose that the uncertainty distribution of data
+point $\vec{w}^i$ given its real value $\vec{v}^i$ is given by
+\begin{equation}
+  p(\vec{w}^i | \vec{v}^i) = \sum_k{\beta^i_k\,\mathcal{N}\left(\vec{w}^i|\vec{v}^i+\tilde{\vec{w}}^i_k,\tilde{\vec{S}}^i_k\right)}\,,
+\end{equation}
+where $\sum_k \beta^i_k = 1$, and $\tilde{\vec{w}}^i_k$ and
+$\tilde{\vec{S}}^i_k$ are known means (`biases') and variances
+(`random errors'). The likelihood of a multi-Gaussian representation
+for the underlying distribution of $\vec{w}^i$: $f(v) =
+\sum_j{\alpha_j\,\mathcal{N}\left(\vec{v}|\vec{m}_j,\vec{V}_j\right)}$,
+whose parameters are given by $\theta \equiv
+(\alpha_j,\vec{m}_j,\vec{S}_j)_j$, is then given by
+\begin{equation}
+  p(\vec{w}^i|\theta) = \sum_j \sum_k{\alpha_j\beta^i_k\,\mathcal{N}\left(\vec{w}^i | \tilde{\vec{w}}^i_k+\vec{m}_j, \tilde{\vec{S}}^i_k+\vec{V}_j\right)}\,.
+\end{equation}
+
+As for XD with Gaussian uncertainties, we can write down the ``full
+data log likelihood'' for data point $i$, to derive the appropriate EM
+algorithm. The full data log likelihood, which assumes we know which
+Gaussian component $j$ of the underlying component the data point was
+drawn from and what its true value $\vec{v}^i$ was, is given by
+\begin{equation}
+  \Phi_i = \sum_j{q_{ij}\,\ln\left(\alpha_j\,\mathcal{N}\left(\vec{v}^i|\vec{m}_j,\vec{V}_j\right)\right)}\,,
+\end{equation}
+which of course does not depend on $k$ or the non-Gaussian
+uncertainties, since we know the true value. However, to derive the EM
+algorithm we assume that we also know from which Gaussian component of
+the uncertainty distribution the data point $\vec{w}^i$ was drawn
+from, using indicator variable $r_{ik}$ for that. Then we can express
+the full data log likelihood as
+\begin{equation}
+  \Phi_i = \sum_{j,k}{q_{ij} r_{ik}\,\ln\left(\alpha_j\,\mathcal{N}\left(\vec{v}^i|\vec{m}_j,\vec{V}_j\right)\right)}\,,
+\end{equation}
+which is still the same as before, since $\sum_k{r_{ik}} = 1$.
+
+As part of the E step we now need the expectations of $q_{ij} r_{ik}$,
+$q_{ij} r_{ik} \vec{v}_{ik}$, and $q_{ij} r_{ik} \vec{v}^i_{k}
+\vec{v}^{i,T}_{k}$. These are the same as for XD with Gaussian
+uncertainties, since we know the (single) component $k$ that the error
+was drawn from. Define $\vec{T}_{ijk} \equiv
+\tilde{\vec{S}}_k^i+\vec{V}_j$, then we find that
+\begin{eqnarray}\displaystyle\label{eq:updateEMincomplete}
+\mbox{\textbf{E-step:}}\;\;\;
+q_{ij}r_{ik} &\leftarrow & \frac{\alpha_j \beta^i_k \mathcal{N}(\vec{w}^i|\tilde{\vec{w}}^i_k+\vec{m}_j,\vec{T}_{ijk})}{\sum_{n,m} \alpha_n \beta^i_m \mathcal{N}(\vec{w}^i|\tilde{\vec{w}}_m^i+\vec{m}_n,\vec{T}_{inm})}\nonumber\\[3pt]
+\vec{b}_{ijk} &\leftarrow& \vec{m}_j + \vec{V}_j \vec{T}_{ijk}^{-1} (\vec{w}^i-\tilde{\vec{w}}^i_k - \vec{m}_j)\nonumber\\[3pt]
+\vec{B}_{ijk} &\leftarrow& \vec{V}_j - \vec{V}_j \vec{T}_{ijk}^{-1} \vec{V}_j\,.
+\end{eqnarray}
+
+The M-step that follows is also similar to the M-step for Gaussian
+uncertainties
+\begin{eqnarray}
+\mbox{\textbf{M~step:}}\;\;\;
+\alpha_j &\leftarrow& \frac{1}{N}\,\sum_{i,k} q_{ij}r_{ik}\nonumber \\
+\vec{m}_j &\leftarrow& \frac{1}{q_j}\,\sum_{i,k} q_{ij}r_{ik}\,\vec{b}_{ijk}\nonumber \\
+\vec{V}_j &\leftarrow& \frac{1}{q_j}\,\sum_{i,k} q_{ij}r_{ik}
+\left[(\vec{m}_j-\vec{b}_{ijk})\,(\vec{m}_j-\vec{b}_{ijk})^T + \vec{B}_{ijk}\right]\, ,
+\end{eqnarray}
+where $q_j=\sum_{i,k} q_{ij}r_{ik}$.
+
+\begin{thebibliography}{}
+\bibitem[Bovy \etal(2011)]{Bovy11a}
+  Bovy,~J., Hogg,~D.~W., \& Roweis,~S.~T. 2011, Ann.~Appl.~Stat., 5, 1657, arXiv:0905.2979
+\end{thebibliography}
+
+\end{document}
