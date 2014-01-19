@@ -30,6 +30,7 @@
      noproj      - don't perform any projections
      diagerrs    - the data->SS errors-squared are diagonal
      noweight    - don't use data-weights
+     ngerrors     - data have non-Gaussian errors
   OUTPUT:
      updated model gaussians
      avgloglikedata - average log likelihood of the data
@@ -55,7 +56,7 @@ void proj_gauss_mixtures(struct datapoint * data, int N,
 			 long long int maxiter, bool likeonly, double w, 
 			 int splitnmerge, bool keeplog, FILE *logfile, 
 			 FILE *convlogfile, bool noproj, bool diagerrs,
-			 bool noweight){
+			 bool noweight,bool ngerrors){
   //Allocate some memory
   struct gaussian * startgaussians;
   startgaussians = gaussians;
@@ -135,7 +136,7 @@ void proj_gauss_mixtures(struct datapoint * data, int N,
   fflush(logfile);
   proj_EM(data,N,gaussians,K,fixamp_tmp,fixmean_tmp,fixcovar_tmp,
 	  avgloglikedata,tol,maxiter,likeonly,w,
-	  keeplog,logfile,convlogfile,noproj,diagerrs,noweight);
+	  keeplog,logfile,convlogfile,noproj,diagerrs,noweight,ngerrors);
   if (keeplog){
     fprintf(logfile,"\n");
     fprintf(convlogfile,"\n");
@@ -197,7 +198,7 @@ void proj_gauss_mixtures(struct datapoint * data, int N,
 	  fprintf(logfile,"#Merging %i and %i, splitting %i\n",j,k,l);
 	proj_EM(data,N,gaussians,K,fixamp_tmp,fixmean_tmp,fixcovar_tmp,
 		avgloglikedata,tol,maxiter,likeonly,w,keeplog,logfile,
-		tmpconvfile,noproj,diagerrs,noweight);
+		tmpconvfile,noproj,diagerrs,noweight,ngerrors);
 	//reset fix* vectors
 	for (ll = 0; ll != K; ++ll){
 	    *(fixamp_tmp++) = *(fixamp++);
@@ -217,7 +218,7 @@ void proj_gauss_mixtures(struct datapoint * data, int N,
 	}
 	proj_EM(data,N,gaussians,K,fixamp_tmp,fixmean_tmp,fixcovar_tmp,
 		avgloglikedata,tol,maxiter,likeonly,w,keeplog,logfile,
-		tmpconvfile,noproj,diagerrs,noweight);
+		tmpconvfile,noproj,diagerrs,noweight,ngerrors);
 	if (keeplog){
 	  fprintf(logfile,"\n");
 	  fprintf(tmpconvfile,"\n");

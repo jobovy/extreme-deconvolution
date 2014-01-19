@@ -21,12 +21,14 @@
      noproj       - don't perform any projections
      diagerrs     - the data->SS errors-squared are diagonal
      noweight     - don't use data-weights
+     ngerrors     - data have non-Gaussian errors
   OUTPUT:
      avgloglikedata - average loglikelihood of the data
   REVISION HISTORY:
-     2008-09-21 - Written Bovy
-     2010-03-01 Added noproj option - Bovy
-     2010-04-01 Added noweight option - Bovy
+     2008-09-21 Written - Bovy (NYU)
+     2010-03-01 Added noproj option - Bovy (NYU)
+     2010-04-01 Added noweight option - Bovy (NYU)
+     2012-05-07 Started on non-Gaussian errors - Bovy (IAS)
 */
 #ifdef _OPENMP
 #include <omp.h>
@@ -48,7 +50,7 @@ void proj_EM_step(struct datapoint * data, int N,
 		  struct gaussian * gaussians, int K,bool * fixamp, 
 		  bool * fixmean, bool * fixcovar, double * avgloglikedata, 
 		  bool likeonly, double w, bool noproj, bool diagerrs,
-		  bool noweight){
+		  bool noweight, bool ngerrors){
   *avgloglikedata = 0.0;
   //struct timeval start,time1, time2, time3, time4, time5,end;
   struct datapoint * thisdata;
@@ -57,7 +59,9 @@ void proj_EM_step(struct datapoint * data, int N,
   int signum,di;
   double exponent;
   double currqij;
+  gsl_matrix * qijk;
   struct modelbs * thisbs;
+  struct modelbs * thisbijks;
   int d = (gaussians->VV)->size1;//dim of mm
 
   //gettimeofday(&start,NULL);
@@ -95,15 +99,14 @@ void proj_EM_step(struct datapoint * data, int N,
   fixcovar -= K;
 
   //gettimeofday(&time2,NULL);
-
   //now loop over data and gaussians to update the model parameters
-  int ii, jj, ll;
+  int ii, jj, ll, nn;
   double sumSV;
   int chunk;
   chunk= CHUNKSIZE;
 #pragma omp parallel for schedule(static,chunk) \
-  private(tid,di,signum,exponent,ii,jj,ll,kk,Tij,Tij_inv,wminusRm,p,VRTTinv,sumSV,VRT,TinvwminusRm,Rtrans,thisgaussian,thisdata,thisbs,thisnewgaussian,currqij) \
-  shared(newgaussians,gaussians,bs,allfixed,K,d,data,avgloglikedata)
+  private(tid,di,signum,exponent,ii,jj,ll,kk,Tij,Tij_inv,wminusRm,p,VRTTinv,sumSV,VRT,TinvwminusRm,Rtrans,thisgaussian,thisdata,thisbs,thisnewgaussian,currqij,bijks,thisbijks,qijk,nn) \
+  shared(newgaussians,gaussians,bs,allfixed,K,d,data,avgloglikedata,qij)
   for (ii = 0 ; ii < N; ++ii){
     thisdata= data+ii;
 #ifdef _OPENMP
@@ -111,7 +114,8 @@ void proj_EM_step(struct datapoint * data, int N,
 #else
     tid = 0;
 #endif
-    di = (thisdata->SS)->size1;
+    if ( ! ngerrors ) di = (thisdata->SS)->size1;
+    else di = (thisdata->ng)->SS->size1;
     //printf("Datapoint has dimension %i\n",di);
     p = gsl_permutation_alloc (di);
     wminusRm = gsl_vector_alloc (di);
@@ -121,70 +125,122 @@ void proj_EM_step(struct datapoint * data, int N,
     if ( ! noproj ) VRT = gsl_matrix_alloc(d,di);
     VRTTinv = gsl_matrix_alloc(d,di);
     if ( ! noproj ) Rtrans = gsl_matrix_alloc(d,di);
+    if ( ngerrors ) {
+      bijks = (struct modelbs *) malloc(thisdata->M * sizeof (struct modelbs) );
+      for (kk = 0; kk != thisdata->M; ++kk){
+	bijks->bbij = gsl_vector_alloc (d);
+	bijks->BBij = gsl_matrix_alloc (d,d);
+	++bijks;
+      }
+      bijks -= thisdata->M;
+    }
+    if ( ngerrors ) qijk= gsl_matrix_alloc (thisdata->M,1);
     for (jj = 0; jj != K; ++jj){
-      //printf("%i,%i\n",(thisdata->ww)->size,wminusRm->size);
-      gsl_vector_memcpy(wminusRm,thisdata->ww);
-      //fprintf(stdout,"Where is the seg fault?\n");
       thisgaussian= gaussians+jj;
-      //prepare...
-      if ( ! noproj ) {
-	if ( diagerrs ) {
-	  gsl_matrix_set_zero(Tij);
-	  for (ll = 0; ll != di; ++ll)
-	    gsl_matrix_set(Tij,ll,ll,gsl_matrix_get(thisdata->SS,ll,0));}
-	else
-	  gsl_matrix_memcpy(Tij,thisdata->SS);
-      }
-      //Calculate Tij
-      if ( ! noproj ) {
-	gsl_matrix_transpose_memcpy(Rtrans,thisdata->RR);
-	gsl_blas_dsymm(CblasLeft,CblasUpper,1.0,thisgaussian->VV,Rtrans,0.0,VRT);//Only the upper right part of VV is calculated --> use only that part
-	gsl_blas_dgemm(CblasNoTrans,CblasNoTrans,1.0,thisdata->RR,VRT,1.0,Tij);}//This is Tij
-      else {
-	if ( diagerrs ) {
-	  for (kk = 0; kk != d; ++kk){
-	    gsl_matrix_set(Tij,kk,kk,gsl_matrix_get(thisdata->SS,kk,0)+gsl_matrix_get(thisgaussian->VV,kk,kk));
-	    for (ll = kk+1; ll != d; ++ll){
-	      sumSV= gsl_matrix_get(thisgaussian->VV,kk,ll);
-	      gsl_matrix_set(Tij,kk,ll,sumSV);
-	      gsl_matrix_set(Tij,ll,kk,sumSV);}}}
+      for (nn = 0; nn != thisdata->M; ++nn){
+	//printf("%i,%i\n",(thisdata->ww)->size,wminusRm->size);
+	gsl_vector_memcpy(wminusRm,thisdata->ww);
+	//prepare...
+	if ( ! ngerrors ){
+	  if ( ! noproj ) {
+	    if ( diagerrs ) {
+	      gsl_matrix_set_zero(Tij);
+	      for (ll = 0; ll != di; ++ll)
+		gsl_matrix_set(Tij,ll,ll,gsl_matrix_get(thisdata->SS,ll,0));}
+	    else
+	      gsl_matrix_memcpy(Tij,thisdata->SS);
+	  }
+	}
 	else {
-	  for (kk = 0; kk != d; ++kk){
-	    gsl_matrix_set(Tij,kk,kk,gsl_matrix_get(thisdata->SS,kk,kk)+gsl_matrix_get(thisgaussian->VV,kk,kk));
-	    for (ll = kk+1; ll != d; ++ll){
-	      sumSV= gsl_matrix_get(thisdata->SS,kk,ll)+gsl_matrix_get(thisgaussian->VV,kk,ll);
-	      gsl_matrix_set(Tij,kk,ll,sumSV);
-	      gsl_matrix_set(Tij,ll,kk,sumSV);}}}}
-      //gsl_matrix_add(Tij,thisgaussian->VV);}
-      //Calculate LU decomp of Tij and Tij inverse
-      gsl_linalg_LU_decomp(Tij,p,&signum);
-      gsl_linalg_LU_invert(Tij,p,Tij_inv);
-      //Calculate Tijinv*(w-Rm)
-      if ( ! noproj ) gsl_blas_dgemv(CblasNoTrans,-1.0,thisdata->RR,thisgaussian->mm,1.0,wminusRm);
-      else gsl_vector_sub(wminusRm,thisgaussian->mm);
-      //printf("wminusRm = %f\t%f\n",gsl_vector_get(wminusRm,0),gsl_vector_get(wminusRm,1));
-      gsl_blas_dsymv(CblasUpper,1.0,Tij_inv,wminusRm,0.0,TinvwminusRm);
+	  if ( ! noproj ) {
+	    if ( diagerrs ) {
+	      gsl_matrix_set_zero(Tij);
+	      for (ll = 0; ll != di; ++ll)
+		gsl_matrix_set(Tij,ll,ll,gsl_matrix_get(((thisdata->ng)+nn)->SS,ll,0));}
+	    else
+	      gsl_matrix_memcpy(Tij,((thisdata->ng+nn)->SS));
+	  }
+	}
+	//Calculate Tij
+	if ( ! noproj ) {
+	  gsl_matrix_transpose_memcpy(Rtrans,thisdata->RR);
+	  gsl_blas_dsymm(CblasLeft,CblasUpper,1.0,thisgaussian->VV,Rtrans,0.0,VRT);//Only the upper right part of VV is calculated --> use only that part
+	  gsl_blas_dgemm(CblasNoTrans,CblasNoTrans,1.0,thisdata->RR,VRT,1.0,Tij);}//This is Tij
+	else {
+	  if ( diagerrs ) {
+	    for (kk = 0; kk != d; ++kk){
+	      if ( ! ngerrors ) 
+		gsl_matrix_set(Tij,kk,kk,gsl_matrix_get(thisdata->SS,kk,0)+gsl_matrix_get(thisgaussian->VV,kk,kk));
+	      else 
+		gsl_matrix_set(Tij,kk,kk,gsl_matrix_get(((thisdata->ng)+nn)->SS,kk,0)+gsl_matrix_get(thisgaussian->VV,kk,kk));
+	      for (ll = kk+1; ll != d; ++ll){
+		sumSV= gsl_matrix_get(thisgaussian->VV,kk,ll);
+		gsl_matrix_set(Tij,kk,ll,sumSV);
+		gsl_matrix_set(Tij,ll,kk,sumSV);}}}
+	  else {
+	    for (kk = 0; kk != d; ++kk){
+	      if ( ! ngerrors )
+		gsl_matrix_set(Tij,kk,kk,gsl_matrix_get(thisdata->SS,kk,kk)+gsl_matrix_get(thisgaussian->VV,kk,kk));
+	      else
+		gsl_matrix_set(Tij,kk,kk,gsl_matrix_get(((thisdata->ng)+nn)->SS,kk,kk)+gsl_matrix_get(thisgaussian->VV,kk,kk));	
+	      for (ll = kk+1; ll != d; ++ll){
+		if ( ! ngerrors )
+		  sumSV= gsl_matrix_get(thisdata->SS,kk,ll)+gsl_matrix_get(thisgaussian->VV,kk,ll);
+		else
+		  sumSV= gsl_matrix_get(((thisdata->ng)+nn)->SS,kk,ll)+gsl_matrix_get(thisgaussian->VV,kk,ll);
+		gsl_matrix_set(Tij,kk,ll,sumSV);
+		gsl_matrix_set(Tij,ll,kk,sumSV);}}}}
+	//gsl_matrix_add(Tij,thisgaussian->VV);}
+	//Calculate LU decomp of Tij and Tij inverse
+	gsl_linalg_LU_decomp(Tij,p,&signum);
+	gsl_linalg_LU_invert(Tij,p,Tij_inv);
+	//Calculate Tijinv*(w-Rm)
+	if ( ! noproj ) gsl_blas_dgemv(CblasNoTrans,-1.0,thisdata->RR,thisgaussian->mm,1.0,wminusRm);
+	else gsl_vector_sub(wminusRm,thisgaussian->mm);
+	if ( ngerrors ) gsl_vector_sub(wminusRm,((thisdata->ng)+nn)->ws);
+	//printf("wminusRm = %f\t%f\n",gsl_vector_get(wminusRm,0),gsl_vector_get(wminusRm,1));
+	gsl_blas_dsymv(CblasUpper,1.0,Tij_inv,wminusRm,0.0,TinvwminusRm);
       //printf("TinvwminusRm = %f\t%f\n",gsl_vector_get(TinvwminusRm,0),gsl_vector_get(TinvwminusRm,1));
-      gsl_blas_ddot(wminusRm,TinvwminusRm,&exponent);
-      //printf("Exponent = %f\nDet = %f\n",exponent,gsl_linalg_LU_det(Tij,signum));
-      gsl_matrix_set(qij,ii,jj,log(thisgaussian->alpha) - di * halflogtwopi - 0.5 * gsl_linalg_LU_lndet(Tij) -0.5 * exponent);//This is actually the log of qij
-      //printf("Here we have = %f\n",gsl_matrix_get(qij,ii,jj));
-      //Now calculate bij and Bij
-      thisbs= bs+tid*K+jj;
-      gsl_vector_memcpy(thisbs->bbij,thisgaussian->mm);
-      //printf("%i,%i,%i\n",tid,ii,jj);
-      if ( ! noproj ) gsl_blas_dgemv(CblasNoTrans,1.0,VRT,TinvwminusRm,1.0,thisbs->bbij);
-      else gsl_blas_dsymv(CblasUpper,1.0,thisgaussian->VV,TinvwminusRm,1.0,thisbs->bbij);
-      //printf("bij = %f\t%f\n",gsl_vector_get(bs->bbij,0),gsl_vector_get(bs->bbij,1));
-      gsl_matrix_memcpy(thisbs->BBij,thisgaussian->VV);
-      if ( ! noproj ) {
-	gsl_blas_dgemm(CblasNoTrans,CblasNoTrans,1.0,VRT,Tij_inv,0.0,VRTTinv);
-	gsl_blas_dgemm(CblasNoTrans,CblasTrans,-1.0,VRTTinv,VRT,1.0,thisbs->BBij);}
-      else {
-	gsl_blas_dsymm(CblasLeft,CblasUpper,1.0,thisgaussian->VV,Tij_inv,0.0,VRTTinv);
-	gsl_blas_dsymm(CblasRight,CblasUpper,-1.0,thisgaussian->VV,VRTTinv,1.0,thisbs->BBij);}
-      gsl_blas_dsyr(CblasUpper,1.0,thisbs->bbij,thisbs->BBij);//This is bijbijT + Bij, which is the relevant quantity
+	gsl_blas_ddot(wminusRm,TinvwminusRm,&exponent);
+	//printf("Exponent = %f\nDet = %f\n",exponent,gsl_linalg_LU_det(Tij,signum));
+	if ( ngerrors ) gsl_matrix_set(qijk,nn,0,log(thisgaussian->alpha * ((thisdata->ng)+nn)->beta) - di * halflogtwopi - 0.5 * gsl_linalg_LU_lndet(Tij) -0.5 * exponent);//This is actually the log of qijk;
+	else gsl_matrix_set(qij,ii,jj,log(thisgaussian->alpha) - di * halflogtwopi - 0.5 * gsl_linalg_LU_lndet(Tij) -0.5 * exponent);//This is actually the log of qij
+	//printf("alpha = %f\n",((thisdata->ng)+nn)->beta);
+	//printf("Here we have = %f\n",gsl_matrix_get(qij,ii,jj));
+	//Now calculate bij and Bij
+	if ( ngerrors ) thisbs= bijks+nn;
+	else thisbs= bs+tid*K+jj;
+	gsl_vector_memcpy(thisbs->bbij,thisgaussian->mm);
+	//printf("%i,%i,%i,%i\n",tid,ii,jj,nn);
+	if ( ! noproj ) gsl_blas_dgemv(CblasNoTrans,1.0,VRT,TinvwminusRm,1.0,thisbs->bbij);
+	else gsl_blas_dsymv(CblasUpper,1.0,thisgaussian->VV,TinvwminusRm,1.0,thisbs->bbij);
+	//printf("bij = %f\t%f\n",gsl_vector_get(bs->bbij,0),gsl_vector_get(bs->bbij,1));
+	gsl_matrix_memcpy(thisbs->BBij,thisgaussian->VV);
+	if ( ! noproj ) {
+	  gsl_blas_dgemm(CblasNoTrans,CblasNoTrans,1.0,VRT,Tij_inv,0.0,VRTTinv);
+	  gsl_blas_dgemm(CblasNoTrans,CblasTrans,-1.0,VRTTinv,VRT,1.0,thisbs->BBij);}
+	else {
+	  gsl_blas_dsymm(CblasLeft,CblasUpper,1.0,thisgaussian->VV,Tij_inv,0.0,VRTTinv);
+	  gsl_blas_dsymm(CblasRight,CblasUpper,-1.0,thisgaussian->VV,VRTTinv,1.0,thisbs->BBij);}
+	gsl_blas_dsyr(CblasUpper,1.0,thisbs->bbij,thisbs->BBij);//This is bijbijT + Bij, which is the relevant quantity
       }
+      //If we are dealing w/ non-Gaussian errors, we need to get qij, bij and Bij
+      if ( ngerrors ) {
+	thisbs= bs+tid*K+jj;
+	gsl_vector_set_zero(thisbs->bbij);
+	gsl_matrix_set_zero(thisbs->BBij);
+	//Calculate qij = sum_k qijk
+	gsl_matrix_set(qij,ii,jj,logsum(qijk,0,false));
+	gsl_matrix_add_constant(qijk,-gsl_matrix_get(qij,ii,jj));
+	for (nn = 0; nn != thisdata->M; ++nn){
+	  thisbijks= bijks+nn;
+	  gsl_vector_scale(thisbijks->bbij,exp(gsl_matrix_get(qijk,nn,0)));
+	  gsl_matrix_scale(thisbijks->BBij,exp(gsl_matrix_get(qijk,nn,0)));
+	  gsl_vector_add(thisbs->bbij,thisbijks->bbij);
+	  gsl_matrix_add(thisbs->BBij,thisbijks->BBij);
+	}
+      }
+    }
     gsl_permutation_free (p);
     gsl_vector_free(wminusRm);
     gsl_vector_free(TinvwminusRm);
@@ -193,6 +249,16 @@ void proj_EM_step(struct datapoint * data, int N,
     if ( ! noproj ) gsl_matrix_free(VRT);
     gsl_matrix_free(VRTTinv);
     if ( ! noproj ) gsl_matrix_free(Rtrans);
+    if ( ngerrors ) {
+      for (kk = 0; kk != thisdata->M; ++kk){
+	gsl_vector_free(bijks->bbij);
+	gsl_matrix_free(bijks->BBij);
+	++bijks;
+      }
+      bijks -= thisdata->M;
+      free(bijks);
+    }
+    if ( ngerrors ) free(qijk);
     //Again loop over the gaussians to update the model(can this be more efficient? in any case this is not so bad since generally K << N)
 #pragma omp critical
     {
@@ -311,7 +377,6 @@ void proj_EM_step(struct datapoint * data, int N,
   //printf("%f,%f,%f,%f,%f,%f,%f\n",diff,diff1,diff2,diff3,diff4,diff5,diff6);
 
   free(allfixed);
-
 
   return;
 }

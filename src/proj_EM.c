@@ -29,6 +29,7 @@
      noproj       - don't perform any projections
      diagerrs     - the data->SS errors-squared are diagonal
      noweight     - don't use data-weights
+     ngerrors     - data have non-Gaussian errors
   OUTPUT:
      avgloglikedata - average log likelihood of the data
   REVISION HISTORY:
@@ -44,14 +45,15 @@ void proj_EM(struct datapoint * data, int N, struct gaussian * gaussians,
 	     int K,bool * fixamp, bool * fixmean, bool * fixcovar, 
 	     double * avgloglikedata, double tol,long long int maxiter, 
 	     bool likeonly, double w, bool keeplog, FILE *logfile,
-	     FILE *tmplogfile, bool noproj, bool diagerrs, bool noweight){
+	     FILE *tmplogfile, bool noproj, bool diagerrs, bool noweight,
+	     bool ngerrors){
   double diff = 2. * tol, oldavgloglikedata;
   int niter = 0;
   int d = (gaussians->mm)->size;
   halflogtwopi  = 0.5 * log(8. * atan(1.0));
   while ( diff > tol && niter < maxiter){
     proj_EM_step(data,N,gaussians,K,fixamp,fixmean,fixcovar,avgloglikedata,
-		 likeonly,w,noproj,diagerrs,noweight);
+		 likeonly,w,noproj,diagerrs,noweight,ngerrors);
     if (keeplog){
       fprintf(logfile,"%f\n",*avgloglikedata);
       fprintf(tmplogfile,"%f\n",*avgloglikedata);

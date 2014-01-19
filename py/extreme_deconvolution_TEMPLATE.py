@@ -40,7 +40,8 @@ def extreme_deconvolution(ydata,ycovar,
                           fixamp=None,fixmean=None,fixcovar=None,
                           tol=1.e-6,maxiter=long(1e9),w=0.,logfile=None,
                           splitnmerge=0,maxsnm=False,likeonly=False,
-                          logweight=False):
+                          logweight=False,ng=False,
+                          ngamp=None,ngmean=None,ngcovar=None):
     """
     NAME:
        extreme_deconvolution
@@ -74,6 +75,10 @@ def extreme_deconvolution(ydata,ycovar,
                  merge steps, K*(K-1)*(K-2)/2
        likeonly - (Bool, default=False) only compute the total log
                    likelihood of the data
+       ng= (False) if True, uncertainties are non-Gaussian and given as sum of Gaussians
+       ngamp= [ndata,ngerrors] amplitudes of uncertainty Gaussians (have to add to one)
+       ngmean= [ndata,ngerrors,dy] means of the uncertainty Gaussians
+       ngcovar= [ndata,ngerrors,dy(,dy)] covariances of the uncertainty Gaussians
     OUTPUT:
        avgloglikedata after convergence,
        +updated xamp, xmean, xcovar
@@ -346,10 +351,17 @@ def extreme_deconvolution(ydata,ycovar,
     ngauss= len(xamp)
     gaussDim= xmean.shape[1]
 
-    if len(ycovar.shape) == 2:
-        diagerrors= True
+    if not ng:
+        if len(ycovar.shape) == 2:
+            diagerrors= True
+        else:
+            diagerrors= False
     else:
-        diagerrors= False
+        if len(ngcovar.shape) == 3:
+            diagerrors= True
+        else:
+            diagerrors= False
+        
 
     fixamp= _fix2chararray(fixamp,ngauss)
     fixmean= _fix2chararray(fixmean,ngauss)
@@ -415,7 +427,12 @@ def extreme_deconvolution(ydata,ycovar,
                              ctypes.c_int,
                              ctypes.c_char,
                              ctypes.c_char,
-                             ctypes.c_char]
+                             ctypes.c_char,
+                             ctypes.c_char,
+                             ctypes.c_int,
+                             ndpointer(dtype=nu.float64,flags=ndarrayFlags),
+                             ndpointer(dtype=nu.float64,flags=ndarrayFlags),
+                             ndpointer(dtype=nu.float64,flags=ndarrayFlags)]
                                              
     #Requirements, first store old order
     f_cont= [ydata.flags['F_CONTIGUOUS'],
@@ -432,6 +449,16 @@ def extreme_deconvolution(ydata,ycovar,
     xamp_tmp= nu.require(xamp,dtype=nu.float64,requirements=['C','W'])
     xmean_tmp= nu.require(xmean,dtype=nu.float64,requirements=['C','W'])
     xcovar_tmp= nu.require(xcovar,dtype=nu.float64,requirements=['C','W'])
+    if ng:
+        ngamp= nu.require(ngamp,dtype=nu.float64,requirements=['C','W'])
+        ngmean= nu.require(ngmean,dtype=nu.float64,requirements=['C','W'])
+        ngcovar= nu.require(ngcovar,dtype=nu.float64,requirements=['C','W'])
+        M= ngamp.shape[1]
+    else: #dummies
+        ngamp= nu.require(nu.zeros(1),dtype=nu.float64,requirements=['C','W'])
+        ngmean= nu.require(nu.zeros(1),dtype=nu.float64,requirements=['C','W'])
+        ngcovar= nu.require(nu.zeros(1),dtype=nu.float64,requirements=['C','W'])
+        M= 0
 
     exdeconvFunc(ydata,
                  ycovar,
@@ -459,7 +486,12 @@ def extreme_deconvolution(ydata,ycovar,
                  ctypes.c_int(n_clog2),
                  ctypes.c_char(chr(noprojection)),
                  ctypes.c_char(chr(diagerrors)),
-                 ctypes.c_char(chr(noweight)))
+                 ctypes.c_char(chr(noweight)),
+                 ctypes.c_char(chr(ng)),
+                 ctypes.c_int(M),
+                 ngamp,
+                 ngmean,
+                 ngcovar)
     #Reset input arrays
     if f_cont[0]: ydata= nu.asfortranarray(ydata)
     if f_cont[1]: ycovar= nu.asfortranarray(ycovar)
