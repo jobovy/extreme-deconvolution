@@ -17,7 +17,7 @@ ifeq ($(OS),Darwin)
 	LIBEXT= dylib
 	EDCFLAGS:= -arch $(ARCH) $(EDCFLAGS)
 	EDLDFLAGS:= -arch $(ARCH) $(EDLDFLAGS)
-	LINKOPTIONS:= -dynamiclib -W1 -single_module
+	LINKOPTIONS:= -dynamiclib -Wl,-single_module
 	RMDIR=rmdir
 	ECHO=echo
 	TRUE=TRUE
