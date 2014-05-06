@@ -130,7 +130,7 @@ Installation FAQ
 Acknowledgments
 -----------------
 
-Thanks to Daniela Carollo, Sergey Koposov, and Leonidas Moustakas for bug reports and fixes.
+Thanks to Daniela Carollo, Joe Hennawi, Sergey Koposov, and Leonidas Moustakas for bug reports and fixes.
 
 Acknowledging extreme-deconvolution
 ------------------------------------
