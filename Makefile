@@ -50,7 +50,8 @@ all: build/$(TARGETLIB)
 build:
 	ls build 2>/dev/null ; \
 	case "$$?" in \
-	1) \
+	0);; \
+	*) \
 	mkdir build ;; \
 	esac
 
