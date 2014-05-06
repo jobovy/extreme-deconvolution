@@ -1,7 +1,7 @@
 Extreme Deconvolution (XD)
 ===========================
 
-Density estimation using Gaussian mixtures in the presence of noisy, heterogeneous and incomplete data
+**Density estimation using Gaussian mixtures in the presence of noisy, heterogeneous and incomplete data**
 
 .. image:: https://travis-ci.org/jobovy/extreme-deconvolution.png?branch=master 
    :target: http://travis-ci.org/jobovy/extreme-deconvolution
