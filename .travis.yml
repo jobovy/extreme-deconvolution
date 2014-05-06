@@ -1,0 +1,15 @@
+language: c
+compiler:
+  - clang
+  - gcc
+before_install:
+ - sudo apt-get install libgsl0-dev
+install:
+ - make
+script: true
+notifications:
+  email:
+    recipients:
+      - jo.bovy@gmail.com
+    on_success: change
+    on_failure: change
