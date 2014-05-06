@@ -4,6 +4,7 @@
 
 /* include */
 #include <stdbool.h>
+#include <float.h>
 #include <gsl/gsl_matrix.h>
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_rng.h>
@@ -50,7 +51,8 @@ gsl_rng * randgen; /* global random number generator */
 
 /* function declarations */
 
-inline bool bovy_isfin(double x); /* true if x is finite */
+static inline bool bovy_isfin(double x){ /* true if x is finite */
+  return (x > DBL_MAX || x < -DBL_MAX) ? false : true;}
 void minmax(gsl_matrix * q, int row, bool isrow, double * min, double * max);
 double logsum(gsl_matrix * q, int row, bool isrow);
 double normalize_row(gsl_matrix * q, int row,bool isrow,bool noweight, double weight);

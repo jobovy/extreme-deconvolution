@@ -31,7 +31,7 @@ endif
 TARGETLIB= libextremedeconvolution.$(LIBEXT)
 
 
-proj_gauss_mixtures_objects= src/bovy_isfin.o src/bovy_randvec.o \
+proj_gauss_mixtures_objects= src/bovy_randvec.o \
 	src/calc_splitnmerge.o src/logsum.o src/minmax.o\
 	src/normalize_row.o src/proj_EM.o src/proj_EM_step.o \
 	src/proj_gauss_mixtures.o src/splitnmergegauss.o src/bovy_det.o
