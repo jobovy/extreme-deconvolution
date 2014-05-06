@@ -48,21 +48,44 @@ proj_gauss_main_objects= src/main.o src/parse_option.o src/read_data.o \
 all: build/$(TARGETLIB)
 
 build:
-	mkdir build
+	ls build 2>/dev/null ; \
+	case "$$?" in \
+	1) \
+	mkdir build ;; \
+	esac
 
+# Build of main is currently broken, but this is *never* used, use the lib 
+# instead
 build/extremedeconvolution: $(proj_gauss_mixtures_objects) $(proj_gauss_main_objects) build
 	$(CC) -o $@ -lm -lgsl -lgslcblas -lgomp \
 	 $(EDCFLAGS)\
 	 $(EDLDFLAGS)\
 	 $(proj_gauss_mixtures_objects)\
-	 $(proj_gauss_main_objects)
+	 $(proj_gauss_main_objects) 2>/dev/null; \
+	case "$$?" in \
+	0);; \
+	*) \
+	$(CC) -o $@ -lm -lgsl -lgslcblas \
+	 $(EDCFLAGS)\
+	 $(EDLDFLAGS)\
+	 $(proj_gauss_mixtures_objects)\
+	 $(proj_gauss_main_objects);; \
+	esac
 
 build/$(TARGETLIB): $(proj_gauss_mixtures_objects) \
 	src/proj_gauss_mixtures_IDL.o build
 	$(CC) $(LINKOPTIONS) -o $@ -lm -lgsl -lgslcblas -lgomp \
 	 $(EDLDFLAGS)\
 	 $(proj_gauss_mixtures_objects)\
-	 src/proj_gauss_mixtures_IDL.o
+	 src/proj_gauss_mixtures_IDL.o 2>/dev/null; \
+	case "$$?" in \
+	0);; \
+	*) \
+	$(CC) $(LINKOPTIONS) -o $@ -lm -lgsl -lgslcblas \
+	 $(EDLDFLAGS)\
+	 $(proj_gauss_mixtures_objects)\
+	 src/proj_gauss_mixtures_IDL.o ;; \
+	esac
 
 %.o: %.c
 	$(CC) $(EDCFLAGS) -fpic -Wall -c $< -o $@ -I src/
