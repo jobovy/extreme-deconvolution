@@ -1,5 +1,13 @@
+Extreme Deconvolution (XD)
+===========================
+
+Density estimation using Gaussian mixtures in the presence of noisy, heterogeneous and incomplete data
+
+.. image:: https://travis-ci.org/jobovy/extreme-deconvolution.png?branch=master 
+   :target: http://travis-ci.org/jobovy/extreme-deconvolution
+
 Summary
-=========
+---------
 
 Extreme-deconvolution (XD) is a general algorithm to infer a d-dimensional distribution function from a set of heterogeneous, noisy observations or samples. It is fast, flexible, and treats the data's individual uncertainties properly, to get the best description possible of the underlying distribution. It performs well over the full range of density estimation, from small data sets with only tens of samples per dimension, to large data sets with millions of data points.
 
