@@ -1,9 +1,12 @@
 INSTALL_DIR=/usr/local/lib/
 RM= /bin/rm -vf
-CC=gcc
 PYTHON=python
 IDL=idl
 ARCH=UNDEFINED
+
+ifeq ($(CC),)
+	CC= gcc
+endif
 
 EDCFLAGS:= $(CFLAGS) -fopenmp
 EDLDFLAGS:= $(LDFLAGS) -fopenmp
