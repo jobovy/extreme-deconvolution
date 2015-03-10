@@ -18,6 +18,8 @@ or
 
 	python setup.py install --prefix=/path/to/install/dir/
 
+An option --no-openmp is available in case you want to turn off OpenMP
+support (might be necessary when compiling with clang on Macs).
 
 More info on the various options to these commands can be obtained by
 
