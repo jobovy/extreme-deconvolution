@@ -3,7 +3,7 @@ import os, os.path
 import re
 
 srcDir= 'src'
-srcFiles= ['src/bovy_isfin.c','src/bovy_randvec.c','src/calc_splitnmerge.c',
+srcFiles= ['src/bovy_randvec.c','src/calc_splitnmerge.c',
 		'src/logsum.c','src/minmax.c','src/normalize_row.c','src/proj_EM.c',
 		'src/proj_EM_step.c','src/proj_gauss_mixtures.c',
 		'src/splitnmergegauss.c','src/bovy_det.c',
