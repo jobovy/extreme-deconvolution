@@ -114,7 +114,13 @@ pywrapper:
 	sed "s#TEMPLATE_LIBRARY_PATH#'$(INSTALL_DIR)'#g" py/extreme_deconvolution_TEMPLATE.py > py/extreme_deconvolution.py
 	((cd py && $(ECHO) 'import extreme_deconvolution' | $(PYTHON)) && $(ECHO) 'Successfully installed Python wrapper' || ($(ECHO) 'Something went wrong installing Python wrapper' && exit -1))
 
-
+rpackage:
+	cp -a src r/src
+	R CMD check r
+	R CMD build r
+	R CMD INSTALL ExtremeDeconvolution_*.tar.gz
+	rm -rf r.Rcheck
+	rm -rf r/src/src
 #
 # TEST THE INSTALLATION
 #
