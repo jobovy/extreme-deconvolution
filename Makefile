@@ -3,6 +3,7 @@ RM= /bin/rm -vf
 PYTHON=python
 IDL=idl
 ARCH=UNDEFINED
+RLIB=~/R
 
 ifeq ($(CC),)
 	CC= gcc
@@ -118,7 +119,7 @@ rpackage:
 	cp -a src r/src
 	R CMD check r
 	R CMD build r
-	R CMD INSTALL ExtremeDeconvolution_*.tar.gz
+	R CMD INSTALL ExtremeDeconvolution_*.tar.gz -l $(RLIB)
 	rm -rf r.Rcheck
 	rm -rf r/src/src
 #
