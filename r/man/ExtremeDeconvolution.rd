@@ -1,7 +1,7 @@
 \name{ExtremeDeconvolution}
 \alias{ExtremeDeconvolution}
 \title{The extreme-deconvolution library}
-\description{}
+\description{We present a general algorithm to infer a d-dimensional distribution function given a set of heterogeneous, noisy observations or samples. This algorithm reconstructs the error-deconvolved or 'underlying' distribution function common to all samples, even when the individual samples have unique error and missing-data properties. The underlying distribution is modeled as a mixture of Gaussians, which is completely general. Model parameters are chosen to optimize a justified, scalar objective function: the logarithm of the probability of the data under the error-convolved model, where the error convolution is different for each data point. Optimization is performed by an Expectation Maximization (EM) algorithm, extended by a regularization technique and 'split-and-merge' procedure. These extensions mitigate problems with singularities and local maxima, which are often encountered when using the EM algorithm to estimate Gaussian density mixtures.}
 
 \usage{
 extreme_deconvolution(ydata,ycovar,
@@ -15,11 +15,39 @@ extreme_deconvolution(ydata,ycovar,
 }
 
 \arguments{
-  ...
+  \item{ydata}{[ndata,dy] matrix of observed quantities}
+  \item{ycovar}{[ndata,dy(,dy)] matrix of observational error covariances
+                (if [ndata,dy] then the error correlations are assumed to vanish)}
+  \item{xamp}{[ngauss] array of initial amplitudes (*not* [1,ngauss])}
+  \item{xmean}{[ngauss,dx] matrix of initial means}
+  \item{xcovar}{[ngauss,dx,dx] list of matrices of initial covariances}
+  \item{projection}{[ndata,dy,dx] list of projection matrices}
+  \item{weight}{[ndata] array of weights to be applied to the data points}
+  \item{logweight}{(bool, default=False) if True, weight is actually
+                   log(weight)}
+  \item{fixamp}{(default=None) None, True/False, or list of bools}
+  \item{fixmean}{(default=None) None, True/False, or list of bools}
+  \item{fixcovar}{(default=None) None, True/False, or list of bools}
+  \item{tol}{(double, default=1.e-6) tolerance for convergence}
+  \item{maxiter}{(long, default= 10**9) maximum number of iterations to perform}
+  \item{w}{(double, default=0.) covariance regularization parameter
+            (of the conjugate prior)}
+  \item{logfile}{basename for several logfiles (_c.log has output from
+                 the c-routine; _loglike.log has the log likelihood path of
+                 all the accepted routes, i.e. only parts which increase
+                 the likelihood are included, during splitnmerge)}
+  \item{splitnmerge}{(int, default=0) depth to go down the splitnmerge path}
+  \item{maxsnm}{(Bool, default=False) use the maximum number of split 'n'
+                 merge steps, K*(K-1)*(K-2)/2}
+  \item{likeonly}{(Bool, default=False) only compute the total log
+                   likelihood of the data}
 }
 
 \value{
-  ...
+  \item{avgloglikedata}{avgloglikedata after convergence}
+  \item{xamp}{updated xamp}
+  \item{xmean}{updated xmean}
+  \item{xcovar}{updated xcovar}
 }
 
 \details{
@@ -35,18 +63,26 @@ W. Hogg, & Sam T. Roweis, Submitted to AOAS (2009) [arXiv/0905.2979]
 }
 
 \examples{
-# Load the package
 library("ExtremeDeconvolution")
-?extreme_deconvolution
-ydata <- c(2.624345,0.3882436,0.4718282,-0.07296862,1.865408,-1.301539,2.744812,0.2387931,1.319039,0.7506296,2.462108,-1.060141,0.6775828,0.6159456,2.133769,-0.09989127,0.8275718,0.1221416,1.042214,1.582815,-0.1006192,2.144724,1.901591,1.502494,1.900856,0.3162721,0.8771098,0.06423057,0.7321119,1.530355,0.3083392,0.6032465,0.3128273,0.1547944,0.3287539,0.9873354,-0.1173103,1.234416,2.659802,1.742044,0.8081644,0.112371,0.2528417,2.692455,1.050808,0.3630044,1.190915,3.100255,1.120159,1.617203,1.30017,0.6477502,-0.1425182,0.6506573,0.7911058,1.586623,1.838983,1.931102,1.285587,1.885141,0.2456021,2.252868,1.51293,0.7019072,1.488518,0.9244283,2.131629,2.519817,3.185575,-0.3964963,-0.4441138,0.4955341,1.160037,1.876169,1.315635,-1.022201,0.693796,1.827975,1.230095,1.762011,0.7776719,0.7992419,1.186561,1.410052,1.1983,1.119009,0.3293377,1.377564,1.121821,2.129484,2.198918,1.185156,0.6247151,0.3612696,1.423494,1.07734,0.6561463,1.043597,0.3799992,1.698032,0.5528714,2.224508,1.403492,1.593579,-0.09491185,1.169382,1.740556,0.0462994,0.7337815,1.032615,-0.3731173,1.315159,1.846161,0.1404841,1.350546,-0.3122834,0.9613045,-0.6157724,2.121418,1.408901,0.975383,0.2248384,2.273756,2.967102,-0.8579819,2.236164,2.627651,1.338012,-0.199268,1.863345,0.8190797,0.3960794,-0.2300581,1.550537,1.792807,0.3764693,1.520576,-0.1443414,1.801861,1.046567,0.8134302,0.8982541,1.868886,1.750412,1.529465,1.137701,1.077821,1.61838,1.232495,1.682551,0.6898832,-1.434838,2.038825,3.18698,1.441364,0.8998448,0.8635553,0.8809458,1.017409,-0.1220187,0.4829055,0.002973172,1.248799,0.7033588,1.495211,0.8252968,1.986335,1.213534,3.1907,-0.8963609,0.3530833,1.901487,3.528326,0.7513652,1.043669,0.7736858,2.331457,0.7126921,1.68007,0.6801984,-0.2725588,1.313548,1.503185,2.293226,0.889553,0.3826379,1.562761,1.240737,1.280665,0.9268873,2.160339,1.369493,2.904659,2.111057,1.65905,-0.6274383,1.602319,1.420282,1.810952,2.044442)
-ydata <- array(ydata, c(length(ydata), 1))
+?ExtremeDeconvolution
+ydata <- c(2.62434536,0.38824359,0.47182825,-0.07296862,1.86540763,-1.30153870,2.74481176,0.23879310,1.31903910,0.75062962,2.46210794,-1.06014071,0.67758280,0.61594565,2.13376944,-0.09989127,0.82757179,0.12214158,1.04221375,1.58281521,-0.10061918,2.14472371,1.90159072,1.50249434,1.90085595,0.31627214,0.87710977,0.06423057,0.73211192,1.53035547,0.30833925,0.60324647,0.31282730,0.15479436,0.32875387,0.98733540,-0.11731035,1.23441570,2.65980218,1.74204416,0.80816445,0.11237104,0.25284171,2.69245460,1.05080775,0.36300435,1.19091548,3.10025514,1.12015895,1.61720311,1.30017032,0.64775015,-0.14251820,0.65065728,0.79110577,1.58662319,1.83898341,1.93110208,1.28558733,1.88514116,0.24560206,2.25286816,1.51292982,0.70190717,1.48851815,0.92442829,2.13162939,2.51981682,3.18557541,-0.39649633,-0.44411380,0.49553414,1.16003707,1.87616892,1.31563495,-1.02220122,0.69379599,1.82797464,1.23009474,1.76201118,0.77767186,0.79924193,1.18656139,1.41005165,1.19829972,1.11900865,0.32933771,1.37756379,1.12182127,2.12948391,2.19891788,1.18515642,0.62471505,0.36126959,1.42349435,1.07734007,0.65614632,1.04359686,0.37999916,1.69803203,0.55287144,2.22450770,1.40349164,1.59357852,-0.09491185,1.16938243,1.74055645,0.04629940,0.73378149,1.03261455,-0.37311732,1.31515939,1.84616065,0.14048406,1.35054598,-0.31228341,0.96130449,-0.61577236,2.12141771,1.40890054,0.97538304,0.22483838,2.27375593,2.96710175,-0.85798186,2.23616403,2.62765075,1.33801170,-0.19926803,1.86334532,0.81907970,0.39607937,-0.23005814,1.55053750,1.79280687,0.37646927,1.52057634,-0.14434139,1.80186103,1.04656730,0.81343023,0.89825413,1.86888616,1.75041164,1.52946532,1.13770121,1.07782113,1.61838026,1.23249456,1.68255141,0.68988323,-1.43483776,2.03882460,3.18697965,1.44136444,0.89984477,0.86355526,0.88094581,1.01740941,-0.12201873,0.48290554,0.00297317,1.24879916,0.70335885,1.49521132,0.82529684,1.98633519,1.21353390,3.19069973,-0.89636092,0.35308331,1.90148689,3.52832571,0.75136522,1.04366899,0.77368576,2.33145711,0.71269214,1.68006984,0.68019840,-0.27255875,1.31354772,1.50318481,2.29322588,0.88955297,0.38263794,1.56276110,1.24073709,1.28066508,0.92688730,2.16033857,1.36949272,2.90465871,2.11105670,1.65904980,-0.62743834,1.60231928,1.42028220,1.81095167,2.04444209)
+ydata <- matrix(ydata, length(ydata), 1)
 N <- dim(ydata)[1]
 ycovar <- ydata * 0 + 0.01
 xamp <- c(0.5, 0.5)
-xmean <- t(array(c(0.86447943, 0.67078879, 0.322681, 0.45087394), c(2, 2)))
-xcovar <- c(array(c(0.03821028, 0.04014796, 0.04108113, 0.03173839), c(2,2)), array(c(0.06219194,0.09738021, 0.04302473, 0.06778009), c(2,2)))
-projection <- array(rep(NA, N * 2), c(N, 1, 2))
-for (i in 1:N) if (i \%\% 2) projection[i,,] = c(0,1) else projection[i,,] = c(1,0)
-result <- extreme_deconvolution(ydata,ycovar,xamp,xmean,xcovar,projection=projection)
-print(result)
+xmean <- matrix(c(0.86447943, 0.67078879, 0.322681, 0.45087394), 2, 2)
+xcovar <- list(matrix(c(0.03821028, 0.04014796, 0.04108113, 0.03173839), 2, 2),
+               matrix(c(0.06219194,0.09738021, 0.04302473, 0.06778009), 2, 2))
+projection <- list()
+for (i in 1:N) projection[[i]] = matrix(c(i\%\%2,(i+1)\%\%2), 1, 2)
+res <- extreme_deconvolution(ydata, ycovar, xamp, xmean, xcovar, projection=projection)
+print(res)
+stopifnot((res$avgloglikedata - (-1.3114744655258121)) **2. < 10.**-8)
+stopifnot((res$xmean[1,1]-2.30368235)**2. < 10.**-5)
+stopifnot((res$xmean[1,2]-1.70701517)**2. < 10.**-5)
+stopifnot((res$xmean[2,1]-1.08009397)**2. < 10.**-5)
+stopifnot((res$xmean[2,2]-0.8888667)**2. < 10.**-5)
+stopifnot((res$xcovar[[1]][1,1]-0.445645987259)**2. < 10.**-5.)
+stopifnot((res$xamp[1]-0.11968415)**2. < 10.**-5)
+stopifnot((res$xamp[2]-0.880315852981)**2. < 10.**-5)
 }

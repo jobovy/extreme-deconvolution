@@ -3,7 +3,7 @@ Version: 1.3
 Date: 2015-08-08
 Title: The extreme-deconvolution library
 Author: Jo Bovy, David W. Hogg, & Sam T. Roweis
-Maintainer: Gao Wang <wangow@gmail.com>
+Maintainer: Gao Wang <gaow@uchicago.edu>
 Depends: R (>= 3.0.0) 
 Description: inferring complete distribution functions from noisy, heterogeneous and incomplete observations Jo Bovy, David W. Hogg, Sam T. Roweis, Submitted to AOAS (2009) [arXiv/0905.2979]
 License: BSD

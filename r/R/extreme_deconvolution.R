@@ -20,7 +20,6 @@ extreme_deconvolution <- function(ydata,ycovar,
                           splitnmerge=0,maxsnm=FALSE,likeonly=FALSE,
                           logweight=FALSE)
 {
-    #
     ndata <- dim(ydata)[1]
     dataDim <- dim(ydata)[2]
     ngauss <- length(xamp)
@@ -51,7 +50,7 @@ extreme_deconvolution <- function(ydata,ycovar,
         splitnmerge <- ngauss*(ngauss-1)*(ngauss-2)/2
     if(is.null(projection)) {
         noprojection <- TRUE
-        projection <- array(0)
+        projection <- list()
     } else {
         noprojection <- FALSE
     }
@@ -65,15 +64,16 @@ extreme_deconvolution <- function(ydata,ycovar,
         noweight <- FALSE
         logweights <- weight
     }
+    #
     res <- .C("proj_gauss_mixtures_R",
-       as.double(as.vector(ydata)),
-       as.double(as.vector(ycovar)), 
-			 as.double(as.vector(projection)),
+       as.double(as.vector(t(ydata))),
+       as.double(as.vector(t(ycovar))), 
+			 as.double(as.vector(unlist(lapply(projection,t)))),
        as.double(as.vector(logweights)),
 			 as.integer(ndata), as.integer(dataDim), 
-			 xamp = as.double(as.vector(xamp)),
-       xmean = as.double(as.vector(xmean)), 
-			 xcovar = as.double(as.vector(xcovar)),
+			 xamp = as.double(as.vector(t(xamp))),
+       xmean = as.double(as.vector(t(xmean))), 
+			 xcovar = as.double(as.vector(unlist(lapply(xcovar,t)))),
        as.integer(gaussDim), as.integer(ngauss), 
 			 as.integer(as.vector(fixamp)), as.integer(as.vector(fixmean)), 
 			 as.integer(as.vector(fixcovar)), 
@@ -85,5 +85,15 @@ extreme_deconvolution <- function(ydata,ycovar,
 			 as.integer(noweight),
        PACKAGE = "ExtremeDeconvolution"
        )
-    return(list(xmean=res$xmean, xamp=res$xamp, xcovar=res$xcovar, avgloglikedata=res$avgloglikedata))
+    #
+    xmean <- matrix(res$xmean, dim(xmean), byrow = TRUE)
+    start <- 1
+    end <- 0
+    for (i in 1:length(xcovar)) {
+        end <- end + prod(dim(xcovar[[i]]))
+        xcovar[[i]] <- matrix(res$xcovar[start:end], dim(xcovar[[i]]), byrow = TRUE)
+        start <- end + 1
+    }
+    
+    return(list(xmean=xmean, xamp=res$xamp, xcovar=xcovar, avgloglikedata=res$avgloglikedata))
 }
