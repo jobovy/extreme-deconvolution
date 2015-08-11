@@ -122,6 +122,7 @@ In IDL this becomes::
 
 
 In R::
+
    library(ExtremeDeconvolution)
    ?extreme_deconvolution
 
