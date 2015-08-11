@@ -65,7 +65,7 @@ extreme_deconvolution <- function(ydata,ycovar,
         logweights <- weight
     }
     #
-    res <- .C("proj_gauss_mixtures_R",
+    res <- .C("proj_gauss_mixtures_IDL",
        as.double(as.vector(t(ydata))),
        as.double(as.vector(t(ycovar))), 
 			 as.double(as.vector(unlist(lapply(projection,t)))),

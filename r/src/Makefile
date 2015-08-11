@@ -1,4 +1,4 @@
-SRC_FILES := $(filter-out src/main.c, $(wildcard src/*.c) $(wildcard *.c))
+SRC_FILES := $(filter-out main.c, $(wildcard *.c))
 OBJECTS = $(addsuffix .o, $(notdir $(basename $(SRC_FILES))))
 C = gcc
 C_OPTS = -std=c99 -fPIC -shared -I. -Isrc
