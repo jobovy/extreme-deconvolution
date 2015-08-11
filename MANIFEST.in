@@ -14,3 +14,4 @@ include src/bovy_det.c
 include src/proj_gauss_mixtures.h
 include py/extreme_deconvolution.py
 include doc/extreme-deconvolution.pdf
+include r/*

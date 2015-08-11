@@ -35,6 +35,7 @@ make
 sudo make install
 make idlwrapper
 make pywrapper
+make rpackage
 make testidl
 make testpy
 make clean
@@ -64,7 +65,9 @@ specifying INSTALL_DIR, also run
 
 make pywrapper INSTALL_DIR=/path/to/install/dir/
 
-5) make testidl: this will run the test program 'fit_tf.pro' from the
+5) make rpackage: will build and install the R package "ExtremeDeconvolution".
+
+6) make testidl: this will run the test program 'fit_tf.pro' from the
 examples directory, fitting the Tully-Fisher relation in different
 bandpasses (see arXiv:0905:2979v1 for details). A plot TF.ps and
 output file TF.tex will be produced in the examples directory. If the
@@ -74,14 +77,14 @@ does not agree with given solution Manually diff the TF.tex and TF.out
 (given solution) file' will be printed. IMPORTANT: If your IDL
 installation is not 'idl', pass the variable IDL=/your/idl/bin
 
-6) make testpy: Tests whether the python program can access the
+7) make testpy: Tests whether the python program can access the
 library and gives the expected output for a test run. Uses python's
 doctest module. IMPORTANT: If your Python installation is not
 'python', pass the variable PYTHON=/your/python/bin
 
-7) make clean: cleans up intermediate files
+8) make clean: cleans up intermediate files
 
-8*) make spotless: deletes all the intermediate files as well as the main
+9*) make spotless: deletes all the intermediate files as well as the main
 program and the shared library.
 
 
@@ -237,6 +240,16 @@ measurement (specified as xx, yy, xy, and similar for higher
 dimensions), followed by the projection matrix (in the format 11, 12,
 21, 22, and similar for higher dimensions).
 
+
+USAGE IV: THROUGH R
+-------------------
+
+After installing the R package, open up an R console and type
+
+> library(ExtremeDeconvolution)
+> ?ExtremeDeconvolution
+
+To see input arguments and an example.
 
 
 OUTSTANDING ISSUES

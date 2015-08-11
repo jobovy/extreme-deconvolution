@@ -79,6 +79,10 @@ To install the python wrapper do::
 
 Add INSTALL_DIR=/path/to/install/dir/ if you used this to install the library
 
+To install the R package do::
+
+   make rpackage
+
 To test whether the code and the python wrapper is working do::
 
    make testpy
@@ -115,6 +119,11 @@ In IDL this becomes::
    ;;Run the code
    projected_gauss_mixtures_c, K, ydata, ycovar, initamp, initmean, initcovar, /quiet
    ;;initamp, initmean, and initcovar are now updated to their best fit values
+
+
+In R::
+   library(ExtremeDeconvolution)
+   ?ExtremeDeconvolution
 
 
 Installation FAQ

@@ -30,6 +30,9 @@ make pywrapper
      'INSTALL_DIR=/path/to/install/dir/' if this was used to install
      the library.
 
+make rpackage
+     to test and install the R package "ExtremeDeconvolution".
+
 make testidl
 
      to test the installation and IDL wrapper. IDL and the IDL wrapper
