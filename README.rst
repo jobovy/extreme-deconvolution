@@ -123,7 +123,7 @@ In IDL this becomes::
 
 In R::
    library(ExtremeDeconvolution)
-   ?ExtremeDeconvolution
+   ?extreme_deconvolution
 
 
 Installation FAQ

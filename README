@@ -247,7 +247,7 @@ USAGE IV: THROUGH R
 After installing the R package, open up an R console and type
 
 > library(ExtremeDeconvolution)
-> ?ExtremeDeconvolution
+> ?extreme_deconvolution
 
 To see input arguments and an example.
 
