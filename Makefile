@@ -1,9 +1,9 @@
+SHELL := /bin/bash
 INSTALL_DIR=/usr/local/lib/
 RM= /bin/rm -vf
 PYTHON=python
 IDL=idl
 ARCH=UNDEFINED
-RLIB=~/R
 
 ifeq ($(CC),)
 	CC= gcc
@@ -116,12 +116,13 @@ pywrapper:
 	((cd py && $(ECHO) 'import extreme_deconvolution' | $(PYTHON)) && $(ECHO) 'Successfully installed Python wrapper' || ($(ECHO) 'Something went wrong installing Python wrapper' && exit -1))
 
 rpackage:
-	cp -a src r/src
+	cp src/{*.h,*.c} r/src
+	patch r/src/proj_gauss_mixtures_IDL.c < r/src/proj_gauss_mixtures_R.patch
 	R CMD check r
 	R CMD build r
-	R CMD INSTALL ExtremeDeconvolution_*.tar.gz -l $(RLIB)
+	R CMD INSTALL ExtremeDeconvolution_*.tar.gz -l $(shell echo "cat(.libPaths()[1])" | R --slave)
 	rm -rf r.Rcheck
-	rm -rf r/src/src
+	rm -f r/src/{*.h,*.c}
 #
 # TEST THE INSTALLATION
 #
