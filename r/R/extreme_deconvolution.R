@@ -24,10 +24,10 @@ extreme_deconvolution <- function(ydata,ycovar,
     dataDim <- dim(ydata)[2]
     ngauss <- length(xamp)
     gaussDim <- dim(xmean)[2]
-    if (is.null(dim(ycovar)) | dim(ycovar)[2] == 1) {
-        diagerrors <- TRUE
-    } else {
+    if (is.null(dim(ycovar))) {
         diagerrors <- FALSE
+    } else {
+        diagerrors <- TRUE
     }
     fixamp <- .fixfix(fixamp, ngauss)
     fixmean <- .fixfix(fixmean, ngauss)
