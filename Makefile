@@ -118,11 +118,10 @@ pywrapper:
 rpackage:
 	cp src/{*.h,*.c} r/src
 	patch r/src/proj_gauss_mixtures_IDL.c < r/src/proj_gauss_mixtures_R.patch
-	R CMD check r
-	R CMD build r
-	R CMD INSTALL ExtremeDeconvolution_*.tar.gz -l $(shell echo "cat(.libPaths()[1])" | R --slave)
-	rm -rf r.Rcheck
+	R CMD check r --no-manual -o $(shell mktemp -d)
+	R CMD build r --no-manual
 	rm -f r/src/{*.h,*.c}
+	(R CMD INSTALL ExtremeDeconvolution_*.tar.gz -l $(shell echo "cat(.libPaths()[1])" | R --slave) || ($(ECHO) "Please install the package manually with proper library path specified, e.g., R CMD INSTALL ExtremeDeconvolution_<version>.tar.gz -l /path/to/your/R/library/directory"))
 #
 # TEST THE INSTALLATION
 #
