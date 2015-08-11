@@ -75,7 +75,7 @@ xcovar <- list(matrix(c(0.03821028, 0.04014796, 0.04108113, 0.03173839), 2, 2),
                matrix(c(0.06219194,0.09738021, 0.04302473, 0.06778009), 2, 2))
 projection <- list()
 for (i in 1:N) projection[[i]] = matrix(c(i\%\%2,(i+1)\%\%2), 1, 2)
-res <- extreme_deconvolution(ydata, ycovar, xamp, xmean, xcovar, projection=projection)
+res <- extreme_deconvolution(ydata, ycovar, xamp, xmean, xcovar, projection=projection, logfile="ExDeconDemo")
 print(res)
 stopifnot((res$avgloglikedata - (-1.3114744655258121)) **2. < 10.**-8)
 stopifnot((res$xmean[1,1]-2.30368235)**2. < 10.**-5)

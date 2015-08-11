@@ -47,8 +47,8 @@ index aa75319..59aaece 100644
 +			    int * fixamp, int * fixmean, int * fixcovar,
 +			    double * avgloglikedata, double *p_tol,
 +			    int *p_maxiter, int *p_likeonly, double *p_w,
-+			    char * logfilename, int *p_slen, int *p_splitnmerge,
-+			    char * convlogfilename, int *p_convloglen,
++			    int * logfilename, int *p_slen, int *p_splitnmerge,
++			    int * convlogfilename, int *p_convloglen,
 +			    int *p_noprojection, int *p_diagerrors,
 +			    int *p_noweights){
 +  // convert variables from R interface
