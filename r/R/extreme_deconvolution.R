@@ -29,8 +29,8 @@ extreme_deconvolution <- function(ydata, ycovar, xamp, xmean, xcovar, projection
     avgloglikedata <- 0
     # 
     if (is.null(logfile)) {
-        clog <- ""
-        clog2 <- ""
+        clog <- 0
+        clog2 <- 0
         n_clog <- 0
         n_clog2 <- 0
     } else {
