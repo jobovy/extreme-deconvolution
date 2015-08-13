@@ -1,7 +1,7 @@
 SRC_FILES := $(filter-out main.c, $(wildcard *.c))
 OBJECTS = $(addsuffix .o, $(notdir $(basename $(SRC_FILES))))
 C = gcc
-C_OPTS = -std=c99 -O3 -fPIC -fopenmp -shared -I. -Isrc
+C_OPTS = -std=c99 -fPIC -fopenmp -shared -I. -Isrc
 LINK_OPTS= -lm -lgsl -lgslcblas -lgomp
 
 ExtremeDeconvolution.so: obj
