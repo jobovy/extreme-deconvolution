@@ -1,5 +1,5 @@
 diff --git proj_gauss_mixtures_IDL.c proj_gauss_mixtures_IDL.c
-index aa75319..59aaece 100644
+index aa75319..b8f298b 100644
 --- proj_gauss_mixtures_IDL.c
 +++ proj_gauss_mixtures_IDL.c
 @@ -2,17 +2,19 @@
@@ -26,7 +26,18 @@ index aa75319..59aaece 100644
  */
  #include <stdio.h>
  #include <stdbool.h>
-@@ -23,17 +25,23 @@
+@@ -20,20 +22,37 @@
+ #include <gsl/gsl_matrix.h>
+ #include <gsl/gsl_vector.h>
+ #include <proj_gauss_mixtures.h>
++bool * int2bool(int * a, int K)
++{
++  bool * x = (bool *) malloc(K * sizeof (bool));
++  int kk;
++  for (kk = 0; kk != K; ++kk) *(x++) = (bool) *(a++);
++  x -=K;
++  return x;
++}
  
  int proj_gauss_mixtures_IDL(double * ydata, double * ycovar, 
  			    double * projection, double * logweights,
@@ -44,7 +55,7 @@ index aa75319..59aaece 100644
 +			    int *p_N, int *p_dy,
 +			    double * amp, double * xmean,
 +			    double * xcovar, int *p_d, int *p_K,
-+			    int * fixamp, int * fixmean, int * fixcovar,
++			    int * fixamp_int, int * fixmean_int, int * fixcovar_int,
 +			    double * avgloglikedata, double *p_tol,
 +			    int *p_maxiter, int *p_likeonly, double *p_w,
 +			    int * logfilename, int *p_slen, int *p_splitnmerge,
@@ -58,6 +69,9 @@ index aa75319..59aaece 100644
 +    likeonly = *p_likeonly, noprojection = *p_noprojection,
 +    diagerrors = *p_diagerrors, noweights = *p_noweights;
 +  double tol = *p_tol, w = *p_w;
++  bool * fixamp = int2bool(fixamp_int, K);
++  bool * fixmean = int2bool(fixmean_int, K);
++  bool * fixcovar = int2bool(fixcovar_int, K);
    //Set up logfiles  
    bool keeplog = true;
    char logname[slen+1];
