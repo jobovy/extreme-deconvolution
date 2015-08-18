@@ -1,0 +1,2 @@
+useDynLib(ExtremeDeconvolution)
+export(extreme_deconvolution)

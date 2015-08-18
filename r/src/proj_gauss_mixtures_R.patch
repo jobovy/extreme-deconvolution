@@ -1,0 +1,77 @@
+diff --git proj_gauss_mixtures_IDL.c proj_gauss_mixtures_IDL.c
+index aa75319..b8f298b 100644
+--- proj_gauss_mixtures_IDL.c
++++ proj_gauss_mixtures_IDL.c
+@@ -2,17 +2,19 @@
+   NAME:
+      proj_gauss_mixtures_IDL
+   PURPOSE:
+-     run the projected gaussian mixtures algorithm from IDL (or python)
++     run the projected gaussian mixtures algorithm from R
++	[Patched from the original IDL (or python) interface by Gao Wang]
+   CALLING SEQUENCE:
+-     see IDL wrapper
++     see R wrapper
+   INPUT:
+-     from IDL wrapper
++     from R wrapper
+   OUTPUT:
+-     updated model gaussians and average loglikelihood, see IDL WRAPPER
++     updated model gaussians and average loglikelihood, see R WRAPPER
+   REVISION HISTORY:
+      2008-09-21 - Written Bovy
+      2010-03-01 Added noproj option - Bovy
+      2010-04-01 Added noweight option and logweights - Bovy
++     2015-08-08 Patched by Gao Wang to interface with R instead
+ */
+ #include <stdio.h>
+ #include <stdbool.h>
+@@ -20,20 +22,37 @@
+ #include <gsl/gsl_matrix.h>
+ #include <gsl/gsl_vector.h>
+ #include <proj_gauss_mixtures.h>
++bool * int2bool(int * a, int K)
++{
++  bool * x = (bool *) malloc(K * sizeof (bool));
++  int kk;
++  for (kk = 0; kk != K; ++kk) *(x++) = (bool) *(a++);
++  x -=K;
++  return x;
++}
+ 
+ int proj_gauss_mixtures_IDL(double * ydata, double * ycovar, 
+ 			    double * projection, double * logweights,
+-			    int N, int dy, 
+-			    double * amp, double * xmean, 
+-			    double * xcovar, int d, int K, 
+-			    char * fixamp, char * fixmean, 
+-			    char * fixcovar, 
+-			    double * avgloglikedata, double tol, 
+-			    int maxiter, char likeonly, double w, 
+-			    char * logfilename, int slen, int splitnmerge,
+-			    char * convlogfilename, int convloglen,
+-			    char noprojection,char diagerrors,
+-			    char noweights){
++			    int *p_N, int *p_dy,
++			    double * amp, double * xmean,
++			    double * xcovar, int *p_d, int *p_K,
++			    int * fixamp_int, int * fixmean_int, int * fixcovar_int,
++			    double * avgloglikedata, double *p_tol,
++			    int *p_maxiter, int *p_likeonly, double *p_w,
++			    int * logfilename, int *p_slen, int *p_splitnmerge,
++			    int * convlogfilename, int *p_convloglen,
++			    int *p_noprojection, int *p_diagerrors,
++			    int *p_noweights){
++  // convert variables from R interface
++  int N = *p_N, dy = *p_dy, d = *p_d, K = *p_K,
++    maxiter = *p_maxiter, slen = *p_slen,
++    splitnmerge = *p_splitnmerge, convloglen = *p_convloglen,
++    likeonly = *p_likeonly, noprojection = *p_noprojection,
++    diagerrors = *p_diagerrors, noweights = *p_noweights;
++  double tol = *p_tol, w = *p_w;
++  bool * fixamp = int2bool(fixamp_int, K);
++  bool * fixmean = int2bool(fixmean_int, K);
++  bool * fixcovar = int2bool(fixcovar_int, K);
+   //Set up logfiles  
+   bool keeplog = true;
+   char logname[slen+1];

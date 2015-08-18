@@ -11,10 +11,13 @@ Summary
 
 Extreme-deconvolution (XD) is a general algorithm to infer a d-dimensional distribution function from a set of heterogeneous, noisy observations or samples. It is fast, flexible, and treats the data's individual uncertainties properly, to get the best description possible of the underlying distribution. It performs well over the full range of density estimation, from small data sets with only tens of samples per dimension, to large data sets with millions of data points.
 
-The extreme-deconvolution algorithm is available here as a dynamic C-library that your programs can link to, or through python or IDL wrappers that allow you to call the fast underlying C-code in your high-level applications with minimal overhead.
+The extreme-deconvolution algorithm is available here as a dynamic C-library that your programs can link to, or through Python, R, or IDL wrappers that allow you to call the fast underlying C-code in your high-level applications with minimal overhead.
 
 News
 ------
+
+* **2015/08/17**: An interface in R was added by `@gaow
+    <https://github.com/gaow>`__. See the updated `Installation notes <https://github.com/gaow/extreme-deconvolution#installation>`__ and `Usage notes <https://github.com/gaow/extreme-deconvolution#usage>`__ below.
 
 * **2014/01/17**: Code was migrated to github; previous news refers to the googlecode version.
 
@@ -36,11 +39,12 @@ Requirements
 Download ...
 --------------
 
-The latest release of the code is `extreme-deconvolution-1.3 <http://extreme-deconvolution.googlecode.com/files/extreme-deconvolution-1.3.tar.gz>`__. A separate installer for the python library only is available as well as `extreme-deconvolution-1.3-python <http://extreme-deconvolution.googlecode.com/files/extreme-deconvolution-1.3-python.tar.gz>`__.
+The latest release of the code is `extreme-deconvolution-1.3 <http://extreme-deconvolution.googlecode.com/files/extreme-deconvolution-1.3.tar.gz>`__. A separate installer for the python library only is available as well as `extreme-deconvolution-1.3-python <http://extreme-deconvolution.googlecode.com/files/extreme-deconvolution-1.3-python.tar.gz>`__. Support for R is currently only available in the GitHub repository and requires you to get the latest version.
 
 
 or get the latest version
 --------------------------
+
 Get the latest version by checking out the svn repository:
 
 ``svn checkout http://extreme-deconvolution.googlecode.com/svn/trunk/ extreme-deconvolution-read-only``
@@ -78,6 +82,10 @@ To install the python wrapper do::
    make pywrapper
 
 Add INSTALL_DIR=/path/to/install/dir/ if you used this to install the library
+
+To install the R package do::
+
+   make rpackage
 
 To test whether the code and the python wrapper is working do::
 
@@ -117,6 +125,12 @@ In IDL this becomes::
    ;;initamp, initmean, and initcovar are now updated to their best fit values
 
 
+In R::
+
+   library(ExtremeDeconvolution)
+   ?extreme_deconvolution
+
+
 Installation FAQ
 -----------------
 
@@ -138,7 +152,9 @@ Installation FAQ
 Acknowledgments
 -----------------
 
-Thanks to Daniela Carollo, Joe Hennawi, Sergey Koposov, and Leonidas Moustakas for bug reports and fixes.
+Thanks to Gao Wang for the R interface and Daniela Carollo, Joe
+Hennawi, Sergey Koposov, and Leonidas Moustakas for bug reports and
+fixes.
 
 Acknowledging extreme-deconvolution
 ------------------------------------
