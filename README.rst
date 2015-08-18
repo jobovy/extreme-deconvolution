@@ -16,8 +16,7 @@ The extreme-deconvolution algorithm is available here as a dynamic C-library tha
 News
 ------
 
-* **2015/08/17**: An interface in R was added by `@gaow
-    <https://github.com/gaow>`__. See the updated `Installation notes <https://github.com/gaow/extreme-deconvolution#installation>`__ and `Usage notes <https://github.com/gaow/extreme-deconvolution#usage>`__ below.
+* **2015/08/17**: An interface in R was added by `@gaow <https://github.com/gaow>`__. See the updated `Installation notes <https://github.com/gaow/extreme-deconvolution#installation>`__ and `Usage notes <https://github.com/gaow/extreme-deconvolution#usage>`__ below.
 
 * **2014/01/17**: Code was migrated to github; previous news refers to the googlecode version.
 
