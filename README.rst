@@ -45,9 +45,9 @@ The latest release of the code is `extreme-deconvolution-1.3 <http://extreme-dec
 or get the latest version
 --------------------------
 
-Get the latest version by checking out the svn repository:
+Get the latest version by checking out the git repository:
 
-``svn checkout http://extreme-deconvolution.googlecode.com/svn/trunk/ extreme-deconvolution-read-only``
+``git clone https://github.com/jobovy/extreme-deconvolution.git``
 
 
 Installation
