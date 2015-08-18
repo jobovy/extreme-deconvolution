@@ -139,6 +139,11 @@ clean:
 	$(RM) $(proj_gauss_mixtures_objects)
 	$(RM) $(proj_gauss_main_objects)
 	$(RM) src/proj_gauss_mixtures_IDL.o
+	$(RM) $(subst src,r/src,$(proj_gauss_mixtures_objects))
+	$(RM) $(subst src,r/src,$(proj_gauss_main_objects))
+	$(RM) r/src/proj_gauss_mixtures_IDL.o
+	$(RM) r/src/symbols.rds
+	$(RM) ExtremeDeconvolution_*.tar.gz
 
 spotless: clean rmbuild
 	$(RM) src/*.~
@@ -146,6 +151,7 @@ spotless: clean rmbuild
 	$(RM) py/*.pyc
 	$(RM) pro/projected_gauss_mixtures_c.pro
 	$(RM) examples/TF.ps examples/TF.tex
+	$(RM) r/src/ExtremeDeconvolution.so
 	(ls py/.extreme_deconvolution.py && mv py/.extreme_deconvolution.py py/extreme_deconvolution.py || $(TRUE))
 
 rmbuild: build/
