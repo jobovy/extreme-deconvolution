@@ -16,7 +16,7 @@ extreme_deconvolution(ydata,ycovar,
 
 \arguments{
   \item{ydata}{[ndata,dy] matrix of observed quantities}
-  \item{ycovar}{[ndata,dy] / [dy,dy,ndata] matrix or 3D array
+  \item{ycovar}{[ndata,dy] / [ndata,dy,dy] / [dy,dy,ndata] matrix, list or 3D array
     of observational error covariances
     (if [ndata,dy] then the error correlations are assumed to vanish)}
   \item{xamp}{[ngauss] array of initial amplitudes (*not* [1,ngauss])}
