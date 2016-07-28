@@ -18,10 +18,14 @@ extreme_deconvolution <- function(ydata, ycovar, xamp, xmean, xcovar, projection
     dataDim <- dim(ydata)[2]
     ngauss <- length(xamp)
     gaussDim <- dim(xmean)[2]
-    if (length(dim(ycovar)) > 2) {
+    if (typeof(ycovar) == "list") {
+        tycovar <- unlist(lapply(ycovar, t))
+        diagerrors <- FALSE
+    } else if (length(dim(ycovar)) == 3) {
         tycovar <- apply(ycovar, 3, t)
         diagerrors <- FALSE
     } else {
+        # a matrix
         tycovar <- t(ycovar)
         diagerrors <- TRUE
     }
