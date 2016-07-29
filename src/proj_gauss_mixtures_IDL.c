@@ -47,7 +47,7 @@ int proj_gauss_mixtures_IDL(double * ydata, double * ycovar,
     for (ss = 0; ss != convloglen; ++ss)
       convlogname[ss] = (char) *(convlogfilename++);
     logfilename -= slen;
-    convlogfilename -= slen;
+    convlogfilename -= convloglen;
     logname[slen] = '\0';
     convlogname[convloglen] = '\0';
   }

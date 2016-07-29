@@ -18,9 +18,15 @@ extreme_deconvolution <- function(ydata, ycovar, xamp, xmean, xcovar, projection
     dataDim <- dim(ydata)[2]
     ngauss <- length(xamp)
     gaussDim <- dim(xmean)[2]
-    if (is.null(dim(ycovar))) {
+    if (typeof(ycovar) == "list") {
+        tycovar <- unlist(lapply(ycovar, t))
+        diagerrors <- FALSE
+    } else if (length(dim(ycovar)) == 3) {
+        tycovar <- apply(ycovar, 3, t)
         diagerrors <- FALSE
     } else {
+        # a matrix
+        tycovar <- t(ycovar)
         diagerrors <- TRUE
     }
     fixamp <- .fixfix(fixamp, ngauss)
@@ -59,7 +65,7 @@ extreme_deconvolution <- function(ydata, ycovar, xamp, xmean, xcovar, projection
         logweights <- weight
     }
     # 
-    res <- .C("proj_gauss_mixtures_IDL", as.double(as.vector(t(ydata))), as.double(as.vector(t(ycovar))), 
+    res <- .C("proj_gauss_mixtures_IDL", as.double(as.vector(t(ydata))), as.double(as.vector(tycovar)),
         as.double(as.vector(unlist(lapply(projection, t)))), as.double(as.vector(logweights)), 
         as.integer(ndata), as.integer(dataDim), xamp = as.double(as.vector(t(xamp))), 
         xmean = as.double(as.vector(t(xmean))), xcovar = as.double(as.vector(unlist(lapply(xcovar, 
