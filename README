@@ -265,8 +265,8 @@ do not seem to affect the good overall behavior of the algorithm.
 LICENSE
 -------
 	
-This code is free software licensed under the GNU GPL, version 2.  See
-the file LICENSE for the full terms of the GNU GPL.
+This code is free software licensed under the BSD-3-clause
+license. See the file LICENSE for the full terms.
 
 
 ACKNOWLEDGING EXTREME-DECONVOLUTION
