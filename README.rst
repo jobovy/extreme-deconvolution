@@ -91,12 +91,10 @@ To install the R package do::
 
 Fix the version number as needed. Alternatively, you may find that it
 is more convenient to use the `install.packages()` function in R to
-install the package. In that case, replace the second step (`R CMD
-INSTALL ...`) with the following call within the R environment:
+install the package. In that case, replace the second step (``R CMD
+INSTALL ...``) with the following call within the R environment:
 
-```R
-install.packages(pkgs = "ExtremeDeconvolution_1.3.tar.gz",repos = NULL)
-```
+   install.packages(pkgs = "ExtremeDeconvolution_1.3.tar.gz",repos = NULL)
 
 This assumes that the R working directory is the same as the root of
 this git repository.
