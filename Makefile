@@ -4,9 +4,7 @@ PYTHON=python
 IDL=idl
 ARCH=UNDEFINED
 
-ifeq ($(CC),)
-	CC= gcc
-endif
+CC=gcc-4.8
 
 EDCFLAGS:= $(CFLAGS) -fopenmp
 EDLDFLAGS:= $(LDFLAGS) -fopenmp

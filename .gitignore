@@ -1,1 +1,6 @@
 build
+src/*.o
+ExtremeDeconvolution*.tar.gz
+r/src/*.o
+r/src/ExtremeDeconvolution.so
+r/src/symbols.rds

@@ -1,13 +1,12 @@
 SRC_FILES := $(filter-out main.c, $(wildcard *.c))
-OBJECTS = $(addsuffix .o, $(notdir $(basename $(SRC_FILES))))
-C = gcc
-C_OPTS = -std=c99 -fPIC -fopenmp -shared -I. -Isrc
-LINK_OPTS= -lm -lgsl -lgslcblas -lgomp
+OBJECTS    = $(addsuffix .o, $(notdir $(basename $(SRC_FILES))))
+PKG_CFLAGS = -std=c99 -fPIC -fopenmp -shared -I. -Isrc
+PKG_CLIBS  = -lm -lgsl -lgslcblas -lgomp
 
 ExtremeDeconvolution.so: obj
-	R CMD SHLIB -o ExtremeDeconvolution.so $(OBJECTS) $(LINK_OPTS)
+	R CMD SHLIB -o ExtremeDeconvolution.so $(OBJECTS) $(PKG_CLIBS)
 
-obj: ; $(C) $(C_OPTS) -c $(SRC_FILES)
+obj: ; $(CC) $(CFLAGS) $(PKG_CFLAGS) -c $(SRC_FILES)
 
 .PHONY: obj
 
