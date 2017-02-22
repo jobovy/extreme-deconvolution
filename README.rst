@@ -87,7 +87,20 @@ Add INSTALL_DIR=/path/to/install/dir/ if you used this to install the library
 To install the R package do::
 
    make rpackage
+   R CMD INSTALL ExtremeDeconvolution_1.3.tar.gz
 
+Fix the version number as needed. Alternatively, you may find that it
+is more convenient to use the `install.packages()` function in R to
+install the package. In that case, replace the second step (`R CMD
+INSTALL ...`) with the following call within the R environment:
+
+```R
+install.packages(pkgs = "ExtremeDeconvolution_1.3.tar.gz",repos = NULL)
+```
+
+This assumes that the R working directory is the same as the root of
+this git repository.
+   
 To test whether the code and the python wrapper is working do::
 
    make testpy
