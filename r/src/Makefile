@@ -10,5 +10,3 @@ obj: ; $(CC) $(CFLAGS) $(PKG_CFLAGS) -c $(SRC_FILES)
 
 .PHONY: obj
 
-clean:
-	rm -f *.o *.so *.rds

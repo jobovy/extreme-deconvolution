@@ -148,7 +148,7 @@ Installation FAQ
 
 * *Problems with clang*
 
-  On Macs with OS X >= 10.9, gcc is no longer the default compiler, which is instead clang (although confusingly, gcc points to clang!). Clang does not have support for OpenMP (yet) and the code will therefore only run on a single CPU. To use the OpenMP parallelized version of the code, install gcc yourself and make sure that the Makefile is using it (using the CC variable).
+  On Macs with OS X >= 10.9, gcc is no longer the default compiler, which is instead clang (although confusingly, gcc points to clang!). Clang does not have support for OpenMP (yet) and the code will therefore only run on a single CPU. To use the OpenMP parallelized version of the code, install gcc yourself and make sure that the Makefile is using it (using the CC variable). One recommended option is to install gcc with openmp using Homebrew; e.g. `brew install gcc@4.8`
 
 Acknowledgments
 -----------------
