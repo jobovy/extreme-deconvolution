@@ -91,13 +91,15 @@ To install the R package do::
 
 Fix the version number as needed. Note that options for compiling
 packages in R are specified through the ``Makevars`` file, which
-should typically be located at ``~/.R/Makevarse``. For more
-details on customzing R package installation, see `here <https://cran.r-project.org/doc/manuals/r-release/R-admin.html#Customizing-package-compilation>`__.
-
-Alternatively, you may find that it
-is more convenient to use the `install.packages()` function in R to
-install the package. In that case, replace the second step (``R CMD
-INSTALL ...``) with the following call within the R environment ::
+should typically be located at ``~/.R/Makevars``. For example, if you
+need to override the default C compiler to ``gcc-4.9``, you would add
+line ``CC=gcc-4.9`` to the Makevars file before building the package.
+For more details on customzing R package installation, see `here
+<http://cran.r-project.org/doc/manuals/r-release/R-admin.html#Customizing-package-compilation>`__.
+Alternatively, you may find that it is more convenient to use the
+`install.packages()` function in R to install the package. In that
+case, replace the second step (``R CMD INSTALL ...``) with the
+following call within your R environment ::
 
    install.packages(pkgs = "ExtremeDeconvolution_1.3.tar.gz",repos = NULL)
 
@@ -164,7 +166,7 @@ Installation FAQ
 
 * *Problems with clang*
 
-  On Macs with OS X >= 10.9, gcc is no longer the default compiler, which is instead clang (although confusingly, gcc points to clang!). Clang does not have support for OpenMP (yet) and the code will therefore only run on a single CPU. To use the OpenMP parallelized version of the code, install gcc yourself and make sure that the Makefile is using it (using the CC variable). One recommended option is to install gcc with openmp using Homebrew; e.g. `brew install gcc@4.8`
+  On Macs with OS X >= 10.9, gcc is no longer the default compiler, which is instead clang (although confusingly, gcc points to clang!). Clang does not have support for OpenMP (yet) and the code will therefore only run on a single CPU. To use the OpenMP parallelized version of the code, install gcc yourself and make sure that the Makefile is using it (using the CC variable). One recommended option on a Mac is to install gcc with openmp using `Homebrew <http://brew.sh>`__; e.g., after installing Homebrew on your Mac, run ``brew install gcc@4.9``, then set ``CC=gcc-4.9`` in the Makefile for this repository.
 
 Acknowledgments
 -----------------
