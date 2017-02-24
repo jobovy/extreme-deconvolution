@@ -18,7 +18,7 @@ News
 
 * **2016/11/04**: Check out the `XDGMM <https://github.com/tholoien/XDGMM>`__ wrapper class, which allows fitting, model selection, resampling, and conditioning of the Gaussian mixture model. Also check out the `astroML <http://www.astroml.org/index.html>`__ alternative implementation of the XD algorithm (Python only).
 
-* **2015/08/17**: An interface in R was added by `@gaow <https://github.com/gaow>`__. See the updated `Installation notes <https://github.com/gaow/extreme-deconvolution#installation>`__ and `Usage notes <https://github.com/gaow/extreme-deconvolution#usage>`__ below.
+* **2015/08/17**: An interface in R was added by `@gaow <https://github.com/gaow>`__. See the updated "Installation notes" and "Usage notes" below.
 
 * **2014/01/17**: Code was migrated to github; previous news refers to the googlecode version.
 
