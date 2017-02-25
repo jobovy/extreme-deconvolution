@@ -1,5 +1,6 @@
 INSTALL_DIR=/usr/local/lib/
 RM= /bin/rm -vf
+R_EXEC=R
 PYTHON=python
 IDL=idl
 ARCH=UNDEFINED
@@ -117,8 +118,8 @@ pywrapper:
 rpackage:
 	cp src/*.h src/*.c r/src
 	patch r/src/proj_gauss_mixtures_IDL.c < r/src/proj_gauss_mixtures_R.patch
-	R CMD build r --no-manual
-	R CMD check ExtremeDeconvolution_*.tar.gz --no-manual -o $(shell mktemp -d tmp.XXXX)
+	$(R_EXEC) CMD build r --no-manual
+	$(R_EXEC) CMD check ExtremeDeconvolution_*.tar.gz --no-manual -o $(shell mktemp -d tmp.XXXX)
 	rm -f r/src/*.h r/src/*.c
 
 #
