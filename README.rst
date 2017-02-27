@@ -86,6 +86,7 @@ Add INSTALL_DIR=/path/to/install/dir/ if you used this to install the library
 
 To install the R package do::
 
+   make
    make rpackage
    R CMD INSTALL ExtremeDeconvolution_1.3.tar.gz
 
@@ -93,8 +94,10 @@ Fix the version number as needed. Note that options for compiling
 packages in R are specified through the ``Makevars`` file, which
 should typically be located at ``~/.R/Makevars``. For example, if you
 need to override the default C compiler to ``gcc-4.9``, you would add
-line ``CC=gcc-4.9`` to the Makevars file before building the package.
-For more details on customzing R package installation, see `here
+line ``CC=gcc-4.9`` to the Makevars file before building the
+package. (You also need to make sure that the proper ``CC`` is set in
+the main ``Makefile`` as well.)  For more details on customzing R package
+installation, see `here
 <http://cran.r-project.org/doc/manuals/r-release/R-admin.html#Customizing-package-compilation>`__.
 Alternatively, you may find that it is more convenient to use the
 `install.packages()` function in R to install the package. In that
