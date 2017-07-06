@@ -26,7 +26,7 @@ def _fix2chararray(fix,ngauss):
     else: #fix is set
         try:
             if len(fix) == 1 and ngauss != 1:
-                fixamp= [chr(fixamp[0]) for kk in range(ngauss)]
+                fix= [chr(fix[0]) for kk in range(ngauss)]
             else: #We assume all values are set
                 fix= [chr(fix[kk]) for kk in range(ngauss)]
         except TypeError: #fixamp == Bool
