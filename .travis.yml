@@ -40,7 +40,7 @@ script:
 after_success:
 # Codecov
  # Generate lcov output 
- - lcov --capture --base-directory .. --directory src/ --no-external --output-file coverage_full.info
+ - lcov --capture --directory $HOME/build/jobovy/extreme-deconvolution/src/ --no-external --output-file coverage_full.info
  # Codecov
  - if [[ $TRAVIS_PYTHON_VERSION == '2.7' && $CC == 'gcc' ]]; then bash <(curl -s https://codecov.io/bash); fi
 notifications:
