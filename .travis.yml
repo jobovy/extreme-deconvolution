@@ -7,7 +7,6 @@ env:
     - TRAVIS_PYTHON_VERSION=2.7
     - TRAVIS_PYTHON_VERSION=3.5
 addons:
-sources:
   apt:
     sources:
       - deadsnakes
