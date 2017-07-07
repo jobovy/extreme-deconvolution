@@ -18,7 +18,7 @@ News
 
 * **2016/11/04**: Check out the `XDGMM <https://github.com/tholoien/XDGMM>`__ wrapper class, which allows fitting, model selection, resampling, and conditioning of the Gaussian mixture model. Also check out the `astroML <http://www.astroml.org/index.html>`__ alternative implementation of the XD algorithm (Python only).
 
-* **2015/08/17**: An interface in R was added by `@gaow <https://github.com/gaow>`__. See the updated `Installation notes <https://github.com/gaow/extreme-deconvolution#installation>`__ and `Usage notes <https://github.com/gaow/extreme-deconvolution#usage>`__ below.
+* **2015/08/17**: An interface in R was added by `@gaow <https://github.com/gaow>`__. See the updated "Installation notes" and "Usage notes" below.
 
 * **2014/01/17**: Code was migrated to github; previous news refers to the googlecode version.
 
@@ -86,8 +86,29 @@ Add INSTALL_DIR=/path/to/install/dir/ if you used this to install the library
 
 To install the R package do::
 
+   make
    make rpackage
+   R CMD INSTALL ExtremeDeconvolution_1.3.tar.gz
 
+Fix the version number as needed. Note that options for compiling
+packages in R are specified through the ``Makevars`` file, which
+should typically be located at ``~/.R/Makevars``. For example, if you
+need to override the default C compiler to ``gcc-4.9``, you would add
+line ``CC=gcc-4.9`` to the Makevars file before building the
+package. (You also need to make sure that the proper ``CC`` is set in
+the main ``Makefile`` as well.)  For more details on customzing R package
+installation, see `here
+<http://cran.r-project.org/doc/manuals/r-release/R-admin.html#Customizing-package-compilation>`__.
+Alternatively, you may find that it is more convenient to use the
+`install.packages()` function in R to install the package. In that
+case, replace the second step (``R CMD INSTALL ...``) with the
+following call within your R environment ::
+
+   install.packages(pkgs = "ExtremeDeconvolution_1.3.tar.gz",repos = NULL)
+
+This assumes that the R working directory is the same as the root of
+this git repository.
+   
 To test whether the code and the python wrapper is working do::
 
    make testpy
@@ -148,7 +169,7 @@ Installation FAQ
 
 * *Problems with clang*
 
-  On Macs with OS X >= 10.9, gcc is no longer the default compiler, which is instead clang (although confusingly, gcc points to clang!). Clang does not have support for OpenMP (yet) and the code will therefore only run on a single CPU. To use the OpenMP parallelized version of the code, install gcc yourself and make sure that the Makefile is using it (using the CC variable).
+  On Macs with OS X >= 10.9, gcc is no longer the default compiler, which is instead clang (although confusingly, gcc points to clang!). Clang does not have support for OpenMP (yet) and the code will therefore only run on a single CPU. To use the OpenMP parallelized version of the code, install gcc yourself and make sure that the Makefile is using it (using the CC variable). One recommended option on a Mac is to install gcc with openmp using `Homebrew <http://brew.sh>`__; e.g., after installing Homebrew on your Mac, run ``brew install gcc@4.9``, then set ``CC=gcc-4.9`` in the Makefile for this repository.
 
 Acknowledgments
 -----------------

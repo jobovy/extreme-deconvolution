@@ -1,11 +1,12 @@
 INSTALL_DIR=/usr/local/lib/
 RM= /bin/rm -vf
+R_EXEC=R
 PYTHON=python
 IDL=idl
 ARCH=UNDEFINED
 
 ifeq ($(CC),)
-	CC= gcc
+  CC=gcc
 endif
 
 EDCFLAGS:= $(CFLAGS) -fopenmp
@@ -117,10 +118,10 @@ pywrapper:
 rpackage:
 	cp src/*.h src/*.c r/src
 	patch r/src/proj_gauss_mixtures_IDL.c < r/src/proj_gauss_mixtures_R.patch
-	R CMD check r --no-manual -o $(shell mktemp -d tmp.XXXX)
-	R CMD build r --no-manual
+	$(R_EXEC) CMD build r --no-manual
+	$(R_EXEC) CMD check ExtremeDeconvolution_*.tar.gz --no-manual -o $(shell mktemp -d tmp.XXXX)
 	rm -f r/src/*.h r/src/*.c
-	((R CMD INSTALL ExtremeDeconvolution_*.tar.gz -l $(shell echo "cat(.libPaths()[1])" | R --slave) && rm -rf tmp.*) || ($(ECHO) "Please install the package manually with proper library path specified, e.g., R CMD INSTALL ExtremeDeconvolution_<version>.tar.gz -l /path/to/your/R/library/directory"))
+
 #
 # TEST THE INSTALLATION
 #
