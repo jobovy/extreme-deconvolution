@@ -106,6 +106,38 @@ def test_fixamp_alt_dual_gauss_1d_nounc():
     assert numpy.fabs(initcovar[second]-4.) < 2.*tol, 'XD does not recover correct variance for dual Gaussian w/o uncertainties, fixing amp'
     return None
 
+def test_fixamp_alt2_dual_gauss_1d_nounc():
+    # Generate data from two Gaussians, recover mean and variance
+    ndata= 3001
+    amp_true= 0.3
+    assign= numpy.random.binomial(1,1.-amp_true,ndata)
+    ydata= numpy.zeros((ndata,1))
+    ydata[assign==0,0]= numpy.random.normal(size=numpy.sum(assign==0))-2.
+    ydata[assign==1,0]= numpy.random.normal(size=numpy.sum(assign==1))*2.+1.
+    ycovar= numpy.zeros_like(ydata)
+    # initialize fit
+    K= 2
+    initamp= numpy.array([amp_true,1.-amp_true])
+    initmean= numpy.array([[-1.],[2.]])
+    initcovar= numpy.zeros((K,1,1))
+    numpy.random.uniform() # hack to get diff init
+    for kk in range(K):
+        initcovar[kk]= numpy.mean(3.*numpy.var(ydata))
+    # Run XD
+    extreme_deconvolution(ydata,ycovar,initamp,initmean,initcovar,
+                          fixamp=[1]) # should be same as =True
+    # Test
+    tol= 12./numpy.sqrt(ndata)
+    first= initamp < 0.5
+    assert numpy.fabs(initamp[first]-amp_true) < 10.**-10., 'XD did not fixamp for dual Gaussian w/o uncertainties'
+    assert numpy.fabs(initmean[first]--2.) < tol, 'XD does not recover correct mean for dual Gaussian w/o uncertainties, fixing amp'
+    assert numpy.fabs(initcovar[first]-1.) < tol, 'XD does not recover correct variance for dual Gaussian w/o uncertainties, fixing amp'
+    second= initamp >= 0.5
+    assert numpy.fabs(initamp[second]-(1.-amp_true)) < 10.**-10., 'XD did not fixamp for dual Gaussian w/o uncertainties'
+    assert numpy.fabs(initmean[second]-1.) < 2.*tol, 'XD does not recover correct mean for dual Gaussian w/o uncertainties, fixing amp'
+    assert numpy.fabs(initcovar[second]-4.) < 2.*tol, 'XD does not recover correct variance for dual Gaussian w/o uncertainties, fixing amp'
+    return None
+
 def test_fixmean_dual_gauss_1d_nounc():
     # Generate data from two Gaussians, recover mean and variance
     ndata= 3001
