@@ -17,7 +17,7 @@ def test_single_gauss_2d_nounc():
     # Run XD
     extreme_deconvolution(ydata,ycovar,initamp,initmean,initcovar)
     # Test
-    tol= 5./numpy.sqrt(ndata)
+    tol= 10./numpy.sqrt(ndata)
     assert numpy.fabs(initmean[0,0]-1.) < tol, 'XD does not recover correct mean for single Gaussian in 2D w/o uncertainties'
     assert numpy.fabs(initmean[0,1]-2.) < tol, 'XD does not recover correct mean for single Gaussian in 2D w/o uncertainties'
     assert numpy.fabs(initcovar[0,0,0]-1.) < tol, 'XD does not recover correct variance for single Gaussian in 2D w/o uncertainties'
@@ -41,7 +41,7 @@ def test_single_gauss_2d_diagunc():
     # Run XD
     extreme_deconvolution(ydata,ycovar,initamp,initmean,initcovar)
     # Test
-    tol= 5./numpy.sqrt(ndata)
+    tol= 10./numpy.sqrt(ndata)
     assert numpy.fabs(initmean[0,0]-1.) < tol, 'XD does not recover correct mean for single Gaussian in 2D w/o uncertainties'
     assert numpy.fabs(initmean[0,1]-2.) < tol, 'XD does not recover correct mean for single Gaussian in 2D w/o uncertainties'
     assert numpy.fabs(initcovar[0,0,0]-1.) < tol, 'XD does not recover correct variance for single Gaussian in 2D w/o uncertainties'
@@ -68,7 +68,7 @@ def test_single_gauss_2d_offdiagunc():
     # Run XD
     extreme_deconvolution(ydata,ycovar,initamp,initmean,initcovar)
     # Test
-    tol= 5./numpy.sqrt(ndata)
+    tol= 10./numpy.sqrt(ndata)
     assert numpy.fabs(initmean[0,0]-1.) < tol, 'XD does not recover correct mean for single Gaussian in 2D w/o uncertainties'
     assert numpy.fabs(initmean[0,1]-2.) < tol, 'XD does not recover correct mean for single Gaussian in 2D w/o uncertainties'
     assert numpy.fabs(initcovar[0,0,0]-1.) < tol, 'XD does not recover correct variance for single Gaussian in 2D w/o uncertainties'
@@ -104,7 +104,7 @@ def test_single_gauss_2d_diagunc_proj():
                           projection=projection)
     print(initmean,initcovar)
     # Test
-    tol= 5./numpy.sqrt(ndata)
+    tol= 10./numpy.sqrt(ndata)
     assert numpy.fabs(initmean[0,0]-1.) < tol, 'XD does not recover correct mean for single Gaussian in 2D w/o uncertainties'
     assert numpy.fabs(initmean[0,1]-2.) < tol, 'XD does not recover correct mean for single Gaussian in 2D w/o uncertainties'
     assert numpy.fabs(initcovar[0,0,0]-1.) < tol, 'XD does not recover correct variance for single Gaussian in 2D w/o uncertainties'
