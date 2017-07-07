@@ -1,7 +1,7 @@
 language: c
 compiler:
-  - clang
   - gcc
+  - clang
 env:
   matrix:
     - TRAVIS_PYTHON_VERSION=2.7
@@ -40,9 +40,9 @@ script:
 after_success:
 # Codecov
  # Generate lcov output 
- - lcov --capture --base-directory . --directory $HOME/extreme_deconvolution/src/ --no-external --output-file coverage_full.info
+ - lcov --capture --base-directory .. --directory src/ --no-external --output-file coverage_full.info
  # Codecov
- - if [[ $TRAVIS_PYTHON_VERSION == '2.7' && $CC == 'clang' ]]; then bash <(curl -s https://codecov.io/bash); fi
+ - if [[ $TRAVIS_PYTHON_VERSION == '2.7' && $CC == 'gcc' ]]; then bash <(curl -s https://codecov.io/bash); fi
 notifications:
   email:
     recipients:
