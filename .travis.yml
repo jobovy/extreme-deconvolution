@@ -36,7 +36,7 @@ install:
 script:
  - export PYTHONPATH=$PYTHONPATH:$PWD/py
  - cd tests/
- - pytest -v test_basic.py --cov=extreme_deconvolution --cov-config .coveragerc_travis
+ - pytest -v test_basic.py --cov=extreme_deconvolution --cov-config ../.coveragerc_travis
 after_success:
 # Codecov
  # Generate lcov output 
