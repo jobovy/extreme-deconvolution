@@ -10,7 +10,7 @@ addons:
 before_install:
  - mkdir $HOME/usr
  - mkdir $HOME/usr/lib
- - pip install pytest-cov --install-option="--prefix=~/usr"
+ - pip install -U --no-deps pytest-cov --install-option="--prefix=~/usr"
 install:
  - make
  - make install INSTALL_DIR=$HOME/usr/lib
