@@ -25,6 +25,7 @@ install:
  - make pywrapper
 script:
  - cd tests/
+ - export PYTHONPATH=$PYTHONPATH:~/Repos/extreme-deconvolution/py
  - pytest -v test_basic.py
 notifications:
   email:
