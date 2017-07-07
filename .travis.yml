@@ -8,11 +8,8 @@ env:
     - TRAVIS_PYTHON_VERSION=3.5
 addons:
   apt:
-    sources:
-      - deadsnakes
     packages:
      - libgsl0-dev
-     - python$PYTHON_TRAVIS_VERSION
 before_install:
  #Setup conda for faster installs
  - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
