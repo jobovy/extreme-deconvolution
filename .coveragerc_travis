@@ -12,6 +12,9 @@ exclude_lines =
     if 0:
     if __name__ == .__main__.:
 
+    # Dont' complain about Python3 specific code
+    if _PY3:
+
 ignore_errors = True
 
 [html]
