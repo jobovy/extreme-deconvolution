@@ -33,9 +33,9 @@ install:
  - make COVERAGE=1
  - sudo make install
  - make pywrapper
-script:
  - export PYTHONPATH=$PYTHONPATH:$PWD/py
  - cd tests/
+script:
  - pytest -v test_oned.py test_twod.py test_fix.py --cov=extreme_deconvolution --cov-config ../.coveragerc_travis
 after_success:
 # Codecov
