@@ -4,6 +4,7 @@ R_EXEC=R
 PYTHON=python
 IDL=idl
 ARCH=UNDEFINED
+COVERAGE=0
 
 ifeq ($(CC),)
   CC=gcc
@@ -34,6 +35,10 @@ else
 endif
 TARGETLIB= libextremedeconvolution.$(LIBEXT)
 
+ifeq ($(COVERAGE),1)
+	EDCFLAGS:= -O0 --coverage $(EDCFLAGS)
+	EDLDFLAGS:= --coverage $(EDLDFLAGS)
+endif
 
 proj_gauss_mixtures_objects= src/bovy_randvec.o \
 	src/calc_splitnmerge.o src/logsum.o src/minmax.o\
