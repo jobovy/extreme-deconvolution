@@ -1,3 +1,4 @@
+import sys
 import os, os.path, platform
 import ctypes
 import ctypes.util
@@ -19,9 +20,14 @@ if _lib is None: #Hack
 if _lib is None:
         raise IOError(_libraryname+' library not found')
 
+_PY3= sys.version_info[0] > 2
+if _PY3:
+    long= int
+    chr= lambda x: bytes([x]) # Back to python 2 chr...
+
 def _fix2chararray(fix,ngauss):
     """Internal function to process the fix* inputs"""
-    if fix == None:
+    if fix is None:
         fix= [chr(False) for kk in range(ngauss)]
     else: #fix is set
         try:
@@ -31,7 +37,10 @@ def _fix2chararray(fix,ngauss):
                 fix= [chr(fix[kk]) for kk in range(ngauss)]
         except TypeError: #fixamp == Bool
             fix= [chr(fix) for kk in range(ngauss)]
-    return ''.join(fix)
+    if _PY3:
+        return b''.join(fix)
+    else:
+        return ''.join(fix)
 
 def extreme_deconvolution(ydata,ycovar,
                           xamp,xmean,xcovar,
@@ -357,7 +366,7 @@ def extreme_deconvolution(ydata,ycovar,
 
     avgloglikedata= ctypes.pointer(ctypes.c_double(0.))
 
-    if logfile == None:
+    if logfile is None:
         clog= ''
         clog2= ''
         n_clog= 0
@@ -367,17 +376,20 @@ def extreme_deconvolution(ydata,ycovar,
         n_clog= len(clog)
         clog2= logfile + '_loglike.log'
         n_clog2= len(clog2)
+    if _PY3:
+        clog= clog.encode('utf8')
+        clog2= clog2.encode('utf8')
 
     if maxsnm:
         splitnmerge = long(ngauss*(ngauss-1)*(ngauss-2)/2)
 
-    if projection == None:
+    if projection is None:
         noprojection= True
         projection= nu.zeros(1)
     else:
         noprojection= False
         
-    if weight == None:
+    if weight is None:
         noweight= True
         logweights= nu.zeros(1)
     elif not logweight:
