@@ -4,9 +4,14 @@ compiler:
   - gcc
 before_install:
  - sudo apt-get install libgsl0-dev
+ - pip install pytest-cov
 install:
  - make
-script: true
+ - make install
+ - make pywrapper
+script:
+ - cd tests/
+ - pytest -v test_basic.py --cov py
 notifications:
   email:
     recipients:
