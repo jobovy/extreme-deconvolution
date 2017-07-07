@@ -23,7 +23,7 @@ before_install:
  - conda update -q conda
  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION numpy scipy matplotlib setuptools pip pytest
  - source activate test-environment
- - sudo pip install pytest-cov
+ - pip install pytest-cov
 install:
  - make
  - sudo make install
