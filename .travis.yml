@@ -23,6 +23,7 @@ before_install:
  - conda update -q conda
  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION numpy scipy matplotlib setuptools pip pytest
  - source activate test-environment
+ - sudo pip install pytest-cov
 install:
  - make
  - sudo make install
@@ -30,7 +31,7 @@ install:
 script:
  - export PYTHONPATH=$PYTHONPATH:$PWD/py
  - cd tests/
- - pytest -v test_basic.py
+ - pytest -v test_basic.py --cov=extreme_deconvolution
 notifications:
   email:
     recipients:
