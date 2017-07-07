@@ -29,6 +29,9 @@ script:
  - export PYTHONPATH=$PYTHONPATH:$PWD/py
  - cd tests/
  - pytest -v test_basic.py --cov=extreme_deconvolution
+after_success:
+# Codecov
+ - if [[ $TRAVIS_PYTHON_VERSION == '2.7' && $CC == 'clang']]; then bash <(curl -s https://codecov.io/bash); fi
 notifications:
   email:
     recipients:
