@@ -1,14 +1,20 @@
+sudo: false
 language: c
 compiler:
   - clang
   - gcc
+addons:
+  apt:
+    packages:
+     - libgsl0-dev
 before_install:
- - sudo apt-get install libgsl0-dev
- - pip install pytest-cov
+ - mkdir $HOME/usr
+ - mkdir $HOME/usr/lib
+ - pip install pytest-cov --install-option="--prefix=~/usr"
 install:
  - make
- - make install
- - make pywrapper
+ - make install INSTALL_DIR=$HOME/usr/lib
+ - make pywrapper INSTALL_DIR=$HOME/usr/lib
 script:
  - cd tests/
  - pytest -v test_basic.py --cov py
