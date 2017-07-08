@@ -21,7 +21,7 @@ if _lib is None:
         raise IOError(_libraryname+' library not found')
 
 _PY3= sys.version_info[0] > 2
-if _PY3:
+if _PY3: #pragma: no cover
     long= int
     chr= lambda x: bytes([x]) # Back to python 2 chr...
 
@@ -37,7 +37,7 @@ def _fix2chararray(fix,ngauss):
                 fix= [chr(fix[kk]) for kk in range(ngauss)]
         except TypeError: #fixamp == Bool
             fix= [chr(fix) for kk in range(ngauss)]
-    if _PY3:
+    if _PY3: #pragma: no cover
         return b''.join(fix)
     else:
         return ''.join(fix)
@@ -376,7 +376,7 @@ def extreme_deconvolution(ydata,ycovar,
         n_clog= len(clog)
         clog2= logfile + '_loglike.log'
         n_clog2= len(clog2)
-    if _PY3:
+    if _PY3: #pragma: no cover
         clog= clog.encode('utf8')
         clog2= clog2.encode('utf8')
 
@@ -487,6 +487,6 @@ def extreme_deconvolution(ydata,ycovar,
 
     return avgloglikedata.contents.value
 
-if __name__ == '__main__':
+if __name__ == '__main__': #pragma: no cover
     import doctest
     doctest.testmod(verbose=True)
