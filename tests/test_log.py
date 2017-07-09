@@ -39,7 +39,7 @@ def test_single_gauss_1d_varunc_log():
 def test_triple_gauss_1d_varunc_snm_log():
     # Like in oned, but also log
     ndata= 3001
-    amp_true= [0.3,0.1,0.6]
+    amp_true= [0.1,0.3,0.6]
     assign= numpy.random.choice(numpy.arange(3),p=amp_true,size=ndata)
     ydata= numpy.zeros((ndata,1))
     ydata[assign==0,0]= numpy.random.normal(size=numpy.sum(assign==0))-4.
@@ -68,12 +68,12 @@ def test_triple_gauss_1d_varunc_snm_log():
     assert numpy.fabs(initcovar[first]-1.5**2.) < tol, 'XD does not recover correct variance for triple Gaussian w/ uncertainties'
     second= (initamp <= 0.5)*(initamp > 0.2)
     assert numpy.fabs(initamp[second]-amp_true[0]) < tol, 'XD does not recover correct amp for triple Gaussian w/  uncertainties'
-    assert numpy.fabs(initmean[second]--4.) < 2.*tol, 'XD does not recover correct mean for triple Gaussian w/  uncertainties'
-    assert numpy.fabs(initcovar[second]-1.) < 2.*tol, 'XD does not recover correct variance for triple Gaussian w/  uncertainties'
+    assert numpy.fabs(initmean[second]-1.) < 4.*tol, 'XD does not recover correct mean for triple Gaussian w/  uncertainties'
+    assert numpy.fabs(initcovar[second]-4.) < 4.*tol, 'XD does not recover correct variance for triple Gaussian w/  uncertainties'
     third= (initamp <= 0.2)
     assert numpy.fabs(initamp[third]-amp_true[1]) < tol, 'XD does not recover correct amp for triple Gaussian w/  uncertainties'
-    assert numpy.fabs(initmean[third]-1.) < 4.*tol, 'XD does not recover correct mean for triple Gaussian w/  uncertainties'
-    assert numpy.fabs(initcovar[third]-4.) < 6.*tol, 'XD does not recover correct variance for triple Gaussian w/  uncertainties'
+    assert numpy.fabs(initmean[third]--4.) < 2.*tol, 'XD does not recover correct mean for triple Gaussian w/  uncertainties'
+    assert numpy.fabs(initcovar[third]-1.) < 2.*tol, 'XD does not recover correct variance for triple Gaussian w/  uncertainties'
     # Now test that the logfiles exist
     assert os.path.exists(logfile+'_c.log'), 'XD did not produce _c.log logfile when asked'
     num_lines= sum(1 for line in open(logfile+'_c.log'))
