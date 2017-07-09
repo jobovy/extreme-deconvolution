@@ -157,7 +157,7 @@ def test_dual_gauss_1d_varunc():
     assert numpy.fabs(initcovar[second]-4.) < 2.*tol, 'XD does not recover correct variance for dual Gaussian w/  uncertainties'
     return None
 
-def test_triple_gauss_1d_varunc():
+def test_triple_gauss_1d_varunc_alsow():
     # Generate data from two Gaussians, recover mean and variance
     ndata= 3001
     amp_true= [0.3,0.1,0.6]
@@ -177,8 +177,8 @@ def test_triple_gauss_1d_varunc():
     initcovar= numpy.zeros((K,1,1))
     for kk in range(K):
         initcovar[kk]= numpy.mean(3.*numpy.var(ydata))
-    # Run XD
-    extreme_deconvolution(ydata,ycovar,initamp,initmean,initcovar)
+    # Run XD, w shouldn't make much difference
+    extreme_deconvolution(ydata,ycovar,initamp,initmean,initcovar,w=0.1)
     # Test
     tol= 25./numpy.sqrt(ndata)
     first= initamp > 0.5
