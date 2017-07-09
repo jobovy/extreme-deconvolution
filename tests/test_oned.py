@@ -148,12 +148,91 @@ def test_dual_gauss_1d_varunc():
     # Test
     tol= 20./numpy.sqrt(ndata)
     first= initamp < 0.5
-    assert numpy.fabs(initamp[first]-amp_true) < tol, 'XD does not recover correct amp for dual Gaussian w/ constant uncertainties'
-    assert numpy.fabs(initmean[first]--2.) < tol, 'XD does not recover correct mean for dual Gaussian w/ constant uncertainties'
-    assert numpy.fabs(initcovar[first]-1.) < tol, 'XD does not recover correct variance for dual Gaussian w/ constant uncertainties'
+    assert numpy.fabs(initamp[first]-amp_true) < tol, 'XD does not recover correct amp for dual Gaussian w/  uncertainties'
+    assert numpy.fabs(initmean[first]--2.) < tol, 'XD does not recover correct mean for dual Gaussian w/  uncertainties'
+    assert numpy.fabs(initcovar[first]-1.) < tol, 'XD does not recover correct variance for dual Gaussian w/  uncertainties'
     second= initamp >= 0.5
-    assert numpy.fabs(initamp[second]-(1.-amp_true)) < tol, 'XD does not recover correct amp for dual Gaussian w/ constant uncertainties'
-    assert numpy.fabs(initmean[second]-1.) < 2.*tol, 'XD does not recover correct mean for dual Gaussian w/ constant uncertainties'
-    assert numpy.fabs(initcovar[second]-4.) < 2.*tol, 'XD does not recover correct variance for dual Gaussian w/ constant uncertainties'
+    assert numpy.fabs(initamp[second]-(1.-amp_true)) < tol, 'XD does not recover correct amp for dual Gaussian w/  uncertainties'
+    assert numpy.fabs(initmean[second]-1.) < 2.*tol, 'XD does not recover correct mean for dual Gaussian w/  uncertainties'
+    assert numpy.fabs(initcovar[second]-4.) < 2.*tol, 'XD does not recover correct variance for dual Gaussian w/  uncertainties'
+    return None
+
+def test_triple_gauss_1d_varunc():
+    # Generate data from two Gaussians, recover mean and variance
+    ndata= 3001
+    amp_true= [0.3,0.1,0.6]
+    assign= numpy.random.choice(numpy.arange(3),p=amp_true,size=ndata)
+    ydata= numpy.zeros((ndata,1))
+    ydata[assign==0,0]= numpy.random.normal(size=numpy.sum(assign==0))-4.
+    ydata[assign==1,0]= numpy.random.normal(size=numpy.sum(assign==1))*2.+1.
+    ydata[assign==2,0]= numpy.random.normal(size=numpy.sum(assign==2))*1.5+8.
+    ycovar= numpy.ones_like(ydata)*\
+        numpy.atleast_2d(numpy.random.uniform(size=ndata)).T
+    ydata+= numpy.atleast_2d(numpy.random.normal(size=ndata)).T\
+        *numpy.sqrt(ycovar)
+    # initialize fit
+    K= 3
+    initamp= numpy.ones(K)/float(K)
+    initmean= numpy.array([[-1.],[0.],[1.]])
+    initcovar= numpy.zeros((K,1,1))
+    for kk in range(K):
+        initcovar[kk]= numpy.mean(3.*numpy.var(ydata))
+    # Run XD
+    extreme_deconvolution(ydata,ycovar,initamp,initmean,initcovar)
+    # Test
+    tol= 25./numpy.sqrt(ndata)
+    first= initamp > 0.5
+    assert numpy.fabs(initamp[first]-amp_true[2]) < tol, 'XD does not recover correct amp for triple Gaussian w/ uncertainties'
+    assert numpy.fabs(initmean[first]-8.) < tol, 'XD does not recover correct mean for triple Gaussian w/ uncertainties'
+    assert numpy.fabs(initcovar[first]-1.5**2.) < tol, 'XD does not recover correct variance for triple Gaussian w/ uncertainties'
+    second= (initamp <= 0.5)*(initamp > 0.2)
+    assert numpy.fabs(initamp[second]-amp_true[0]) < tol, 'XD does not recover correct amp for triple Gaussian w/  uncertainties'
+    assert numpy.fabs(initmean[second]--4.) < 2.*tol, 'XD does not recover correct mean for triple Gaussian w/  uncertainties'
+    assert numpy.fabs(initcovar[second]-1.) < 2.*tol, 'XD does not recover correct variance for triple Gaussian w/  uncertainties'
+    third= (initamp <= 0.2)
+    assert numpy.fabs(initamp[third]-amp_true[1]) < tol, 'XD does not recover correct amp for triple Gaussian w/  uncertainties'
+    assert numpy.fabs(initmean[third]-1.) < 4.*tol, 'XD does not recover correct mean for triple Gaussian w/  uncertainties'
+    assert numpy.fabs(initcovar[third]-4.) < 4.*tol, 'XD does not recover correct variance for triple Gaussian w/  uncertainties'
+    return None
+
+def test_triple_gauss_1d_varunc_snm():
+    # Generate data from two Gaussians, recover mean and variance
+    # Also run split-and-merge
+    ndata= 3001
+    amp_true= [0.3,0.1,0.6]
+    assign= numpy.random.choice(numpy.arange(3),p=amp_true,size=ndata)
+    ydata= numpy.zeros((ndata,1))
+    ydata[assign==0,0]= numpy.random.normal(size=numpy.sum(assign==0))-4.
+    ydata[assign==1,0]= numpy.random.normal(size=numpy.sum(assign==1))*2.+1.
+    ydata[assign==2,0]= numpy.random.normal(size=numpy.sum(assign==2))*1.5+8.
+    ycovar= numpy.ones_like(ydata)*\
+        numpy.atleast_2d(numpy.random.uniform(size=ndata)).T
+    ydata+= numpy.atleast_2d(numpy.random.normal(size=ndata)).T\
+        *numpy.sqrt(ycovar)
+    # initialize fit
+    K= 3
+    initamp= numpy.ones(K)/float(K)
+    initmean= numpy.array([[-1.],[0.],[1.]])
+    initcovar= numpy.zeros((K,1,1))
+    for kk in range(K):
+        initcovar[kk]= numpy.mean(3.*numpy.var(ydata))
+    # Run XD
+    extreme_deconvolution(ydata,ycovar,initamp,initmean,initcovar,
+                          maxsnm=True)
+    print(initamp,initmean,numpy.sqrt(initcovar))
+    # Test
+    tol= 25./numpy.sqrt(ndata)
+    first= initamp > 0.5
+    assert numpy.fabs(initamp[first]-amp_true[2]) < tol, 'XD does not recover correct amp for triple Gaussian w/ uncertainties'
+    assert numpy.fabs(initmean[first]-8.) < tol, 'XD does not recover correct mean for triple Gaussian w/ uncertainties'
+    assert numpy.fabs(initcovar[first]-1.5**2.) < tol, 'XD does not recover correct variance for triple Gaussian w/ uncertainties'
+    second= (initamp <= 0.5)*(initamp > 0.2)
+    assert numpy.fabs(initamp[second]-amp_true[0]) < tol, 'XD does not recover correct amp for triple Gaussian w/  uncertainties'
+    assert numpy.fabs(initmean[second]--4.) < 2.*tol, 'XD does not recover correct mean for triple Gaussian w/  uncertainties'
+    assert numpy.fabs(initcovar[second]-1.) < 2.*tol, 'XD does not recover correct variance for triple Gaussian w/  uncertainties'
+    third= (initamp <= 0.2)
+    assert numpy.fabs(initamp[third]-amp_true[1]) < tol, 'XD does not recover correct amp for triple Gaussian w/  uncertainties'
+    assert numpy.fabs(initmean[third]-1.) < 4.*tol, 'XD does not recover correct mean for triple Gaussian w/  uncertainties'
+    assert numpy.fabs(initcovar[third]-4.) < 4.*tol, 'XD does not recover correct variance for triple Gaussian w/  uncertainties'
     return None
 
