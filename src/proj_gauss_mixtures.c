@@ -132,7 +132,6 @@ void proj_gauss_mixtures(struct datapoint * data, int N,
   if (keeplog)
     fprintf(logfile,"#Initial proj_EM\n");
   //printf("Where's the segmentation fault?\n");
-  fflush(logfile);
   proj_EM(data,N,gaussians,K,fixamp_tmp,fixmean_tmp,fixcovar_tmp,
 	  avgloglikedata,tol,maxiter,likeonly,w,
 	  keeplog,logfile,convlogfile,noproj,diagerrs,noweight);
