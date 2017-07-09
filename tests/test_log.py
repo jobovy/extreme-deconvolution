@@ -36,6 +36,37 @@ def test_single_gauss_1d_varunc_log():
     os.remove(logfile+'_loglike.log')
     return None
 
+def test_single_gauss_1d_varunc_log_loglikeonly():
+    # Same as in test_oned, but now also log
+    ndata= 3001
+    ydata= numpy.atleast_2d(numpy.random.normal(size=ndata)).T
+    ycovar= numpy.ones_like(ydata)*\
+        numpy.atleast_2d(numpy.random.uniform(size=ndata)).T
+    ydata+= numpy.atleast_2d(numpy.random.normal(size=ndata)).T\
+        *numpy.sqrt(ycovar)
+    # initialize fit
+    K= 1
+    initamp= numpy.ones(K)
+    initmean= numpy.atleast_2d(numpy.mean(ydata)+numpy.std(ydata))
+    initcovar= numpy.atleast_3d(3.*numpy.var(ydata))
+    # Run XD
+    logfile= 'test_log'
+    extreme_deconvolution(ydata,ycovar,initamp,initmean,initcovar,
+                          logfile=logfile)
+    # First test that fit worked
+    tol= 10./numpy.sqrt(ndata)
+    assert numpy.fabs(initmean-0.) < tol, 'XD does not recover correct mean for single Gaussian w/ uncertainties'
+    assert numpy.fabs(initcovar-1.) < tol, 'XD does not recover correct variance for single Gaussian w/ uncertainties'
+    # Now compute the likelihood and check that it is the same as in the logfile
+    lnl= extreme_deconvolution(ydata,ycovar,initamp,initmean,initcovar,
+                               likeonly=True)
+    with open(logfile+'_loglike.log') as log:
+        lines= log.readlines()
+        assert numpy.fabs(float(lines[-3])-lnl) < 10.**-6., 'loglike computed using likeonly is not the same as in the logfile'
+    os.remove(logfile+'_c.log')
+    os.remove(logfile+'_loglike.log')
+    return None
+
 def test_triple_gauss_1d_varunc_snm_log():
     # Like in oned, but also log
     ndata= 3001
