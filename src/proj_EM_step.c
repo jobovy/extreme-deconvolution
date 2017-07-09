@@ -215,8 +215,10 @@ void proj_EM_step(struct datapoint * data, int N,
       }
   }
   *avgloglikedata /= N;
-  if (likeonly)
+  if (likeonly) {
+    free(allfixed);
     return;
+  }
   //gettimeofday(&time3,NULL);
 
   //gather newgaussians

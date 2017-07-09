@@ -1,3 +1,4 @@
+import sys
 import os, os.path, platform
 import ctypes
 import ctypes.util
@@ -5,33 +6,41 @@ import numpy as nu
 from numpy.ctypeslib import ndpointer
 #Find and load the library
 _lib = None
-if platform.system()=='Darwin':
+if platform.system()=='Darwin': #pragma: no cover
     _libraryname= 'libextremedeconvolution.dylib'
 else:
     _libraryname= 'libextremedeconvolution.so'
 _libname = ctypes.util.find_library(_libraryname)
-if _libname:
+if _libname: #pragma: no cover
     _lib = ctypes.CDLL(_libname)
 if _lib is None: #Hack
     p = os.path.join(TEMPLATE_LIBRARY_PATH,_libraryname)
     if os.path.exists(p):
         _lib = ctypes.CDLL(p)
-if _lib is None:
+if _lib is None: #pragma: no cover
         raise IOError(_libraryname+' library not found')
+
+_PY3= sys.version_info[0] > 2
+if _PY3: #pragma: no cover
+    long= int
+    chr= lambda x: bytes([x]) # Back to python 2 chr...
 
 def _fix2chararray(fix,ngauss):
     """Internal function to process the fix* inputs"""
-    if fix == None:
+    if fix is None:
         fix= [chr(False) for kk in range(ngauss)]
     else: #fix is set
         try:
             if len(fix) == 1 and ngauss != 1:
-                fixamp= [chr(fixamp[0]) for kk in range(ngauss)]
+                fix= [chr(fix[0]) for kk in range(ngauss)]
             else: #We assume all values are set
                 fix= [chr(fix[kk]) for kk in range(ngauss)]
         except TypeError: #fixamp == Bool
             fix= [chr(fix) for kk in range(ngauss)]
-    return ''.join(fix)
+    if _PY3: #pragma: no cover
+        return b''.join(fix)
+    else:
+        return ''.join(fix)
 
 def extreme_deconvolution(ydata,ycovar,
                           xamp,xmean,xcovar,
@@ -357,7 +366,7 @@ def extreme_deconvolution(ydata,ycovar,
 
     avgloglikedata= ctypes.pointer(ctypes.c_double(0.))
 
-    if logfile == None:
+    if logfile is None:
         clog= ''
         clog2= ''
         n_clog= 0
@@ -367,17 +376,20 @@ def extreme_deconvolution(ydata,ycovar,
         n_clog= len(clog)
         clog2= logfile + '_loglike.log'
         n_clog2= len(clog2)
+    if _PY3: #pragma: no cover
+        clog= clog.encode('utf8')
+        clog2= clog2.encode('utf8')
 
     if maxsnm:
         splitnmerge = long(ngauss*(ngauss-1)*(ngauss-2)/2)
 
-    if projection == None:
+    if projection is None:
         noprojection= True
         projection= nu.zeros(1)
     else:
         noprojection= False
         
-    if weight == None:
+    if weight is None:
         noweight= True
         logweights= nu.zeros(1)
     elif not logweight:
@@ -475,6 +487,6 @@ def extreme_deconvolution(ydata,ycovar,
 
     return avgloglikedata.contents.value
 
-if __name__ == '__main__':
+if __name__ == '__main__': #pragma: no cover
     import doctest
     doctest.testmod(verbose=True)

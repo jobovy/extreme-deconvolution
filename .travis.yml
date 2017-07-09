@@ -1,12 +1,48 @@
 language: c
 compiler:
-  - clang
   - gcc
+  - clang
+env:
+  matrix:
+    - TRAVIS_PYTHON_VERSION=2.7
+    - TRAVIS_PYTHON_VERSION=3.5
+addons:
+  apt:
+    packages:
+     - libgsl0-dev
 before_install:
- - sudo apt-get install libgsl0-dev
+ # Install lcov
+ - wget http://ftp.de.debian.org/debian/pool/main/l/lcov/lcov_1.11.orig.tar.gz
+ - tar xf lcov_1.11.orig.tar.gz
+ - mkdir $HOME/usr
+ - export PATH=$HOME/usr/bin:$PATH
+ - make -C lcov-1.11/ install PREFIX=$HOME
+ #Setup conda for faster installs
+ - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
+ - bash miniconda.sh -b -p $HOME/miniconda
+ - export PATH="$HOME/miniconda/bin:$PATH"
+ - hash -r
+ - conda config --set always_yes yes --set changeps1 no
+ - conda update -q conda
+ - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION numpy scipy matplotlib setuptools pip pytest
+ - source activate test-environment
+ - pip install 'coverage==4.1' --force-reinstall # necessary bc of backward incompatible change in 4.2 about combining reports
+ - pip install pytest-cov
+ - easy_install --upgrade requests
 install:
- - make
-script: true
+ - make COVERAGE=1
+ - sudo make install
+ - make pywrapper
+ - export PYTHONPATH=$PYTHONPATH:$PWD/py
+ - cd tests/
+script:
+ - pytest -v test_oned.py test_twod.py test_fix.py test_log.py --cov=extreme_deconvolution --cov-config ../.coveragerc_travis
+after_success:
+# Codecov
+ # Generate lcov output 
+ - lcov --capture --directory $HOME/build/jobovy/extreme-deconvolution/src/ --no-external --output-file coverage.info
+ # Codecov
+ - if [[ $TRAVIS_PYTHON_VERSION == '2.7' && $CC == 'gcc' ]]; then bash <(curl -s https://codecov.io/bash); fi
 notifications:
   email:
     recipients:
