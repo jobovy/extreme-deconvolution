@@ -235,3 +235,57 @@ def test_triple_gauss_1d_varunc_snm():
     assert numpy.fabs(initcovar[third]-4.) < 6.*tol, 'XD does not recover correct variance for triple Gaussian w/  uncertainties'
     return None
 
+def test_single_gauss_1d_varunc_weights():
+    # Generate data from a single Gaussian, recover mean and variance, with weights
+    ndata= 3001
+    ydata= numpy.atleast_2d(numpy.random.normal(size=ndata)).T
+    # twice oversample > 0
+    ydata[numpy.arange(3001) > 2000]=\
+        numpy.fabs(ydata[numpy.arange(3001) > 2000])
+    weight= numpy.ones(ndata)
+    weight[ydata[:,0]>0]= 0.5
+    ycovar= numpy.ones_like(ydata)*\
+        numpy.atleast_2d(numpy.random.uniform(size=ndata)).T
+    ydata+= numpy.atleast_2d(numpy.random.normal(size=ndata)).T\
+        *numpy.sqrt(ycovar)
+    # initialize fit
+    K= 1
+    initamp= numpy.ones(K)
+    initmean= numpy.atleast_2d(numpy.mean(ydata)+numpy.std(ydata))
+    initcovar= numpy.atleast_3d(3.*numpy.var(ydata))
+    # Run XD
+    extreme_deconvolution(ydata,ycovar,initamp,initmean,initcovar,
+                          weight=weight)
+    # Test
+    tol= 10./numpy.sqrt(ndata)
+    assert numpy.fabs(initmean-0.) < tol, 'XD does not recover correct mean for single Gaussian w/ uncertainties'
+    assert numpy.fabs(initcovar-1.) < tol, 'XD does not recover correct variance for single Gaussian w/ uncertainties'
+    return None
+
+def test_single_gauss_1d_varunc_logweights():
+    # Generate data from a single Gaussian, recover mean and variance, with weights
+    ndata= 3001
+    ydata= numpy.atleast_2d(numpy.random.normal(size=ndata)).T
+    # twice oversample > 0
+    ydata[numpy.arange(3001) > 2000]=\
+        numpy.fabs(ydata[numpy.arange(3001) > 2000])
+    weight= numpy.ones(ndata)
+    weight[ydata[:,0]>0]= 0.5
+    ycovar= numpy.ones_like(ydata)*\
+        numpy.atleast_2d(numpy.random.uniform(size=ndata)).T
+    ydata+= numpy.atleast_2d(numpy.random.normal(size=ndata)).T\
+        *numpy.sqrt(ycovar)
+    # initialize fit
+    K= 1
+    initamp= numpy.ones(K)
+    initmean= numpy.atleast_2d(numpy.mean(ydata)+numpy.std(ydata))
+    initcovar= numpy.atleast_3d(3.*numpy.var(ydata))
+    # Run XD
+    extreme_deconvolution(ydata,ycovar,initamp,initmean,initcovar,
+                          weight=numpy.log(weight),logweight=True)
+    # Test
+    tol= 10./numpy.sqrt(ndata)
+    assert numpy.fabs(initmean-0.) < tol, 'XD does not recover correct mean for single Gaussian w/ uncertainties'
+    assert numpy.fabs(initcovar-1.) < tol, 'XD does not recover correct variance for single Gaussian w/ uncertainties'
+    return None
+
