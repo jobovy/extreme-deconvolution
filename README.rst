@@ -3,9 +3,11 @@ Extreme Deconvolution (XD)
 
 **Density estimation using Gaussian mixtures in the presence of noisy, heterogeneous and incomplete data**
 
-.. image:: https://travis-ci.org/jobovy/extreme-deconvolution.png?branch=master 
+.. image:: https://travis-ci.org/jobovy/extreme-deconvolution.svg?branch=master 
    :target: http://travis-ci.org/jobovy/extreme-deconvolution
 
+.. image:: http://codecov.io/github/jobovy/extreme-deconvolution/coverage.svg?branch=master
+   :target: http://codecov.io/github/jobovy/extreme-deconvolution?branch=master
 Summary
 ---------
 
