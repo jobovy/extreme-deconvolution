@@ -6,18 +6,18 @@ import numpy as nu
 from numpy.ctypeslib import ndpointer
 #Find and load the library
 _lib = None
-if platform.system()=='Darwin':
+if platform.system()=='Darwin': #pragma: no cover
     _libraryname= 'libextremedeconvolution.dylib'
 else:
     _libraryname= 'libextremedeconvolution.so'
 _libname = ctypes.util.find_library(_libraryname)
-if _libname:
+if _libname: #pragma: no cover
     _lib = ctypes.CDLL(_libname)
 if _lib is None: #Hack
     p = os.path.join(TEMPLATE_LIBRARY_PATH,_libraryname)
     if os.path.exists(p):
         _lib = ctypes.CDLL(p)
-if _lib is None:
+if _lib is None: #pragma: no cover
         raise IOError(_libraryname+' library not found')
 
 _PY3= sys.version_info[0] > 2
