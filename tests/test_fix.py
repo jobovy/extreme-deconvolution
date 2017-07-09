@@ -273,6 +273,6 @@ def test_fixcovar_fixone_dual_gauss_1d_nounc():
     second= initamp >= 0.5
     assert numpy.fabs(initamp[second]-(1.-amp_true)) < tol, 'XD does not recover amp for dual Gaussian w/o uncertainties, fixing one covar'
     assert numpy.fabs(initmean[second]-1.) < 2.*tol, 'XD does not recover mean  for dual Gaussian w/o uncertainties, fixing one covar'
-    assert numpy.fabs(initcovar[second]-4.) < 2.*tol, 'XD does not recover correct variance for dual Gaussian w/o uncertainties, fixing one covar'
+    assert numpy.fabs(initcovar[second]-4.) < 3.*tol, 'XD does not recover correct variance for dual Gaussian w/o uncertainties, fixing one covar'
     return None
 
