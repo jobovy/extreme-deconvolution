@@ -42,11 +42,11 @@ Requirements
 Download ...
 --------------
 
-The latest release of the code is `extreme-deconvolution-1.3 <http://extreme-deconvolution.googlecode.com/files/extreme-deconvolution-1.3.tar.gz>`__. A separate installer for the python library only is available as well as `extreme-deconvolution-1.3-python <http://extreme-deconvolution.googlecode.com/files/extreme-deconvolution-1.3-python.tar.gz>`__. Support for R is currently only available in the GitHub repository and requires you to get the latest version.
+The latest release of the code is `extreme-deconvolution-1.4 <https://github.com/jobovy/extreme-deconvolution/archive/1.4.tar.gz>`__. Support for R is currently only available in the GitHub repository and requires you to get the latest version.
 
 
-or get the latest version
---------------------------
+or get the latest version (recommended)
+---------------------------------------
 
 Get the latest version by checking out the git repository:
 
