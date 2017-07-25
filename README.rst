@@ -167,7 +167,7 @@ Installation FAQ
 
 * *I do not have/want OpenMP*
 
-  You can disable OpenMP support by removing the -fopenmp and -lgomp references in the Makefile.
+  You can disable OpenMP support by removing the -fopenmp and -lgomp references in the Makefile. If you are installing the R package, also remove the -fopenmp and -lgomp references in r/src/Makefile.
 
 * *Problems with clang*
 
