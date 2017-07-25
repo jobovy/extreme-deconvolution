@@ -176,9 +176,9 @@ Installation FAQ
 Acknowledgments
 -----------------
 
-Thanks to Gao Wang for the R interface and Daniela Carollo, Joe
-Hennawi, Sergey Koposov, and Leonidas Moustakas for bug reports and
-fixes.
+Thanks to Gao Wang and Peter Carbonetto for the R interface and
+Daniela Carollo, Joe Hennawi, Sergey Koposov, and Leonidas Moustakas
+for bug reports and fixes.
 
 Acknowledging extreme-deconvolution
 ------------------------------------
