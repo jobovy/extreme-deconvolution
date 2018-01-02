@@ -18,7 +18,7 @@
 ;   projection - [ndimx, ndimy, ndata] non-square matrices
 ;                implementing a projection from the model space to the
 ;                data space for each data point
-;   weight     - weights to be applied to the data points [ndimy]
+;   weight     - weights to be applied to the data points [ndata]
 ;   fixamp     - [ngauss] list of integers: 0 to update amp, 1 not to
 ;   fixmean    - [ngauss] list of integers: 0 to update xmean, 1 not to
 ;   fixcovar   - [ngauss] list of integers: 0 to update xcovar, 1 not
