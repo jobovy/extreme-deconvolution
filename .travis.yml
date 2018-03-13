@@ -29,6 +29,8 @@ before_install:
  - pip install 'coverage==4.1' --force-reinstall # necessary bc of backward incompatible change in 4.2 about combining reports
  - pip install pytest-cov
  - easy_install --upgrade requests
+# Link to OpenMP library for clang
+ - export LD_LIBRARY_PATH=$(if [[ $C == "clang" ]]; then echo -n '/usr/local/clang/lib'; fi)
 install:
  - make COVERAGE=1
  - sudo make install
