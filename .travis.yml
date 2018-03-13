@@ -30,7 +30,7 @@ before_install:
  - pip install pytest-cov
  - easy_install --upgrade requests
 # Link to OpenMP library for clang
- - export LD_LIBRARY_PATH=$(if [[ $C == "clang" ]]; then echo -n '/usr/local/clang/lib'; fi)
+ - export LD_LIBRARY_PATH=$(if [[ $CC == "clang" ]]; then echo -n '/usr/local/clang/lib'; fi)
 install:
  - make COVERAGE=1
  - sudo make install
