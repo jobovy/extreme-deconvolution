@@ -88,7 +88,6 @@ Add INSTALL_DIR=/path/to/install/dir/ if you used this to install the library
 
 To install the R package do::
 
-   make
    make rpackage
    R CMD INSTALL ExtremeDeconvolution_1.3.tar.gz
 
