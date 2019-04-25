@@ -44,8 +44,11 @@ after_success:
 # Codecov
  # Generate lcov output 
  - lcov --capture --directory $HOME/build/jobovy/extreme-deconvolution/src/ --no-external --output-file coverage.info
- # Codecov
- - if [[ $TRAVIS_PYTHON_VERSION == '2.7' && $CC == 'gcc' ]]; then bash <(curl -s https://codecov.io/bash); fi
+# Codecov, need to edit bash uploader for incorrect TRAVIS_PYTHON_VERSION environment variable matching, at least until codecov/codecov-bash#133 is resolved
+ - curl -s https://codecov.io/bash > .codecov
+ - sed -i -e 's/TRAVIS_.*_VERSION/^TRAVIS_.*_VERSION=/' .codecov
+ - chmod +x .codecov
+ - if [[ $TRAVIS_PYTHON_VERSION == '2.7' && $CC == 'gcc' ]]; then ./.codecov -X gcov; fi
 notifications:
   email:
     recipients:
