@@ -40,7 +40,7 @@
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_linalg.h>
 #include <gsl/gsl_blas.h>
-#include <proj_gauss_mixtures.h>
+#include "proj_gauss_mixtures.h"
 
 #define CHUNKSIZE 1
 
@@ -54,7 +54,7 @@ void proj_EM_step(struct datapoint * data, int N,
   struct datapoint * thisdata;
   struct gaussian * thisgaussian;
   struct gaussian * thisnewgaussian;
-  int signum,di;
+  int signum,di,last_di;
   double exponent;
   double currqij;
   struct modelbs * thisbs;
@@ -101,119 +101,152 @@ void proj_EM_step(struct datapoint * data, int N,
   double sumSV;
   int chunk;
   chunk= CHUNKSIZE;
-#pragma omp parallel for schedule(static,chunk) \
-  private(tid,di,signum,exponent,ii,jj,ll,kk,Tij,Tij_inv,wminusRm,p,VRTTinv,sumSV,VRT,TinvwminusRm,Rtrans,thisgaussian,thisdata,thisbs,thisnewgaussian,currqij) \
-  shared(newgaussians,gaussians,bs,allfixed,K,d,data,avgloglikedata)
-  for (ii = 0 ; ii < N; ++ii){
-    thisdata= data+ii;
-#ifdef _OPENMP
-    tid= omp_get_thread_num();
-#else
-    tid = 0;
-#endif
-    di = (thisdata->SS)->size1;
-    //printf("Datapoint has dimension %i\n",di);
-    p = gsl_permutation_alloc (di);
-    wminusRm = gsl_vector_alloc (di);
-    TinvwminusRm = gsl_vector_alloc (di);
-    Tij = gsl_matrix_alloc(di,di);
-    Tij_inv = gsl_matrix_alloc(di,di);
-    if ( ! noproj ) VRT = gsl_matrix_alloc(d,di);
-    VRTTinv = gsl_matrix_alloc(d,di);
-    if ( ! noproj ) Rtrans = gsl_matrix_alloc(d,di);
-    for (jj = 0; jj != K; ++jj){
-      //printf("%i,%i\n",(thisdata->ww)->size,wminusRm->size);
-      gsl_vector_memcpy(wminusRm,thisdata->ww);
-      //fprintf(stdout,"Where is the seg fault?\n");
-      thisgaussian= gaussians+jj;
-      //prepare...
-      if ( ! noproj ) {
-	if ( diagerrs ) {
-	  gsl_matrix_set_zero(Tij);
-	  for (ll = 0; ll != di; ++ll)
-	    gsl_matrix_set(Tij,ll,ll,gsl_matrix_get(thisdata->SS,ll,0));}
-	else
-	  gsl_matrix_memcpy(Tij,thisdata->SS);
-      }
-      //Calculate Tij
-      if ( ! noproj ) {
-	gsl_matrix_transpose_memcpy(Rtrans,thisdata->RR);
-	gsl_blas_dsymm(CblasLeft,CblasUpper,1.0,thisgaussian->VV,Rtrans,0.0,VRT);//Only the upper right part of VV is calculated --> use only that part
-	gsl_blas_dgemm(CblasNoTrans,CblasNoTrans,1.0,thisdata->RR,VRT,1.0,Tij);}//This is Tij
-      else {
-	if ( diagerrs ) {
-	  for (kk = 0; kk != d; ++kk){
-	    gsl_matrix_set(Tij,kk,kk,gsl_matrix_get(thisdata->SS,kk,0)+gsl_matrix_get(thisgaussian->VV,kk,kk));
-	    for (ll = kk+1; ll != d; ++ll){
-	      sumSV= gsl_matrix_get(thisgaussian->VV,kk,ll);
-	      gsl_matrix_set(Tij,kk,ll,sumSV);
-	      gsl_matrix_set(Tij,ll,kk,sumSV);}}}
-	else {
-	  for (kk = 0; kk != d; ++kk){
-	    gsl_matrix_set(Tij,kk,kk,gsl_matrix_get(thisdata->SS,kk,kk)+gsl_matrix_get(thisgaussian->VV,kk,kk));
-	    for (ll = kk+1; ll != d; ++ll){
-	      sumSV= gsl_matrix_get(thisdata->SS,kk,ll)+gsl_matrix_get(thisgaussian->VV,kk,ll);
-	      gsl_matrix_set(Tij,kk,ll,sumSV);
-	      gsl_matrix_set(Tij,ll,kk,sumSV);}}}}
-      //gsl_matrix_add(Tij,thisgaussian->VV);}
-      //Calculate LU decomp of Tij and Tij inverse
-      gsl_linalg_LU_decomp(Tij,p,&signum);
-      gsl_linalg_LU_invert(Tij,p,Tij_inv);
-      //Calculate Tijinv*(w-Rm)
-      if ( ! noproj ) gsl_blas_dgemv(CblasNoTrans,-1.0,thisdata->RR,thisgaussian->mm,1.0,wminusRm);
-      else gsl_vector_sub(wminusRm,thisgaussian->mm);
-      //printf("wminusRm = %f\t%f\n",gsl_vector_get(wminusRm,0),gsl_vector_get(wminusRm,1));
-      gsl_blas_dsymv(CblasUpper,1.0,Tij_inv,wminusRm,0.0,TinvwminusRm);
-      //printf("TinvwminusRm = %f\t%f\n",gsl_vector_get(TinvwminusRm,0),gsl_vector_get(TinvwminusRm,1));
-      gsl_blas_ddot(wminusRm,TinvwminusRm,&exponent);
-      //printf("Exponent = %f\nDet = %f\n",exponent,gsl_linalg_LU_det(Tij,signum));
-      gsl_matrix_set(qij,ii,jj,log(thisgaussian->alpha) - di * halflogtwopi - 0.5 * gsl_linalg_LU_lndet(Tij) -0.5 * exponent);//This is actually the log of qij
-      //printf("Here we have = %f\n",gsl_matrix_get(qij,ii,jj));
-      //Now calculate bij and Bij
-      thisbs= bs+tid*K+jj;
-      gsl_vector_memcpy(thisbs->bbij,thisgaussian->mm);
-      //printf("%i,%i,%i\n",tid,ii,jj);
-      if ( ! noproj ) gsl_blas_dgemv(CblasNoTrans,1.0,VRT,TinvwminusRm,1.0,thisbs->bbij);
-      else gsl_blas_dsymv(CblasUpper,1.0,thisgaussian->VV,TinvwminusRm,1.0,thisbs->bbij);
-      //printf("bij = %f\t%f\n",gsl_vector_get(bs->bbij,0),gsl_vector_get(bs->bbij,1));
-      gsl_matrix_memcpy(thisbs->BBij,thisgaussian->VV);
-      if ( ! noproj ) {
-	gsl_blas_dgemm(CblasNoTrans,CblasNoTrans,1.0,VRT,Tij_inv,0.0,VRTTinv);
-	gsl_blas_dgemm(CblasNoTrans,CblasTrans,-1.0,VRTTinv,VRT,1.0,thisbs->BBij);}
-      else {
-	gsl_blas_dsymm(CblasLeft,CblasUpper,1.0,thisgaussian->VV,Tij_inv,0.0,VRTTinv);
-	gsl_blas_dsymm(CblasRight,CblasUpper,-1.0,thisgaussian->VV,VRTTinv,1.0,thisbs->BBij);}
-      gsl_blas_dsyr(CblasUpper,1.0,thisbs->bbij,thisbs->BBij);//This is bijbijT + Bij, which is the relevant quantity
-      }
-    gsl_permutation_free (p);
-    gsl_vector_free(wminusRm);
-    gsl_vector_free(TinvwminusRm);
-    gsl_matrix_free(Tij);
-    gsl_matrix_free(Tij_inv);
-    if ( ! noproj ) gsl_matrix_free(VRT);
-    gsl_matrix_free(VRTTinv);
-    if ( ! noproj ) gsl_matrix_free(Rtrans);
-    //Again loop over the gaussians to update the model(can this be more efficient? in any case this is not so bad since generally K << N)
-#pragma omp critical
+#pragma omp parallel private(tid, di, last_di, signum, exponent, ii, jj, ll, kk, Tij, Tij_inv, wminusRm, p, VRTTinv, sumSV, VRT, TinvwminusRm, Rtrans, thisgaussian, thisdata, thisbs, thisnewgaussian, currqij) \
+    shared(newgaussians, gaussians, bs, allfixed, K, d, data, avgloglikedata) 
     {
-      //Normalize qij properly
-      *avgloglikedata += normalize_row(qij,ii,true,noweight,thisdata->logweight);
-    }
-      //printf("qij = %f\t%f\n",gsl_matrix_get(qij,ii,0),gsl_matrix_get(qij,ii,1));
-      //printf("avgloglgge = %f\n",*avgloglikedata);
-      for (jj = 0; jj != K; ++jj){
-	currqij = exp(gsl_matrix_get(qij,ii,jj));
-	//printf("Current qij = %f\n",currqij);
-	thisbs= bs+tid*K+jj;
-	thisnewgaussian= newgaussians+tid*K+jj;
-	gsl_vector_scale(thisbs->bbij,currqij);
-	gsl_vector_add(thisnewgaussian->mm,thisbs->bbij);
-	gsl_matrix_scale(thisbs->BBij,currqij);
-	gsl_matrix_add(thisnewgaussian->VV,thisbs->BBij);
-	//printf("bij = %f\t%f\n",gsl_vector_get(bs->bbij,0),gsl_vector_get(bs->bbij,1));
-	//printf("Bij = %f\t%f\t%f\n",gsl_matrix_get(bs->BBij,0,0),gsl_matrix_get(bs->BBij,1,1),gsl_matrix_get(bs->BBij,0,1));
+      last_di = -1 - omp_get_thread_num();
+
+#pragma omp for schedule(static,chunk) 
+      for (ii = 0 ; ii < N; ++ii) {
+        thisdata= data+ii;
+#ifdef _OPENMP
+        tid= omp_get_thread_num();
+#else
+        tid = 0;
+#endif
+        di = (thisdata->SS)->size1;
+        if (di != last_di) {
+          if (last_di > 0) {
+            //The size of the blocks are different, free the memory
+            gsl_permutation_free(p);
+            gsl_vector_free(wminusRm);
+            gsl_vector_free(TinvwminusRm);
+            gsl_matrix_free(Tij);
+            gsl_matrix_free(Tij_inv);
+            if (!noproj)
+              gsl_matrix_free(VRT);
+            gsl_matrix_free(VRTTinv);
+            if (!noproj)
+              gsl_matrix_free(Rtrans);
+          }
+          //(Re)allocate the memory as required
+          p = gsl_permutation_alloc(di);
+          wminusRm = gsl_vector_alloc(di);
+          TinvwminusRm = gsl_vector_alloc(di);
+          Tij = gsl_matrix_alloc(di, di);
+          Tij_inv = gsl_matrix_alloc(di, di);
+          if (!noproj)
+            VRT = gsl_matrix_alloc(d, di);
+          VRTTinv = gsl_matrix_alloc(d, di);
+          if (!noproj)
+            Rtrans = gsl_matrix_alloc(d, di);
+          last_di = di;
+        } 
+        //printf("Datapoint has dimension %i\n",di);
+        for (jj = 0; jj != K; ++jj) {
+          //printf("%i,%i\n",(thisdata->ww)->size,wminusRm->size);
+          gsl_vector_memcpy(wminusRm,thisdata->ww);
+          //fprintf(stdout,"Where is the seg fault?\n");
+          thisgaussian= gaussians+jj;
+          //prepare...
+          if ( ! noproj ) {
+            if ( diagerrs ) {
+              gsl_matrix_set_zero(Tij);
+              for (ll = 0; ll != di; ++ll)
+                gsl_matrix_set(Tij,ll,ll,gsl_matrix_get(thisdata->SS,ll,0));
+            } else gsl_matrix_memcpy(Tij,thisdata->SS);
+          }
+          //Calculate Tij
+          if ( ! noproj ) {
+            gsl_matrix_transpose_memcpy(Rtrans,thisdata->RR);
+            gsl_blas_dsymm(CblasLeft,CblasUpper,1.0,thisgaussian->VV,Rtrans,0.0,VRT);//Only the upper right part of VV is calculated --> use only that part
+            gsl_blas_dgemm(CblasNoTrans,CblasNoTrans,1.0,thisdata->RR,VRT,1.0,Tij);//This is Tij
+          } else {
+            if ( diagerrs ) {
+              for (kk = 0; kk != d; ++kk) {
+                gsl_matrix_set(Tij,kk,kk,gsl_matrix_get(thisdata->SS,kk,0)+gsl_matrix_get(thisgaussian->VV,kk,kk));
+                for (ll = kk+1; ll != d; ++ll) {
+                  sumSV= gsl_matrix_get(thisgaussian->VV,kk,ll);
+                  gsl_matrix_set(Tij,kk,ll,sumSV);
+                  gsl_matrix_set(Tij,ll,kk,sumSV);
+                }
+              }
+            } else {
+              for (kk = 0; kk != d; ++kk) {
+                gsl_matrix_set(Tij,kk,kk,gsl_matrix_get(thisdata->SS,kk,kk)+gsl_matrix_get(thisgaussian->VV,kk,kk));
+                for (ll = kk+1; ll != d; ++ll) {
+                  sumSV= gsl_matrix_get(thisdata->SS,kk,ll)+gsl_matrix_get(thisgaussian->VV,kk,ll);
+                  gsl_matrix_set(Tij,kk,ll,sumSV);
+                  gsl_matrix_set(Tij,ll,kk,sumSV);
+                }
+              }
+            }
+          }
+          //gsl_matrix_add(Tij,thisgaussian->VV);}
+          //Calculate LU decomp of Tij and Tij inverse
+          gsl_linalg_LU_decomp(Tij,p,&signum);
+          gsl_linalg_LU_invert(Tij,p,Tij_inv);
+          //Calculate Tijinv*(w-Rm)
+          if ( ! noproj ) gsl_blas_dgemv(CblasNoTrans,-1.0,thisdata->RR,thisgaussian->mm,1.0,wminusRm);
+          else gsl_vector_sub(wminusRm,thisgaussian->mm);
+          //printf("wminusRm = %f\t%f\n",gsl_vector_get(wminusRm,0),gsl_vector_get(wminusRm,1));
+          gsl_blas_dsymv(CblasUpper,1.0,Tij_inv,wminusRm,0.0,TinvwminusRm);
+          //printf("TinvwminusRm = %f\t%f\n",gsl_vector_get(TinvwminusRm,0),gsl_vector_get(TinvwminusRm,1));
+          gsl_blas_ddot(wminusRm,TinvwminusRm,&exponent);
+          //printf("Exponent = %f\nDet = %f\n",exponent,gsl_linalg_LU_det(Tij,signum));
+          gsl_matrix_set(qij,ii,jj,log(thisgaussian->alpha) - di * halflogtwopi - 0.5 * gsl_linalg_LU_lndet(Tij) -0.5 * exponent);//This is actually the log of qij
+          //printf("Here we have = %f\n",gsl_matrix_get(qij,ii,jj));
+          //Now calculate bij and Bij
+          thisbs= bs+tid*K+jj;
+          gsl_vector_memcpy(thisbs->bbij,thisgaussian->mm);
+          //printf("%i,%i,%i\n",tid,ii,jj);
+          if ( ! noproj ) gsl_blas_dgemv(CblasNoTrans,1.0,VRT,TinvwminusRm,1.0,thisbs->bbij);
+          else gsl_blas_dsymv(CblasUpper,1.0,thisgaussian->VV,TinvwminusRm,1.0,thisbs->bbij);
+          //printf("bij = %f\t%f\n",gsl_vector_get(bs->bbij,0),gsl_vector_get(bs->bbij,1));
+          gsl_matrix_memcpy(thisbs->BBij,thisgaussian->VV);
+          if ( ! noproj ) {
+            gsl_blas_dgemm(CblasNoTrans,CblasNoTrans,1.0,VRT,Tij_inv,0.0,VRTTinv);
+            gsl_blas_dgemm(CblasNoTrans,CblasTrans,-1.0,VRTTinv,VRT,1.0,thisbs->BBij);
+          } else {
+            gsl_blas_dsymm(CblasLeft,CblasUpper,1.0,thisgaussian->VV,Tij_inv,0.0,VRTTinv);
+            gsl_blas_dsymm(CblasRight,CblasUpper,-1.0,thisgaussian->VV,VRTTinv,1.0,thisbs->BBij);
+          }
+          gsl_blas_dsyr(CblasUpper,1.0,thisbs->bbij,thisbs->BBij);//This is bijbijT + Bij, which is the relevant quantity
+        }
+        //Again loop over the gaussians to update the model(can this be more
+        //efficient? in any case this is not so bad since generally K << N)
+#pragma omp critical
+        {
+          //Normalize qij properly
+          *avgloglikedata += normalize_row(qij,ii,true,noweight,thisdata->logweight);
+        }
+        //printf("qij = %f\t%f\n",gsl_matrix_get(qij,ii,0),gsl_matrix_get(qij,ii,1));
+        //printf("avgloglgge = %f\n",*avgloglikedata);
+        for (jj = 0; jj != K; ++jj) {
+          currqij = exp(gsl_matrix_get(qij,ii,jj));
+          //printf("Current qij = %f\n",currqij);
+          thisbs= bs+tid*K+jj;
+          thisnewgaussian= newgaussians+tid*K+jj;
+          gsl_vector_scale(thisbs->bbij,currqij);
+          gsl_vector_add(thisnewgaussian->mm,thisbs->bbij);
+          gsl_matrix_scale(thisbs->BBij,currqij);
+          gsl_matrix_add(thisnewgaussian->VV,thisbs->BBij);
+          //printf("bij = %f\t%f\n",gsl_vector_get(bs->bbij,0),gsl_vector_get(bs->bbij,1));
+          //printf("Bij = %f\t%f\t%f\n",gsl_matrix_get(bs->BBij,0,0),gsl_matrix_get(bs->BBij,1,1),gsl_matrix_get(bs->BBij,0,1));
+        }
       }
-  }
+      //free the memory in each thread
+      gsl_permutation_free(p);
+      gsl_vector_free(wminusRm);
+      gsl_vector_free(TinvwminusRm);
+      gsl_matrix_free(Tij);
+      gsl_matrix_free(Tij_inv);
+      if (!noproj)
+        gsl_matrix_free(VRT);
+      gsl_matrix_free(VRTTinv);
+      if (!noproj)
+        gsl_matrix_free(Rtrans);
+    }
   *avgloglikedata /= N;
   if (likeonly) {
     free(allfixed);
