@@ -37,31 +37,24 @@ News
 Requirements
 ------------
 
-`GSL <http://www.gnu.org/software/gsl/>`__: The GNU Scientific Library.
+`GSL <http://www.gnu.org/software/gsl/>`__: The GNU Scientific Library. See for example `this page <https://galpy.readthedocs.io/en/latest/installation.html#how-do-i-install-the-gsl>`__ for information on how to install the GSL on your system.
 
-Download ...
---------------
-
-The latest release of the code is `extreme-deconvolution-1.4 <https://github.com/jobovy/extreme-deconvolution/archive/1.4.tar.gz>`__. Support for R is currently only available in the GitHub repository and requires you to get the latest version.
-
-
-or get the latest version (recommended)
----------------------------------------
+Get the latest version
+----------------------
 
 Get the latest version by checking out the git repository:
 
 ``git clone https://github.com/jobovy/extreme-deconvolution.git``
 
+or download it using the big green button above the file listing above. 
+
+(note that downloading and installing the latest released version under the 'releases' tab is *not* recommended, as this version is out-of-date; please install the latest master version instead)
 
 Installation
 ------------
 
-(to only install the python library, see the INSTALL_PYTHON file)
+To compile the code, navigate to the directory where you downloaded the code and do::
 
-If you download the last version from the download tab, do::
-
-   tar xvzf extreme-deconvolution-1.3.tar.gz
-   cd extreme-deconvolution-1.3/
    make
 
 To install the library do::
@@ -70,7 +63,7 @@ To install the library do::
 
 or::
 
-	make install INSTALL_DIR=/path/to/install/dir/
+   make install INSTALL_DIR=/path/to/install/dir/
 
 
 To install the IDL wrapper do::
@@ -80,11 +73,11 @@ To install the IDL wrapper do::
 Add INSTALL_DIR=/path/to/install/dir/ if you used this to install the library
 
 
-To install the python wrapper do::
+To install the Python wrapper do::
 
    make pywrapper
 
-Add INSTALL_DIR=/path/to/install/dir/ if you used this to install the library
+Add INSTALL_DIR=/path/to/install/dir/ if you used this to install the library. Remember to add the ``py/`` directory to your `PYTHONPATH` to use the code in Python.
 
 To install the R package do::
 
@@ -120,7 +113,7 @@ To test whether the code and the IDL wrapper is working do (requires IDL and the
 
 Clean up intermediate files::
 
-      make clean
+   make clean
 
 Usage
 ------
@@ -188,37 +181,7 @@ The algorithm that the code implements is described in the paper *Extreme deconv
     Jo Bovy, David W. Hogg, & Sam T. Roweis, Ann. Appl. Stat. 5, 2B, 1657 (2011)
 
 
-Examples
-----------
-
-* The velocity distribution of nearby stars (`paper <http://adsabs.harvard.edu/abs/2009ApJ...700.1794B>`__): 
-
-  .. image:: http://cosmo.nyu.edu/~jb2777/google-code/annotated_veldist2.png
-
-* The metallicity distribution of nearby stars in the Milky Way disk as a mixture of a thin and thick disk (from `this paper <http://arxiv.org/abs/0912.3262>`__): 
-
-  .. image:: http://cosmo.nyu.edu/~jb2777/google-code/gcs_zdist.png
-
-* Quasar colors as a function of redshift (from `this paper <http://arxiv.org/abs/1105.3975>`__): 
-
-  .. image:: http://cosmo.nyu.edu/~jb2777/google-code/quasar-photoz.png
-
-
 Extreme-deconvolution in action
 --------------------------------
 
-* The Velocity Distribution of Nearby Stars from Hipparcos Data. I. The Significance of the Moving Groups, Bovy, Jo, Hogg, David W., & Roweis, Sam T., 2009, *Astrophys. J.* **700**, 1794 `2009ApJ...700.1794B <http://adsabs.harvard.edu/abs/2009ApJ...700.1794B>`__
-
-* The Velocity Distribution of Nearby Stars from Hipparcos data II. The Nature of the Low-velocity Moving Groups, Bovy, Jo & Hogg, David W., 2010, *Astrophys. J.* **717**, 617 `2010ApJ...717..617B <http://adsabs.harvard.edu/abs/2010ApJ...717..617B>`__
-
-* Think Outside the Color Box: Probabilistic Target Selection and the SDSS-XDQSO Quasar Targeting Catalog, Bovy, Jo, et al., 2011, *Astrophys. J.* **729**, 141 `2011ApJ...729..141B <http://adsabs.harvard.edu/abs/2011ApJ...729..141B>`__
-
-* Carbon-Enhanced Metal-Poor Stars in the Inner and Outer Halo Components of the Milky Way, Carollo, Daniela, et al., 2012, *Astrophys. J.* **744**, 195 `2012ApJ...744..195C <http://adsabs.harvard.edu/abs/2012ApJ...744..195C>`__
-
-* Photometric Redshifts and Quasar Probabilities from a Single, Data-driven Generative Model, Bovy, Jo, et al., 2012, *Astrophys. J.* **749**, 41 `2012ApJ...749...41B <http://adsabs.harvard.edu/abs/2012ApJ...749...41B>`__
-
-* The Stellar Metallicity Distribution Function of the Galactic Halo from SDSS Photometry, An, Deokkeun, et al., 2013, *Astrophys. J.* **763**, 65 `2013ApJ...763...65A <http://adsabs.harvard.edu/abs/2013ApJ...763...65A>`__
-
-* Sagittarius Stream Three-dimensional Kinematics from Sloan Digital Sky Survey Stripe 82, Koposov, Sergey, Belokurov, Vasily, & Wyn Evans, N., 2013, *Astrophys. J.* **766**, 79 `2013ApJ...766...79K <http://adsabs.harvard.edu/abs/2013ApJ...766...79K>`__
-
-* Your paper here? `email <mailto:bovy-at-ias-dot-edu>`__
+A good place to find examples is the `citations to the extreme-deconvolution paper <http://adsabs.harvard.edu/abs/2011AnApS...5.1657B>`__. The code is also used in a variety of fields outside of astronomy.
