@@ -1,1 +1,1 @@
-from extreme_deconvolution import extreme_deconvolution
+from .extreme_deconvolution import extreme_deconvolution
