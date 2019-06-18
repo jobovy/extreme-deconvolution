@@ -4,6 +4,9 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+NOTE: THIS INSTALLATION OPTION CURRENTLY DOES NOT WORK, PLEASE USE THE
+REGULAR make/make install INSTALLATION
+
 For more info, see the README file.
 
 To install the python library using distutils do

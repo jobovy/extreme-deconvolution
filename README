@@ -10,10 +10,6 @@ Copyright 2008-2010 Jo Bovy, David W. Hogg, and Sam Roweis.
 INSTALLATION:
 --------------
 
-(for an alternative way to install the python library, see the
-INSTALL_PYTHON file)
-
-
 The installation can produce two things: (1) a shared library which
 can be called from other programs and which is called in the IDL
 wrapper provided with the distribution, (2) a "main" program which
