@@ -2,6 +2,7 @@ language: c
 compiler:
   - gcc
   - clang
+python: 3.9
 env:
   matrix:
     - TRAVIS_PYTHON_VERSION=2.7
