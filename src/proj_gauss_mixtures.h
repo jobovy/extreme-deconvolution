@@ -28,6 +28,7 @@ struct datapoint{
   gsl_matrix *SS;
   gsl_matrix *RR;
   double logweight;
+  gsl_vector *assignment;
 };
 
 struct gaussian * newgaussians, * startnewgaussians;

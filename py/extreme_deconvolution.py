@@ -49,7 +49,7 @@ def extreme_deconvolution(ydata,ycovar,
                           fixamp=None,fixmean=None,fixcovar=None,
                           tol=1.e-6,maxiter=long(1e9),w=0.,logfile=None,
                           splitnmerge=0,maxsnm=False,likeonly=False,
-                          logweight=False):
+                          logweight=False, assignments=None):
     """
     NAME:
        extreme_deconvolution
@@ -83,6 +83,7 @@ def extreme_deconvolution(ydata,ycovar,
                  merge steps, K*(K-1)*(K-2)/2
        likeonly - (Bool, default=False) only compute the total log
                    likelihood of the data
+       assignments - Matrix of True/False expressing which gaussian the data points must belong to
     OUTPUT:
        avgloglikedata after convergence,
        +updated xamp, xmean, xcovar
@@ -394,6 +395,10 @@ def extreme_deconvolution(ydata,ycovar,
     else:
         noweight= False
         logweights= weight
+    if assignments is None:
+        assignments = nu.ones((dataDim, ngauss), dtype=nu.int16)
+    else:
+        assignments = assignments.astype(nu.int16)
         
     ndarrayFlags= ('C_CONTIGUOUS','WRITEABLE')
     exdeconvFunc= _lib.proj_gauss_mixtures_IDL
@@ -401,6 +406,7 @@ def extreme_deconvolution(ydata,ycovar,
                              ndpointer(dtype=nu.float64,flags=ndarrayFlags),
                              ndpointer(dtype=nu.float64,flags=ndarrayFlags),
                              ndpointer(dtype=nu.float64,flags=ndarrayFlags),
+                             ndpointer(dtype=nu.int16,flags=ndarrayFlags),
                              ctypes.c_int,
                              ctypes.c_int,
                              ndpointer(dtype=nu.float64,flags=ndarrayFlags),
@@ -430,6 +436,7 @@ def extreme_deconvolution(ydata,ycovar,
              ycovar.flags['F_CONTIGUOUS'],
              projection.flags['F_CONTIGUOUS'],
              logweights.flags['F_CONTIGUOUS'],
+             assignments.flags['F_CONTIGUOUS'],
              xamp.flags['F_CONTIGUOUS'],
              xmean.flags['F_CONTIGUOUS'],
              xcovar.flags['F_CONTIGUOUS']]
@@ -437,6 +444,7 @@ def extreme_deconvolution(ydata,ycovar,
     ycovar= nu.require(ycovar,dtype=nu.float64,requirements=['C','W'])
     projection= nu.require(projection,dtype=nu.float64,requirements=['C','W'])
     logweights= nu.require(logweights,dtype=nu.float64,requirements=['C','W'])
+    assignments= nu.require(assignments,dtype=nu.int16,requirements=['C','W'])
     xamp_tmp= nu.require(xamp,dtype=nu.float64,requirements=['C','W'])
     xmean_tmp= nu.require(xmean,dtype=nu.float64,requirements=['C','W'])
     xcovar_tmp= nu.require(xcovar,dtype=nu.float64,requirements=['C','W'])
@@ -445,6 +453,7 @@ def extreme_deconvolution(ydata,ycovar,
                  ycovar,
                  projection,
                  logweights,
+                 assignments,
                  ctypes.c_int(ndata),
                  ctypes.c_int(dataDim),
                  xamp_tmp,
@@ -473,9 +482,10 @@ def extreme_deconvolution(ydata,ycovar,
     if f_cont[1]: ycovar= nu.asfortranarray(ycovar)
     if f_cont[2]: projection= nu.asfortranarray(projection)
     if f_cont[3]: logweights= nu.asfortranarray(logweights)
-    if f_cont[4]: xamp_tmp=  nu.asfortranarray(xamp_tmp)
-    if f_cont[5]: xmean_tmp=  nu.asfortranarray(xmean_tmp)
-    if f_cont[6]: xcovar_tmp=  nu.asfortranarray(xcovar_tmp)
+    if f_cont[4]: assignments= nu.asfortranarray(assignments)
+    if f_cont[5]: xamp_tmp=  nu.asfortranarray(xamp_tmp)
+    if f_cont[6]: xmean_tmp=  nu.asfortranarray(xmean_tmp)
+    if f_cont[7]: xcovar_tmp=  nu.asfortranarray(xcovar_tmp)
 
     xamp[0:ngauss]= xamp_tmp
     xmean[0:ngauss,0:gaussDim]= xmean_tmp

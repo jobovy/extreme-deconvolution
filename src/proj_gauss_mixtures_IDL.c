@@ -23,6 +23,7 @@
 
 int proj_gauss_mixtures_IDL(double * ydata, double * ycovar, 
 			    double * projection, double * logweights,
+			    int * assignments,
 			    int N, int dy, 
 			    double * amp, double * xmean, 
 			    double * xcovar, int d, int K, 
@@ -79,6 +80,7 @@ int proj_gauss_mixtures_IDL(double * ydata, double * ycovar,
   int ii, jj,dd1,dd2;
   for (ii = 0; ii != N; ++ii){
     data->ww = gsl_vector_alloc(dy);
+    data->assignment = gsl_vector_alloc(K);
     if ( ! noweight ) data->logweight = *(logweights++);
     if ( diagerrs ) data->SS = gsl_matrix_alloc(dy,1);
     else data->SS = gsl_matrix_alloc(dy,dy);
@@ -98,12 +100,16 @@ int proj_gauss_mixtures_IDL(double * ydata, double * ycovar,
 	  gsl_matrix_set(data->RR,dd1,dd2,*(projection++));
     else data->RR= NULL;
     ++data;
+    for (jj = 0; jj != K; ++jj){
+        gsl_vector_set(data->assignment,jj,*(assignments++));
+    }
   }
   data -= N;
   ydata -= N*dy;
   if ( diagerrs ) ycovar -= N*dy;
   else ycovar -= N*dy*dy;
   if ( ! noproj ) projection -= N*dy*d;
+  assignments -= N*K;
 
   for (jj = 0; jj != K; ++jj){
     gaussians->mm = gsl_vector_alloc(d);
@@ -214,6 +220,7 @@ int proj_gauss_mixtures_IDL(double * ydata, double * ycovar,
   //And free any memory we allocated
   for (ii = 0; ii != N; ++ii){
     gsl_vector_free(data->ww);
+    gsl_vector_free(data->assignment);
     gsl_matrix_free(data->SS);
     if ( ! noproj )  gsl_matrix_free(data->RR);
     ++data;
