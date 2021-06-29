@@ -168,9 +168,9 @@ void proj_EM_step(struct datapoint * data, int N,
       gsl_blas_ddot(wminusRm,TinvwminusRm,&exponent);
       //printf("Exponent = %f\nDet = %f\n",exponent,gsl_linalg_LU_det(Tij,signum));
       // assignment == true (free - calculate qij), false (assigned elsewhere qij=-inf)
-      //if ( gsl_vector_get(thisdata->assignment, jj) == 1 ) gsl_matrix_set(qij, ii, jj, log(thisgaussian->alpha) - di * halflogtwopi - 0.5 * gsl_linalg_LU_lndet(Tij) - 0.5 * exponent); //This is actually the log of qij
-      //else gsl_matrix_set(qij, ii, jj, log(0.));
-      gsl_matrix_set(qij,ii,jj,log(thisgaussian->alpha) - di * halflogtwopi - 0.5 * gsl_linalg_LU_lndet(Tij) -0.5 * exponent);//This is actually the log of qij
+      if ( gsl_vector_get(thisdata->assignment, jj) == 1 ) gsl_matrix_set(qij, ii, jj, log(thisgaussian->alpha) - di * halflogtwopi - 0.5 * gsl_linalg_LU_lndet(Tij) - 0.5 * exponent); //This is actually the log of qij
+      else gsl_matrix_set(qij, ii, jj, log(0.));
+//      gsl_matrix_set(qij,ii,jj,log(thisgaussian->alpha) - di * halflogtwopi - 0.5 * gsl_linalg_LU_lndet(Tij) -0.5 * exponent);//This is actually the log of qij
       //printf("Here we have = %f\n",gsl_matrix_get(qij,ii,jj));
       //Now calculate bij and Bij
       thisbs= bs+tid*K+jj;

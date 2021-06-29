@@ -23,7 +23,7 @@
 
 int proj_gauss_mixtures_IDL(double * ydata, double * ycovar, 
 			    double * projection, double * logweights,
-			    int * assignments,
+			    double * assignments,
 			    int N, int dy, 
 			    double * amp, double * xmean, 
 			    double * xcovar, int d, int K, 
@@ -87,6 +87,9 @@ int proj_gauss_mixtures_IDL(double * ydata, double * ycovar,
     if ( ! noproj ) data->RR = gsl_matrix_alloc(dy,d);
     for (dd1 = 0; dd1 != dy;++dd1)
       gsl_vector_set(data->ww,dd1,*(ydata++));
+    for (jj = 0; jj != K; ++jj){
+            gsl_vector_set(data->assignment,jj,*(assignments++));
+    }
     if ( diagerrs)
       for (dd1 = 0; dd1 != dy; ++dd1)
 	  gsl_matrix_set(data->SS,dd1,0,*(ycovar++));
@@ -100,9 +103,6 @@ int proj_gauss_mixtures_IDL(double * ydata, double * ycovar,
 	  gsl_matrix_set(data->RR,dd1,dd2,*(projection++));
     else data->RR= NULL;
     ++data;
-    for (jj = 0; jj != K; ++jj){
-        gsl_vector_set(data->assignment,jj,*(assignments++));
-    }
   }
   data -= N;
   ydata -= N*dy;

@@ -396,9 +396,9 @@ def extreme_deconvolution(ydata,ycovar,
         noweight= False
         logweights= weight
     if assignments is None:
-        assignments = nu.ones((dataDim, ngauss), dtype=nu.int16)
+        assignments = nu.ones((ndata, ngauss), dtype=nu.float64)
     else:
-        assignments = assignments.astype(nu.int16)
+        assignments = assignments.astype(nu.float64)
         
     ndarrayFlags= ('C_CONTIGUOUS','WRITEABLE')
     exdeconvFunc= _lib.proj_gauss_mixtures_IDL
@@ -406,7 +406,7 @@ def extreme_deconvolution(ydata,ycovar,
                              ndpointer(dtype=nu.float64,flags=ndarrayFlags),
                              ndpointer(dtype=nu.float64,flags=ndarrayFlags),
                              ndpointer(dtype=nu.float64,flags=ndarrayFlags),
-                             ndpointer(dtype=nu.int16,flags=ndarrayFlags),
+                             ndpointer(dtype=nu.float64,flags=ndarrayFlags),
                              ctypes.c_int,
                              ctypes.c_int,
                              ndpointer(dtype=nu.float64,flags=ndarrayFlags),
@@ -444,7 +444,7 @@ def extreme_deconvolution(ydata,ycovar,
     ycovar= nu.require(ycovar,dtype=nu.float64,requirements=['C','W'])
     projection= nu.require(projection,dtype=nu.float64,requirements=['C','W'])
     logweights= nu.require(logweights,dtype=nu.float64,requirements=['C','W'])
-    assignments= nu.require(assignments,dtype=nu.int16,requirements=['C','W'])
+    assignments= nu.require(assignments,dtype=nu.float64,requirements=['C','W'])
     xamp_tmp= nu.require(xamp,dtype=nu.float64,requirements=['C','W'])
     xmean_tmp= nu.require(xmean,dtype=nu.float64,requirements=['C','W'])
     xcovar_tmp= nu.require(xcovar,dtype=nu.float64,requirements=['C','W'])
