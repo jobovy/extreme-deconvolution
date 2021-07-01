@@ -48,7 +48,7 @@ void proj_EM_step(struct datapoint * data, int N,
 		  struct gaussian * gaussians, int K,bool * fixamp, 
 		  bool * fixmean, bool * fixcovar, double * avgloglikedata, 
 		  bool likeonly, double w, bool noproj, bool diagerrs,
-		  bool noweight){
+		  bool noweight, gsl_matrix * groups, int ngroups){
   *avgloglikedata = 0.0;
   //struct timeval start,time1, time2, time3, time4, time5,end;
   struct datapoint * thisdata;
@@ -304,6 +304,30 @@ void proj_EM_step(struct datapoint * data, int N,
     fixamp -= K;
     gaussians -= K;
   }
+  // normalise groups - within each group:
+    double group_weight;
+    double tmpa;
+    for (int gg = 0; gg != ngroups; ++gg) {
+        double group_sum = 0;
+        double alpha_sum = 0;
+        for (int kk = 0; kk != K; ++kk) {
+            group_weight = gsl_matrix_get(groups, gg, kk);
+            group_sum += group_weight;
+            tmpa = (gaussians++)->alpha;
+            if (group_weight > 0){
+                alpha_sum += tmpa;
+            }
+        }
+        gaussians -= K;
+        for (int kk = 0; kk != K; ++kk) {
+            if (*(fixamp++) == false) {
+                (gaussians++)->alpha = gsl_matrix_get(groups, gg, kk) / group_sum * alpha_sum;
+            }
+        }
+        gaussians -= K;
+        fixamp -= K;
+    }
+
   //gettimeofday(&end,NULL);
   //double diff, diff1, diff2, diff3, diff4, diff5,diff6;
   //diff= difftime (end.tv_sec,start.tv_sec)+difftime (end.tv_usec,start.tv_usec)/1000000;

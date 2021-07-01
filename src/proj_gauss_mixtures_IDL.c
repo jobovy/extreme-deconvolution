@@ -23,8 +23,8 @@
 
 int proj_gauss_mixtures_IDL(double * ydata, double * ycovar, 
 			    double * projection, double * logweights,
-			    double * assignments,
-			    int N, int dy, 
+			    double * assignments, double * groups, int ngroups,
+			    int N, int dy,
 			    double * amp, double * xmean, 
 			    double * xcovar, int d, int K, 
 			    char * fixamp, char * fixmean, 
@@ -159,6 +159,12 @@ int proj_gauss_mixtures_IDL(double * ydata, double * ycovar,
     gaussians -= K;
     fflush(logfile);
   }
+  gsl_matrix * _groups = gsl_matrix_alloc(ngroups, K);
+    for (int gg = 0; gg < ngroups; ++gg) {
+        for (int kk =0; kk < K; ++kk){
+            gsl_matrix_set(_groups, gg, kk, *(groups++));
+        }
+    } groups -= K*ngroups;
 
 
 
@@ -167,7 +173,7 @@ int proj_gauss_mixtures_IDL(double * ydata, double * ycovar,
 		      (bool *) fixmean, (bool *) fixcovar,avgloglikedata,
 		      tol,(long long int) maxiter, (bool) likeonly, w,
 		      splitnmerge,keeplog,logfile,convlogfile,noproj,diagerrs,
-		      noweight);
+		      noweight,_groups,ngroups);
 
 
   //Print the final model parameters to the logfile
@@ -227,7 +233,8 @@ int proj_gauss_mixtures_IDL(double * ydata, double * ycovar,
   }
   data -= N;
   free(data);
-  
+  gsl_matrix_free(_groups);
+
   for (jj = 0; jj != K; ++jj){
     gsl_vector_free(gaussians->mm);
     gsl_matrix_free(gaussians->VV);

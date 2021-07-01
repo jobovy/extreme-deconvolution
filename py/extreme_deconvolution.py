@@ -49,7 +49,7 @@ def extreme_deconvolution(ydata,ycovar,
                           fixamp=None,fixmean=None,fixcovar=None,
                           tol=1.e-6,maxiter=long(1e9),w=0.,logfile=None,
                           splitnmerge=0,maxsnm=False,likeonly=False,
-                          logweight=False, assignments=None):
+                          logweight=False, assignments=None, groups=None):
     """
     NAME:
        extreme_deconvolution
@@ -83,7 +83,9 @@ def extreme_deconvolution(ydata,ycovar,
                  merge steps, K*(K-1)*(K-2)/2
        likeonly - (Bool, default=False) only compute the total log
                    likelihood of the data
-       assignments - Matrix of True/False expressing which gaussian the data points must belong to
+       assignments - Symmetric Matrix of True/False expressing which gaussian the data points can belong to
+       groups - Matrix of (ngroups, ngauss) True/False grouping gaussians together.
+                Gaussians in the same group have their amplitudes fixed relative to other members
     OUTPUT:
        avgloglikedata after convergence,
        +updated xamp, xmean, xcovar
@@ -399,7 +401,15 @@ def extreme_deconvolution(ydata,ycovar,
         assignments = nu.ones((ndata, ngauss), dtype=nu.float64)
     else:
         assignments = assignments.astype(nu.float64)
-        
+    if groups is None:
+        groups = nu.ones((1, ngauss), dtype=nu.float64)  # no multiplication i.e. no groupings
+    else:
+        # turn groups into a multiplier for alphas (their relative ratio with the group should remain the same)
+        groups = groups.astype(nu.float64)
+        for g in range(len(groups)):
+            groups[g] = nu.where(groups[g] > 0, xamp, 0) / xamp[groups[g] > 0].sum()
+    if nu.any(nu.sum(groups > 0, axis=0) != 1):
+        raise ValueError(f"A Gaussian can only belong to 1 group at a time")
     ndarrayFlags= ('C_CONTIGUOUS','WRITEABLE')
     exdeconvFunc= _lib.proj_gauss_mixtures_IDL
     exdeconvFunc.argtypes = [ndpointer(dtype=nu.float64,flags=ndarrayFlags),
@@ -407,6 +417,8 @@ def extreme_deconvolution(ydata,ycovar,
                              ndpointer(dtype=nu.float64,flags=ndarrayFlags),
                              ndpointer(dtype=nu.float64,flags=ndarrayFlags),
                              ndpointer(dtype=nu.float64,flags=ndarrayFlags),
+                             ndpointer(dtype=nu.float64,flags=ndarrayFlags),
+                             ctypes.c_int,
                              ctypes.c_int,
                              ctypes.c_int,
                              ndpointer(dtype=nu.float64,flags=ndarrayFlags),
@@ -437,6 +449,7 @@ def extreme_deconvolution(ydata,ycovar,
              projection.flags['F_CONTIGUOUS'],
              logweights.flags['F_CONTIGUOUS'],
              assignments.flags['F_CONTIGUOUS'],
+             groups.flags['F_CONTIGUOUS'],
              xamp.flags['F_CONTIGUOUS'],
              xmean.flags['F_CONTIGUOUS'],
              xcovar.flags['F_CONTIGUOUS']]
@@ -445,6 +458,7 @@ def extreme_deconvolution(ydata,ycovar,
     projection= nu.require(projection,dtype=nu.float64,requirements=['C','W'])
     logweights= nu.require(logweights,dtype=nu.float64,requirements=['C','W'])
     assignments= nu.require(assignments,dtype=nu.float64,requirements=['C','W'])
+    groups= nu.require(groups,dtype=nu.float64,requirements=['C','W'])
     xamp_tmp= nu.require(xamp,dtype=nu.float64,requirements=['C','W'])
     xmean_tmp= nu.require(xmean,dtype=nu.float64,requirements=['C','W'])
     xcovar_tmp= nu.require(xcovar,dtype=nu.float64,requirements=['C','W'])
@@ -454,6 +468,8 @@ def extreme_deconvolution(ydata,ycovar,
                  projection,
                  logweights,
                  assignments,
+                 groups,
+                 ctypes.c_int(len(groups)),
                  ctypes.c_int(ndata),
                  ctypes.c_int(dataDim),
                  xamp_tmp,
@@ -483,9 +499,10 @@ def extreme_deconvolution(ydata,ycovar,
     if f_cont[2]: projection= nu.asfortranarray(projection)
     if f_cont[3]: logweights= nu.asfortranarray(logweights)
     if f_cont[4]: assignments= nu.asfortranarray(assignments)
-    if f_cont[5]: xamp_tmp=  nu.asfortranarray(xamp_tmp)
-    if f_cont[6]: xmean_tmp=  nu.asfortranarray(xmean_tmp)
-    if f_cont[7]: xcovar_tmp=  nu.asfortranarray(xcovar_tmp)
+    if f_cont[5]: groups= nu.asfortranarray(groups)
+    if f_cont[6]: xamp_tmp=  nu.asfortranarray(xamp_tmp)
+    if f_cont[7]: xmean_tmp=  nu.asfortranarray(xmean_tmp)
+    if f_cont[8]: xcovar_tmp=  nu.asfortranarray(xcovar_tmp)
 
     xamp[0:ngauss]= xamp_tmp
     xmean[0:ngauss,0:gaussDim]= xmean_tmp
