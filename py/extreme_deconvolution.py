@@ -402,14 +402,14 @@ def extreme_deconvolution(ydata,ycovar,
     else:
         assignments = assignments.astype(nu.float64)
     if groups is None:
-        groups = nu.ones((1, ngauss), dtype=nu.float64)  # no multiplication i.e. no groupings
+        groups = nu.ones((1, ngauss), dtype=nu.float64) * -1  # no multiplication i.e. no groupings
     else:
         # turn groups into a multiplier for alphas (their relative ratio with the group should remain the same)
         groups = groups.astype(nu.float64)
         for g in range(len(groups)):
             groups[g] = nu.where(groups[g] > 0, xamp, 0) / xamp[groups[g] > 0].sum()
-    if nu.any(nu.sum(groups > 0, axis=0) != 1):
-        raise ValueError(f"A Gaussian can only belong to 1 group at a time")
+        if nu.any(nu.sum(groups > 0, axis=0) != 1):
+            raise ValueError(f"A Gaussian can only belong to 1 group at a time")
     ndarrayFlags= ('C_CONTIGUOUS','WRITEABLE')
     exdeconvFunc= _lib.proj_gauss_mixtures_IDL
     exdeconvFunc.argtypes = [ndpointer(dtype=nu.float64,flags=ndarrayFlags),

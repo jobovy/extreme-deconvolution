@@ -305,28 +305,42 @@ void proj_EM_step(struct datapoint * data, int N,
     gaussians -= K;
   }
   // normalise groups - within each group:
-    double group_weight;
-    double tmpa;
-    for (int gg = 0; gg != ngroups; ++gg) {
-        double group_sum = 0;
-        double alpha_sum = 0;
-        for (int kk = 0; kk != K; ++kk) {
-            group_weight = gsl_matrix_get(groups, gg, kk);
-            group_sum += group_weight;
-            tmpa = (gaussians++)->alpha;
-            if (group_weight > 0){
-                alpha_sum += tmpa;
+    if (gsl_matrix_get(groups, 0, 0) > -1) {
+        double group_weight;
+        for (int gg = 0; gg != ngroups; ++gg) {
+            double group_sum = 0;
+            double alpha_sum = 0;
+            for (int kk = 0; kk != K; ++kk) {
+                group_weight = gsl_matrix_get(groups, gg, kk);
+                group_sum += group_weight;
+                if (group_weight > 0) {
+                    alpha_sum += gaussians->alpha;;
+                }
+                ++gaussians;
             }
-        }
-        gaussians -= K;
-        for (int kk = 0; kk != K; ++kk) {
-            if (*(fixamp++) == false) {
-                (gaussians++)->alpha = gsl_matrix_get(groups, gg, kk) / group_sum * alpha_sum;
+            gaussians -= K;
+            for (int kk = 0; kk != K; ++kk) {
+                group_weight = gsl_matrix_get(groups, gg, kk);
+                if (*(fixamp++) == false) {
+                    if (group_weight > 0) {
+                        gaussians->alpha = group_weight / group_sum * alpha_sum;
+                    }
+                }
+                ++gaussians;
             }
+            gaussians -= K;
+            fixamp -= K;
         }
-        gaussians -= K;
-        fixamp -= K;
     }
+//    double alpha_sum = 0;
+//    for (int kk = 0; kk != K; ++kk) {
+//        alpha_sum += (gaussians++)->alpha;
+//    }
+//    gaussians -= K;
+//    for (int kk = 0; kk != K; ++kk) {
+//        (gaussians++)->alpha /= alpha_sum;
+//    }
+//    gaussians -= K;
 
   //gettimeofday(&end,NULL);
   //double diff, diff1, diff2, diff3, diff4, diff5,diff6;
