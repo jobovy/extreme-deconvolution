@@ -12,7 +12,7 @@ jobs:
     strategy:
       matrix:
         python-version: [3.7,3.8,3.9,"3.10"]
-        compiler: [gcc,clang]
+        compiler: [gcc]
     env:
       PYTHON_COVREPORTS_VERSION: 3.9
     steps:
@@ -30,9 +30,6 @@ jobs:
          sudo make -C lcov-1.14/ install
     - name: Install Python dependencies
       run: pip install --upgrade --upgrade-strategy eager numpy scipy matplotlib setuptools
-    - name: Link to OpenMP library for clang
-      if: matrix.compiler == 'clang'
-      run: echo "LD_LIBRARY_PATH=/usr/local/clang/lib" >> $GITHUB_ENV
     - name: Install package
       env:
         CC: ${{ matrix.compiler }}
