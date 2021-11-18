@@ -31,7 +31,8 @@ jobs:
     - name: Install Python dependencies
       run: pip install --upgrade --upgrade-strategy eager numpy scipy matplotlib setuptools
     - name: Link to OpenMP library for clang
-      run: echo "LD_LIBRARY_PATH=$(if [[ $CC == "clang" ]]; then echo -n '/usr/local/clang/lib'; fi)" >> $GITHUB_ENV
+      if: matrix.compiler == 'clang'
+      run: echo "LD_LIBRARY_PATH=/usr/local/clang/lib" >> $GITHUB_ENV
     - name: Install package
       env:
         CC: ${{ matrix.compiler }}
