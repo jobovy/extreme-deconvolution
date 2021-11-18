@@ -47,7 +47,7 @@ jobs:
       working-directory: tests    
       if: ${{ matrix.python-version == env.PYTHON_COVREPORTS_VERSION }} 
       run: |
-        lcov --capture --directory $HOME/build/jobovy/extreme-deconvolution/src/ --no-external --output-file coverage.info
+        lcov --capture --directory ../src/ --no-external --output-file coverage.info
     - name: Upload coverage reports to codecov
       if: ${{ matrix.python-version == env.PYTHON_COVREPORTS_VERSION }}
       uses: codecov/codecov-action@v2
