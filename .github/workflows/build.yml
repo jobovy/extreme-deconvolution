@@ -38,6 +38,7 @@ jobs:
         make COVERAGE=1
         sudo make install
         make pywrapper
+        echo "PYTHONPATH=$(echo $PYTHONPATH:$PWD/py)" >> $GITHUB_ENV
     - name: Test with pytest
       run: |
         pip install pytest pytest-cov
@@ -50,5 +51,3 @@ jobs:
     - name: Upload coverage reports to codecov
       if: ${{ matrix.python-version == env.PYTHON_COVREPORTS_VERSION }}
       uses: codecov/codecov-action@v2
-      with:
-        directory: tests
