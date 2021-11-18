@@ -44,10 +44,9 @@ jobs:
         export PYTHONPATH=$PYTHONPATH:$PWD/../py
         pytest -v test_oned.py test_twod.py test_fix.py test_log.py --cov=extreme_deconvolution --cov-config ../.coveragerc_travis --cov-report=term --cov-report=xml
     - name: Generate code coverage
-      working-directory: tests    
       if: ${{ matrix.python-version == env.PYTHON_COVREPORTS_VERSION }} 
       run: |
-        lcov --capture --directory ../src/ --no-external --output-file coverage.info
+        lcov --capture --directory src/ --no-external --output-file tests/coverage.info
     - name: Upload coverage reports to codecov
       if: ${{ matrix.python-version == env.PYTHON_COVREPORTS_VERSION }}
       uses: codecov/codecov-action@v2
