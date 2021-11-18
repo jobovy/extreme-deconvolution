@@ -26,8 +26,8 @@ jobs:
     - name: Install lcov
       run: |
          wget http://downloads.sourceforge.net/ltp/lcov-1.14.tar.gz
-         tar xf lcov-1.14.tar.gz
-         sudo make -C lcov-1.14/ install
+         tar xf lcov-1.11.tar.gz
+         sudo make -C lcov-1.11/ install
     - name: Install Python dependencies
       run: pip install --upgrade --upgrade-strategy eager numpy scipy matplotlib setuptools
     - name: Install package
@@ -47,7 +47,7 @@ jobs:
       working-directory: tests
       if: ${{ matrix.python-version == env.PYTHON_COVREPORTS_VERSION }} 
       run: |
-        lcov --capture --base-directory .. --directory /home/runner/work/extreme-deconvolution/extreme-deconvolution/src/ --no-external --output-file coverage.info
+        lcov --capture --directory /home/runner/work/extreme-deconvolution/extreme-deconvolution/src/ --no-external --output-file coverage.info
     - name: Upload coverage reports to codecov
       if: ${{ matrix.python-version == env.PYTHON_COVREPORTS_VERSION }}
       uses: codecov/codecov-action@v2
