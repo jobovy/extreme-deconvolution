@@ -30,6 +30,8 @@ jobs:
     - name: Install Python dependencies
       run: pip install --upgrade --upgrade-strategy eager numpy scipy matplotlib setuptools
     - name: Install package
+      env:
+        CFLAGS: -pthread -Wno-unused-result -Wsign-compare -DNDEBUG -g -fwrapv -O3 -Wall -fPIC
       run: |
         make COVERAGE=1
         make install INSTALL_DIR=/home/runner/work/extreme-deconvolution/extreme-deconvolution/
