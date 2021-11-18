@@ -25,7 +25,7 @@ jobs:
       run: sudo apt-get install libgsl-dev        
     - name: Install lcov
       run: |
-         wget http://downloads.sourceforge.net/ltp/lcov-1.14.tar.gz
+         wget http://downloads.sourceforge.net/ltp/lcov-1.11.tar.gz
          tar xf lcov-1.11.tar.gz
          sudo make -C lcov-1.11/ install
     - name: Install Python dependencies
