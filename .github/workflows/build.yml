@@ -31,7 +31,7 @@ jobs:
       run: pip install --upgrade --upgrade-strategy eager numpy scipy matplotlib setuptools
     - name: Install package
       env:
-        CC: gcc-8
+        CC: gcc-10
       run: |
         $CC --version
         make COVERAGE=1
