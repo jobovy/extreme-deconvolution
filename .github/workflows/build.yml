@@ -31,7 +31,6 @@ jobs:
       run: pip install --upgrade --upgrade-strategy eager numpy scipy matplotlib setuptools
     - name: Install package
       run: |
-        $CC --version
         make COVERAGE=1
         sudo make install
         make pywrapper
