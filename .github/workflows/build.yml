@@ -34,8 +34,8 @@ jobs:
         CFLAGS: -pthread -Wno-unused-result -Wsign-compare -DNDEBUG -g -fwrapv -O3 -Wall -fPIC
       run: |
         make COVERAGE=1
-        make install INSTALL_DIR=/home/runner/work/extreme-deconvolution/extreme-deconvolution/
-        make pywrapper INSTALL_DIR=/home/runner/work/extreme-deconvolution/extreme-deconvolution/
+        make install INSTALL_DIR=/home/runner/work/extreme-deconvolution/extreme-deconvolution/src/
+        make pywrapper INSTALL_DIR=/home/runner/work/extreme-deconvolution/extreme-deconvolution/src/
         mv py spy # py gives difficulty
         echo "PYTHONPATH=$(echo $PYTHONPATH:$PWD/spy)" >> $GITHUB_ENV
     - name: Test with pytest
