@@ -32,8 +32,8 @@ jobs:
     - name: Install package
       run: |
         make COVERAGE=1
-        sudo make install
-        make pywrapper
+        make install INSTALL_DIR=./
+        make pywrapper INSTALL_DIR=./
         mv py spy # py gives difficulty
         echo "PYTHONPATH=$(echo $PYTHONPATH:$PWD/spy)" >> $GITHUB_ENV
     - name: Test with pytest
