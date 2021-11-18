@@ -9,10 +9,11 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    compiler: gcc
+    gcc: 8
     strategy:
       matrix:
         python-version: [3.7,3.8,3.9,"3.10"]
-        compiler: [gcc]
     env:
       PYTHON_COVREPORTS_VERSION: 3.9
     steps:
