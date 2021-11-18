@@ -38,7 +38,8 @@ jobs:
         make COVERAGE=1
         sudo make install
         make pywrapper
-        echo "PYTHONPATH=$(echo $PYTHONPATH:$PWD/py)" >> $GITHUB_ENV
+        mv py spy # py gives difficulty
+        echo "PYTHONPATH=$(echo $PYTHONPATH:$PWD/spy)" >> $GITHUB_ENV
     - name: Test with pytest
       run: |
         pip install pytest pytest-cov
