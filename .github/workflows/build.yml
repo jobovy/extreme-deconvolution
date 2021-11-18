@@ -30,8 +30,6 @@ jobs:
     - name: Install Python dependencies
       run: pip install --upgrade --upgrade-strategy eager numpy scipy matplotlib setuptools
     - name: Install package
-      env:
-        CC: gcc-10
       run: |
         $CC --version
         make COVERAGE=1
@@ -42,11 +40,11 @@ jobs:
     - name: Test with pytest
       run: |
         pip install pytest pytest-cov
-        export PYTHONPATH=$PYTHONPATH:$PWD/py
         pytest -v tests/test_oned.py tests/test_twod.py tests/test_fix.py tests/test_log.py --cov=extreme_deconvolution --cov-config .coveragerc_travis --cov-report=term --cov-report=xml
     - name: Generate code coverage
       if: ${{ matrix.python-version == env.PYTHON_COVREPORTS_VERSION }} 
       run: |
+        ls src
         lcov --capture --base-directory . --directory src/ --no-external --output-file coverage.info
     - name: Upload coverage reports to codecov
       if: ${{ matrix.python-version == env.PYTHON_COVREPORTS_VERSION }}
