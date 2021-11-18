@@ -9,8 +9,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    compiler: gcc
-    gcc: 8
     strategy:
       matrix:
         python-version: [3.7,3.8,3.9,"3.10"]
@@ -33,7 +31,7 @@ jobs:
       run: pip install --upgrade --upgrade-strategy eager numpy scipy matplotlib setuptools
     - name: Install package
       env:
-        CC: ${{ matrix.compiler }}
+        CC: gcc-8
       run: |
         $CC --version
         make COVERAGE=1
