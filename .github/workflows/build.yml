@@ -20,22 +20,16 @@ jobs:
       uses: actions/setup-python@v1
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Set up GCC
-      run: |
-        sudo apt-get update
-        sudo apt-get install gcc-7
     - name: Install the GSL
       run: sudo apt-get install libgsl-dev        
     - name: Install lcov
       run: |
-         wget http://downloads.sourceforge.net/ltp/lcov-1.11.tar.gz
-         tar xf lcov-1.11.tar.gz
-         sudo make -C lcov-1.11/ install
+         wget http://downloads.sourceforge.net/ltp/lcov-1.14.tar.gz
+         tar xf lcov-1.14.tar.gz
+         sudo make -C lcov-1.14/ install
     - name: Install Python dependencies
       run: pip install --upgrade --upgrade-strategy eager numpy scipy matplotlib setuptools
     - name: Install package
-      env:
-        CC: gcc-7
       run: |
         make COVERAGE=1
         sudo make install
@@ -49,7 +43,6 @@ jobs:
     - name: Generate code coverage
       if: ${{ matrix.python-version == env.PYTHON_COVREPORTS_VERSION }} 
       run: |
-        ls src
         lcov --capture --base-directory . --directory /home/runner/work/extreme-deconvolution/extreme-deconvolution/src/ --no-external --output-file tests/coverage.info
     - name: Upload coverage reports to codecov
       if: ${{ matrix.python-version == env.PYTHON_COVREPORTS_VERSION }}
