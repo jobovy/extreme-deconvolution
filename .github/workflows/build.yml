@@ -23,7 +23,7 @@ jobs:
     - name: Set up GCC
       run: |
         sudo apt-get update
-        sudo apt-get install gcc-6
+        sudo apt-get install gcc-7
     - name: Install the GSL
       run: sudo apt-get install libgsl-dev        
     - name: Install lcov
