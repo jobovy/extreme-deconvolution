@@ -46,7 +46,7 @@ jobs:
       working-directory: tests
       run: |
         pip install pytest pytest-cov
-        pytest -v test_oned.py test_twod.py test_fix.py test_log.py --cov=extreme_deconvolution --cov-config .coveragerc_travis --cov-report=term --cov-report=xml
+        pytest -v test_oned.py test_twod.py test_fix.py test_log.py --cov=extreme_deconvolution --cov-config ../.coveragerc_travis --cov-report=term --cov-report=xml
     - name: Generate code coverage
       if: ${{ matrix.python-version == env.PYTHON_COVREPORTS_VERSION }} 
       run: |
