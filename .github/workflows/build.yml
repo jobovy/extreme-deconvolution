@@ -35,7 +35,7 @@ jobs:
       run: pip install --upgrade --upgrade-strategy eager numpy scipy matplotlib setuptools
     - name: Install package
       env:
-        CFLAGS: -pthread -Wno-unused-result -Wsign-compare -DNDEBUG -g -fwrapv -O3 -Wall -fPIC
+        CC: gcc-7
       run: |
         make COVERAGE=1
         sudo make install
