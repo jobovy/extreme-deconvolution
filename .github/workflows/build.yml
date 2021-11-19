@@ -1,0 +1,51 @@
+name: build
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: '0 20 * * 2'
+    
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.7,3.8,3.9,"3.10"]
+    env:
+      PYTHON_COVREPORTS_VERSION: 3.9
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install the GSL
+      run: sudo apt-get install libgsl-dev        
+    - name: Install lcov
+      run: |
+         wget http://downloads.sourceforge.net/ltp/lcov-1.14.tar.gz
+         tar xf lcov-1.14.tar.gz
+         sudo make -C lcov-1.14/ install
+    - name: Install Python dependencies
+      run: pip install --upgrade --upgrade-strategy eager numpy scipy matplotlib setuptools
+    - name: Install package
+      run: |
+        make COVERAGE=1
+        sudo make install
+        make pywrapper
+        echo "PYTHONPATH=$(echo $PYTHONPATH:$PWD/py)" >> $GITHUB_ENV
+    - name: Test with pytest
+      working-directory: tests
+      run: |
+        pip install pytest pytest-cov
+        pytest -v test_oned.py test_twod.py test_fix.py test_log.py --cov=extreme_deconvolution --cov-config ../.coveragerc_travis --cov-report=term --cov-report=xml
+    - name: Generate code coverage
+      if: ${{ matrix.python-version == env.PYTHON_COVREPORTS_VERSION }} 
+      run: |
+        lcov --capture --base-directory . --directory /home/runner/work/extreme-deconvolution/extreme-deconvolution/src/ --no-external --output-file tests/coverage.info
+    - name: Upload coverage reports to codecov
+      if: ${{ matrix.python-version == env.PYTHON_COVREPORTS_VERSION }}
+      uses: codecov/codecov-action@v2
+      with:
+        directory: tests
