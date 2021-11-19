@@ -6,8 +6,6 @@ Extreme Deconvolution (XD)
 .. image:: https://github.com/jobovy/extreme-deconvolution/actions/workflows/build.yml/badge.svg
    :target: https://github.com/jobovy/extreme-deconvolution/actions/workflows/build.yml
    
-.. image:: http://codecov.io/github/jobovy/extreme-deconvolution/coverage.svg?branch=master
-   :target: http://codecov.io/github/jobovy/extreme-deconvolution?branch=master
 Summary
 ---------
 
