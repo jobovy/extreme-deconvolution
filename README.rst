@@ -26,7 +26,7 @@ News
 
 * **2011/01/29**: The code now has multiprocessing support using OpenMP and is automatically compiled with OpenMP. Use the environment variable OMP_NUM_THREADS to control the number of threads used. Only available in the `trunk <http://code.google.com/p/extreme-deconvolution/source/browse/trunk>`__ at this time. If you want to compile the code without OpenMP, remove the -fopenmp references in the Makefile and copy the src/_omp.h file to src/omp.h.
 
-* **2010/06/11**: Some `addons <https://github.com/jobovy/extreme-deconvolution/tree/master/addons>`__ were added: Use these small IDL programs to use the output from the core extreme-deconvolution code (e.g., calculate uncertainties on the best-fit parameters, calculate membership probabilities, perform a KS test with these membership probabilities). Download them `here <http://extreme-deconvolution.googlecode.com/files/extreme-deconvolution-addons_1.0.tar.gz>`__ or check-out the code.
+* **2010/06/11**: Some `addons <https://github.com/jobovy/extreme-deconvolution/tree/main/addons>`__ were added: Use these small IDL programs to use the output from the core extreme-deconvolution code (e.g., calculate uncertainties on the best-fit parameters, calculate membership probabilities, perform a KS test with these membership probabilities). Download them `here <http://extreme-deconvolution.googlecode.com/files/extreme-deconvolution-addons_1.0.tar.gz>`__ or check-out the code.
 
 * **2010/04/01**: The "weight" option was added to give the data points different weights in the calculation of the log likelihood (log likelihood = weight `*` log p(data|model) ). Only available in the `trunk <http://code.google.com/p/extreme-deconvolution/source/browse/trunk>`__ at this time.
 
@@ -46,7 +46,7 @@ Get the latest version by checking out the git repository:
 
 or download it using the big green button above the file listing above. 
 
-(note that downloading and installing the latest released version under the 'releases' tab is *not* recommended, as this version is out-of-date; please install the latest master version instead)
+(note that downloading and installing the latest released version under the 'releases' tab is *not* recommended, as this version is out-of-date; please install the latest `main`` version instead)
 
 Installation
 ------------
