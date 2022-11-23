@@ -10,8 +10,8 @@ ifeq ($(CC),)
   CC=gcc
 endif
 
-EDCFLAGS:= $(CFLAGS) -fopenmp
-EDLDFLAGS:= $(LDFLAGS) -fopenmp
+EDCFLAGS:= $(CFLAGS) -fopenmp -fcommon
+EDLDFLAGS:= $(LDFLAGS) -fopenmp -fcommon
 
 ifeq ($(ARCH),UNDEFINED)
 	ARCH=$(shell uname -m)
