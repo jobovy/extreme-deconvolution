@@ -46,7 +46,7 @@ jobs:
         lcov --capture --base-directory . --directory /home/runner/work/extreme-deconvolution/extreme-deconvolution/src/ --no-external --output-file tests/coverage.info
     - name: Upload coverage reports to codecov
       if: ${{ matrix.python-version == env.PYTHON_COVREPORTS_VERSION }}
-      uses: codecov/codecov-action@v4
+      uses: codecov/codecov-action@v5
       with:
         directory: tests
         token: ${{ secrets.CODECOV_TOKEN }}
